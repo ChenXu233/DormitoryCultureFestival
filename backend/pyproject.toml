@@ -3,12 +3,17 @@ name = "backend"
 version = "0.1.0"
 description = "Default template for PDM package"
 authors = [
-    {name = "XuChenXu", email = "91937041+ChenXu233@users.noreply.github.com"},
+    { name = "XuChenXu", email = "91937041+ChenXu233@users.noreply.github.com" },
 ]
-dependencies = []
+dependencies = [
+    "fastapi>=0.121.2",
+    "uvicorn[standard]>=0.38.0",
+    "sqlalchemy>=2.0.44",
+    "pydantic-settings>=2.12.0",
+]
 requires-python = ">=3.13"
 readme = "README.md"
-license = {text = "MIT"}
+license = { text = "MIT" }
 
 [build-system]
 requires = ["pdm-backend"]
@@ -17,3 +22,6 @@ build-backend = "pdm.backend"
 
 [tool.pdm]
 distribution = true
+
+[tool.pdm.scripts]
+dev = "uvicorn src.backend:app --reload"
