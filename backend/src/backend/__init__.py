@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .wordcloud import router as wordcloud_router
+from .router.wordcloud import router as wordcloud_router
 from .router.quiz import router as quiz_router
 
 

@@ -81,7 +81,6 @@
         type="range"
         min="50"
         max="150"
-        value="100"
         v-model.number="textScale"
         class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
         @input="updateTextScale"

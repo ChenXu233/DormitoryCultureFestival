@@ -217,6 +217,8 @@
 </template>
 
 <script setup lang="ts">
+import CONFIG from '../config/config'
+const API_BASE_URL = CONFIG.apiBaseUrl
 // 设置页面元信息
 useSeoMeta({
   title: '室友默契度答题 - 宿舍文化节',
@@ -275,7 +277,7 @@ const formatTime = (seconds: number) => {
 const startQuiz = async () => {
   try {
     // 获取题目
-    const response = await $fetch('/api/quiz/questions?count=5')
+    const response = await $fetch(`${API_BASE_URL}/api/quiz/questions?count=5`)
     questions.value = response
     quizStarted.value = true
     
@@ -326,7 +328,7 @@ const submitQuiz = async () => {
       submitted_at: new Date().toISOString()
     }
 
-    const response = await $fetch('/api/quiz/submit', {
+    const response = await $fetch(`${API_BASE_URL}/api/quiz/submit`, {
       method: 'POST',
       body: submission
     })

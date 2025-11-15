@@ -1,35 +1,19 @@
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel, Field
-from datetime import datetime
-from typing import List, Optional
 import json
 import os
-
-# 创建路由器
-router = APIRouter(prefix="/api/wordcloud", tags=["wordcloud"])
-
-
-# 数据模型
-class WordCloudEntry(BaseModel):
-    words: List[str] = Field(..., min_items=1, max_items=10)
-    theme: Optional[dict] = Field(default_factory=dict)
-    created_at: datetime = Field(default_factory=datetime.now)
-    session_id: Optional[str] = None
+from datetime import datetime
+from typing import List, Optional
+from ..schema.wordcloud import WordCloudEntry
 
 
-class WordCloudResponse(BaseModel):
-    id: str
-    words: List[dict]
-    created_at: datetime
-
-
-# 简单的存储实现（生产环境应该使用数据库）
 class WordCloudStorage:
+    """词云数据存储类"""
+
     def __init__(self):
         self.storage_file = "wordcloud_data.json"
         self.data = self._load_data()
 
     def _load_data(self):
+        """加载词云数据"""
         try:
             if os.path.exists(self.storage_file):
                 with open(self.storage_file, "r", encoding="utf-8") as f:
@@ -39,6 +23,7 @@ class WordCloudStorage:
         return {"entries": [], "word_frequencies": {}}
 
     def _save_data(self):
+        """保存词云数据到文件"""
         try:
             with open(self.storage_file, "w", encoding="utf-8") as f:
                 json.dump(self.data, f, ensure_ascii=False, default=str)
@@ -46,6 +31,7 @@ class WordCloudStorage:
             print(f"保存词云数据失败: {e}")
 
     def add_entry(self, entry: WordCloudEntry) -> str:
+        """添加词云条目"""
         # 生成简单的ID
         entry_id = f"wc_{datetime.now().timestamp()}"
 
@@ -72,6 +58,7 @@ class WordCloudStorage:
         return entry_id
 
     def get_all_word_frequencies(self) -> List[dict]:
+        """获取所有词频数据"""
         # 转换词频数据为前端需要的格式
         return [
             {"text": word, "value": freq}
@@ -79,14 +66,12 @@ class WordCloudStorage:
         ]
 
     def get_entry_by_id(self, entry_id: str) -> Optional[dict]:
+        """根据ID获取词云条目"""
         for entry in self.data["entries"]:
             if entry["id"] == entry_id:
                 return entry
         return None
 
-
-# 初始化存储
-wordcloud_storage = WordCloudStorage()
 
 # 预设词汇列表
 PRESET_WORDS = [
@@ -142,45 +127,6 @@ PRESET_WORDS = [
     "勇敢",
 ]
 
-# API路由
 
-
-@router.post("/save", response_model=dict)
-def save_wordcloud_entry(entry: WordCloudEntry):
-    """保存用户的词云选择"""
-    try:
-        entry_id = wordcloud_storage.add_entry(entry)
-        return {"id": entry_id, "message": "词云数据已保存"}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"保存失败: {str(e)}")
-
-
-@router.get("/global", response_model=List[dict])
-def get_global_wordcloud():
-    """获取全局词云数据（基于所有用户的选择）"""
-    try:
-        word_frequencies = wordcloud_storage.get_all_word_frequencies()
-        # 如果还没有数据，返回预设词汇作为示例
-        if not word_frequencies:
-            return [
-                {"text": word, "value": 10 + i % 20}
-                for i, word in enumerate(PRESET_WORDS[:20])
-            ]
-        return word_frequencies
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"获取失败: {str(e)}")
-
-
-@router.get("/words", response_model=List[str])
-def get_preset_words():
-    """获取预设的词汇列表"""
-    return PRESET_WORDS
-
-
-@router.get("/entry/{entry_id}", response_model=Optional[dict])
-def get_wordcloud_entry(entry_id: str):
-    """根据ID获取特定的词云条目"""
-    entry = wordcloud_storage.get_entry_by_id(entry_id)
-    if not entry:
-        raise HTTPException(status_code=404, detail="词云条目不存在")
-    return entry
+# 初始化存储实例
+wordcloud_storage = WordCloudStorage()

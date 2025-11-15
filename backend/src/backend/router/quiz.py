@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from typing import List, Dict, Any
 from datetime import datetime
 import random
-from ..model.quiz import QuizQuestion, QuizSubmission, MatchResult, DormitoryMatchStats
+from ..schema.quiz import QuizQuestion, QuizSubmission, MatchResult, DormitoryMatchStats
 
 router = APIRouter(prefix="/quiz", tags=["答题模块"])
 

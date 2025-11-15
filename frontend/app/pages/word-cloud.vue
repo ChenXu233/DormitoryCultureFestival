@@ -163,7 +163,8 @@ import WordCloudSelector from '../components/WordCloudSelector.vue'
 import WordCloudThemeSelector from '../components/WordCloudThemeSelector.vue'
 
 // API基础URL
-const API_BASE_URL = 'http://localhost:8000'
+import CONFIG from '../config/config'
+const API_BASE_URL = CONFIG.apiBaseUrl
 
 // Refs
 const wordCloudRef = ref<InstanceType<typeof WordCloud>>()

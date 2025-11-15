@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-purple-50 to-pink-100 py-8">
+  <div class="min-h-screen bg-linear-to-br from-purple-50 to-pink-100 py-8">
     <div class="max-w-4xl mx-auto px-4">
       <!-- 页面标题 -->
       <div class="text-center mb-8">
@@ -19,39 +19,39 @@
             <input 
               v-model="searchQuery"
               type="text" 
-              placeholder="搜索寝室编号..."
+              placeholder="搜索姓名或寝室编号..."
               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             />
           </div>
           <div class="flex gap-2">
             <button 
-              @click="sortBy = 'average_score'; sortOrder = 'desc'"
               :class="[
                 'px-4 py-2 rounded-lg border transition-colors duration-200',
-                sortBy === 'average_score' 
+                sortBy === 'match_percentage' 
                   ? 'bg-purple-600 text-white border-purple-600' 
                   : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
               ]"
+              @click="sortBy = 'match_percentage'; sortOrder = 'desc'"
             >
-              按平均分
+              按匹配度
             </button>
             <button 
-              @click="sortBy = 'total_participants'; sortOrder = 'desc'"
               :class="[
                 'px-4 py-2 rounded-lg border transition-colors duration-200',
-                sortBy === 'total_participants' 
+                sortBy === 'matched_count' 
                   ? 'bg-purple-600 text-white border-purple-600' 
                   : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
               ]"
+              @click="sortBy = 'matched_count'; sortOrder = 'desc'"
             >
-              按参与人数
+              按匹配题数
             </button>
           </div>
         </div>
 
         <!-- 排行榜列表 -->
         <div v-if="loading" class="text-center py-8">
-          <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+          <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"/>
           <p class="text-gray-600 mt-2">加载中...</p>
         </div>
 
@@ -68,11 +68,11 @@
           <!-- 前三名特殊样式 -->
           <div 
             v-for="(item, index) in filteredLeaderboard" 
-            :key="item.dormitory_id"
+            :key="item.participant_name + item.target_roommate"
             :class="[
               'p-6 rounded-lg border transition-all duration-200',
               index < 3 
-                ? 'bg-gradient-to-r shadow-lg' 
+                ? 'bg-linear-to-r shadow-lg' 
                 : 'bg-white border-gray-200 hover:shadow-md'
             ]"
             :style="{
@@ -80,7 +80,7 @@
             }"
           >
             <div class="flex items-center justify-between">
-              <!-- 排名和寝室信息 -->
+              <!-- 排名和用户信息 -->
               <div class="flex items-center space-x-4">
                 <!-- 排名徽章 -->
                 <div 
@@ -91,27 +91,27 @@
                     index === 2 ? 'bg-orange-500' : 'bg-gray-300'
                   ]"
                 >
-                  {{ index + 1 }}
+                  {{ item.rank }}
                 </div>
                 
-                <!-- 寝室信息 -->
+                <!-- 用户信息 -->
                 <div>
                   <h3 class="text-xl font-semibold" :class="index < 3 ? 'text-white' : 'text-gray-800'">
-                    {{ item.dormitory_id }} 寝室
+                    {{ item.participant_name }} ↔ {{ item.target_roommate }}
                   </h3>
                   <p :class="index < 3 ? 'text-white text-opacity-90' : 'text-gray-600'">
-                    {{ item.total_participants }} 人参与，{{ item.total_submissions }} 次答题
+                    {{ item.dormitory_id }} 寝室 · {{ item.match_level }}
                   </p>
                 </div>
               </div>
 
-              <!-- 分数信息 -->
+              <!-- 匹配度信息 -->
               <div class="text-right">
                 <div :class="['text-2xl font-bold', index < 3 ? 'text-white' : 'text-purple-600']">
-                  {{ item.average_score }} 分
+                  {{ item.match_percentage }}%
                 </div>
                 <div :class="index < 3 ? 'text-white text-opacity-90' : 'text-gray-600'">
-                  平均分
+                  匹配度
                 </div>
               </div>
             </div>
@@ -119,8 +119,8 @@
             <!-- 进度条 -->
             <div class="mt-4">
               <div class="flex justify-between text-sm mb-1" :class="index < 3 ? 'text-white text-opacity-90' : 'text-gray-600'">
-                <span>默契度</span>
-                <span>{{ Math.round((item.average_score / 5) * 100) }}%</span>
+                <span>匹配题数</span>
+                <span>{{ item.matched_count }} / {{ item.total_questions }}</span>
               </div>
               <div class="w-full bg-gray-200 rounded-full h-2">
                 <div 
@@ -130,8 +130,8 @@
                     index === 1 ? 'bg-gray-400' :
                     index === 2 ? 'bg-orange-500' : 'bg-purple-500'
                   ]"
-                  :style="{ width: Math.min((item.average_score / 5) * 100, 100) + '%' }"
-                ></div>
+                  :style="{ width: Math.min((item.matched_count / item.total_questions) * 100, 100) + '%' }"
+                />
               </div>
             </div>
           </div>
@@ -141,16 +141,16 @@
       <!-- 统计信息 -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
         <div class="bg-white rounded-xl shadow-lg p-6 text-center">
-          <div class="text-3xl font-bold text-purple-600 mb-2">{{ totalDormitories }}</div>
-          <div class="text-gray-600">参与寝室</div>
+          <div class="text-3xl font-bold text-purple-600 mb-2">{{ totalPairs }}</div>
+          <div class="text-gray-600">测试组合</div>
         </div>
         <div class="bg-white rounded-xl shadow-lg p-6 text-center">
-          <div class="text-3xl font-bold text-green-600 mb-2">{{ totalParticipants }}</div>
-          <div class="text-gray-600">总参与人数</div>
+          <div class="text-3xl font-bold text-green-600 mb-2">{{ averageMatchPercentage }}%</div>
+          <div class="text-gray-600">平均匹配度</div>
         </div>
         <div class="bg-white rounded-xl shadow-lg p-6 text-center">
-          <div class="text-3xl font-bold text-blue-600 mb-2">{{ totalSubmissions }}</div>
-          <div class="text-gray-600">总答题次数</div>
+          <div class="text-3xl font-bold text-blue-600 mb-2">{{ highestMatchPercentage }}%</div>
+          <div class="text-gray-600">最高匹配度</div>
         </div>
       </div>
 
@@ -177,7 +177,7 @@
 // 设置页面元信息
 useSeoMeta({
   title: '室友默契度排行榜 - 宿舍文化节',
-  description: '查看各寝室的默契度排名，看看哪个寝室最了解彼此'
+  description: '查看个人匹配度排名，看看谁和室友最默契'
 })
 
 // 页面配置
@@ -189,7 +189,7 @@ definePageMeta({
 const leaderboard = ref<any[]>([])
 const loading = ref(true)
 const searchQuery = ref('')
-const sortBy = ref('average_score')
+const sortBy = ref('match_percentage')
 const sortOrder = ref('desc')
 
 // 计算筛选后的排行榜
@@ -199,6 +199,8 @@ const filteredLeaderboard = computed(() => {
   // 搜索筛选
   if (searchQuery.value) {
     filtered = filtered.filter(item => 
+      item.participant_name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      item.target_roommate.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
       item.dormitory_id.toLowerCase().includes(searchQuery.value.toLowerCase())
     )
   }
@@ -216,13 +218,16 @@ const filteredLeaderboard = computed(() => {
 })
 
 // 统计信息
-const totalDormitories = computed(() => leaderboard.value.length)
-const totalParticipants = computed(() => 
-  leaderboard.value.reduce((sum, item) => sum + item.total_participants, 0)
-)
-const totalSubmissions = computed(() => 
-  leaderboard.value.reduce((sum, item) => sum + item.total_submissions, 0)
-)
+const totalPairs = computed(() => leaderboard.value.length)
+const averageMatchPercentage = computed(() => {
+  if (leaderboard.value.length === 0) return 0
+  const total = leaderboard.value.reduce((sum, item) => sum + item.match_percentage, 0)
+  return Math.round(total / leaderboard.value.length)
+})
+const highestMatchPercentage = computed(() => {
+  if (leaderboard.value.length === 0) return 0
+  return Math.max(...leaderboard.value.map(item => item.match_percentage))
+})
 
 // 获取排名渐变背景
 const getRankGradient = (index: number) => {
@@ -243,7 +248,7 @@ const loadLeaderboard = async () => {
   try {
     loading.value = true
     const response = await $fetch('/api/quiz/leaderboard')
-    leaderboard.value = response.leaderboard || []
+    leaderboard.value = response || []
   } catch (error) {
     console.error('加载排行榜失败:', error)
     leaderboard.value = []
