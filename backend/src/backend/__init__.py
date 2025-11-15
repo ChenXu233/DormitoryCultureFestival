@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .wordcloud import router as wordcloud_router
+from .router.quiz import router as quiz_router
 
 
 def create_app() -> FastAPI:
@@ -27,6 +28,9 @@ def create_app() -> FastAPI:
 
     # 包含词云路由
     app.include_router(wordcloud_router)
+
+    # 包含答题模块路由
+    app.include_router(quiz_router)
 
     return app
 
