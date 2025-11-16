@@ -26,6 +26,15 @@
             通过答题来推断你的个人特质，完成后将获得4位唯一代码用于特质匹配
           </p>
 
+          <!-- 参与者名称输入（可选） -->
+          <div class="mb-4">
+            <input
+              v-model="participantName"
+              type="text"
+              placeholder="请输入你的姓名（可选)"
+              class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-200">
+          </div>
+
           <!-- 开始测试按钮 -->
           <button 
             class="px-12 py-4 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors duration-200 text-lg"
@@ -55,23 +64,15 @@
           
           <!-- 选项列表 -->
           <div class="space-y-3">
-            <button
-              v-for="(option, index) in currentQuestion.options"
-              :key="index"
+            <button v-for="(option, index) in currentQuestion.options" :key="index"
               :class="[
                 'w-full text-left px-4 py-3 border rounded-lg transition-colors duration-200',
-                selectedAnswer === index 
-                  ? 'border-green-500 bg-green-50 text-green-700' 
-                  : 'border-gray-300 hover:border-green-300 hover:bg-green-50'
+                selectedAnswer === index ? 'border-green-500 bg-green-50 text-green-700' : 'border-gray-300 hover:border-green-300 hover:bg-green-50'
               ]"
-              @click="selectAnswer(index)"
-            >
+              @click="selectAnswer(index)">
               <div class="flex items-center">
-                <span
-class="w-6 h-6 rounded-full border-2 flex items-center justify-center mr-3"
-                      :class="selectedAnswer === index ? 'border-green-500 bg-green-500 text-white' : 'border-gray-400'">
-                  {{ String.fromCharCode(65 + index) }}
-                </span>
+                <span class="w-6 h-6 rounded-full border-2 flex items-center justify-center mr-3"
+                      :class="selectedAnswer === index ? 'border-green-500 bg-green-500 text-white' : 'border-gray-400'">{{ String.fromCharCode(65 + index) }}</span>
                 <span>{{ option }}</span>
               </div>
             </button>
@@ -129,8 +130,14 @@ class="w-6 h-6 rounded-full border-2 flex items-center justify-center mr-3"
               </div>
             </div>
             
-            <!-- 特质展示 -->
-            <div v-if="result.traits" class="mt-6">
+            <!-- 雷达图与特质展示 -->
+              <div class="mt-6">
+                <client-only>
+                  <RadarChart v-if="result.radar_data" :radar-data="result.radar_data"></RadarChart>
+                </client-only>
+
+                <!-- 特质展示 -->
+                <div v-if="result.traits" class="mt-6">
               <h3 class="text-lg font-semibold text-gray-800 mb-4">你的主要特质：</h3>
               <div class="grid grid-cols-2 gap-3">
                 <div 
@@ -181,10 +188,12 @@ class="w-6 h-6 rounded-full border-2 flex items-center justify-center mr-3"
       </div>
     </div>
   </div>
+  </div>
 </template>
 
 <script setup lang="ts">
 import CONFIG from '../config/config'
+import RadarChart from '../components/RadarChart.vue'
 const API_BASE_URL = CONFIG.apiBaseUrl
 // 设置页面元信息
 useSeoMeta({
@@ -201,6 +210,9 @@ definePageMeta({
 const quizStarted = ref(false)
 const quizCompleted = ref(false)
 
+// 参与者名称（可选）
+const participantName = ref<string | null>(null)
+
 // 题目相关
 const questions = ref<any[]>([])
 const currentQuestionIndex = ref(0)
@@ -215,8 +227,10 @@ let timer: NodeJS.Timeout | null = null
 const result = ref({
   unique_code: '',
   traits: {} as Record<string, string>,
+  trait_scores: {} as Record<string, Record<string, number>>,
+  radar_data: { dimensions: [] as string[], scores: [] as number[], max_score: 100 },
   message: '',
-  time_spent: 0
+  time_spent: 0,
 })
 
 // 计算当前问题
@@ -235,7 +249,7 @@ const formatTime = (seconds: number) => {
 const startQuiz = async () => {
   try {
     // 获取所有题目
-    const response = await $fetch(`${API_BASE_URL}/api/quiz/questions`)
+    const response = await $fetch(`${API_BASE_URL}/api/quiz/questions`) as any
     questions.value = response
     quizStarted.value = true
     
@@ -260,7 +274,7 @@ const selectAnswer = (index: number) => {
 const previousQuestion = () => {
   if (currentQuestionIndex.value > 0) {
     currentQuestionIndex.value--
-    selectedAnswer.value = parseInt(answers.value[currentQuestion.value.id] ?? null)
+    selectedAnswer.value = parseInt(answers.value[currentQuestion.value.id] ?? '0')
   }
 }
 
@@ -268,7 +282,7 @@ const previousQuestion = () => {
 const nextQuestion = async () => {
   if (currentQuestionIndex.value < questions.value.length - 1) {
     currentQuestionIndex.value++
-    selectedAnswer.value = parseInt(answers.value[currentQuestion.value.id] ?? null)
+    selectedAnswer.value = parseInt(answers.value[currentQuestion.value.id] ?? '0')
   } else {
     // 提交答案
     await submitQuiz()
@@ -279,14 +293,15 @@ const nextQuestion = async () => {
 const submitQuiz = async () => {
   try {
     const submission = {
+      participant_name: participantName.value,
       answers: answers.value,
-      submitted_at: new Date().toISOString()
+      submitted_at: new Date().toISOString(),
     }
 
     const response = await $fetch(`${API_BASE_URL}/api/quiz/submit`, {
       method: 'POST',
       body: submission
-    })
+    }) as any
 
     result.value = response
     quizCompleted.value = true

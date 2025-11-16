@@ -3,7 +3,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from typing import Dict, Optional, Any
 from datetime import datetime
 
-from backend.database import Base
+from ..database import Base
 
 
 class QuizResult(Base):
