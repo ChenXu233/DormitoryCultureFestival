@@ -88,28 +88,7 @@
             to="/word-cloud" 
             class="inline-block w-full bg-purple-600 hover:bg-purple-700 text-white text-center py-2 px-4 rounded-md transition-colors duration-200"
           >
-            开始匹配
-          </NuxtLink>
-        </div>
-
-        <!-- 桌面搭建功能卡片 -->
-        <div class="bg-white rounded-xl shadow-lg p-8">
-          <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg class="w-8 h-8 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/>
-            </svg>
-          </div>
-          <h2 class="text-xl font-semibold text-gray-800 mb-2">
-            寝室桌面搭建
-          </h2>
-          <p class="text-gray-600 mb-6">
-            拖拽元素到桌面上，打造你理想的寝室桌面
-          </p>
-          <NuxtLink 
-            to="/desktop-builder" 
-            class="w-full bg-orange-600 hover:bg-orange-700 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200 inline-block"
-          >
-            开始搭建
+            开始体验
           </NuxtLink>
         </div>
       </div>
