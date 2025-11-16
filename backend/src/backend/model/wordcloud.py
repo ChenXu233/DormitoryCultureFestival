@@ -17,10 +17,14 @@ class WordCloudStorage:
         try:
             if os.path.exists(self.storage_file):
                 with open(self.storage_file, "r", encoding="utf-8") as f:
-                    return json.load(f)
+                    data = json.load(f)
+                    # 兼容旧版本数据格式，确保有word_frequencies字段
+                    if "word_frequencies" not in data:
+                        data["word_frequencies"] = {}
+                    return data
         except Exception as e:
             print(f"加载词云数据失败: {e}")
-        return {"entries": [], "word_frequencies": {}}
+        return {"word_frequencies": {}}
 
     def _save_data(self):
         """保存词云数据到文件"""
@@ -31,10 +35,7 @@ class WordCloudStorage:
             print(f"保存词云数据失败: {e}")
 
     def add_entry(self, entry: WordCloudEntry) -> str:
-        """添加词云条目"""
-        # 生成简单的ID
-        entry_id = f"wc_{datetime.now().timestamp()}"
-
+        """添加词云条目 - 只更新词频统计，不保存具体条目"""
         # 更新词频统计
         for word in entry.words:
             if word in self.data["word_frequencies"]:
@@ -42,20 +43,9 @@ class WordCloudStorage:
             else:
                 self.data["word_frequencies"][word] = 1
 
-        # 保存条目
-        self.data["entries"].append(
-            {
-                "id": entry_id,
-                "words": entry.words,
-                "theme": entry.theme,
-                "created_at": entry.created_at.isoformat(),
-                "session_id": entry.session_id,
-            }
-        )
-
         # 保存到文件
         self._save_data()
-        return entry_id
+        return "success"
 
     def get_all_word_frequencies(self) -> List[dict]:
         """获取所有词频数据"""
@@ -66,10 +56,7 @@ class WordCloudStorage:
         ]
 
     def get_entry_by_id(self, entry_id: str) -> Optional[dict]:
-        """根据ID获取词云条目"""
-        for entry in self.data["entries"]:
-            if entry["id"] == entry_id:
-                return entry
+        """根据ID获取词云条目 - 已弃用，不再保存具体条目"""
         return None
 
 

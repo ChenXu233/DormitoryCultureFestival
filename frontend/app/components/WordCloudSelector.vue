@@ -2,10 +2,21 @@
   <div class="word-cloud-selector">
     <h3 class="text-lg font-medium mb-4">选择描述室友特质的词汇（最多10个）</h3>
     
+    <!-- 加载状态 -->
+    <div v-if="loading" class="mb-4 text-center">
+      <div class="inline-block w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+      <p class="text-sm text-gray-500 mt-2">正在加载词汇列表...</p>
+    </div>
+    
+    <!-- 错误提示 -->
+    <div v-if="error" class="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
+      <p class="text-sm text-red-600">{{ error }}</p>
+    </div>
+    
     <!-- 词汇标签组 -->
-    <div class="flex flex-wrap gap-2 mb-4">
+    <div v-if="!loading" class="flex flex-wrap gap-2 mb-4">
       <button
-        v-for="word in words"
+        v-for="word in displayWords"
         :key="word.text"
         :class="[
           'px-3 py-1.5 rounded-full text-sm transition-all duration-200',
@@ -65,84 +76,72 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-
+import { ref, computed, onMounted } from 'vue'
+import  CONFIG  from '../config/config'
 // Props
 interface Props {
   words?: Array<{ text: string; value?: number }>
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  words: () => [
-    // 预设50+个描述室友特质的词汇
-    { text: '友善' },
-    { text: '幽默' },
-    { text: '责任心' },
-    { text: '细心' },
-    { text: '热情' },
-    { text: '开朗' },
-    { text: '善解人意' },
-    { text: '聪明' },
-    { text: '勤奋' },
-    { text: '乐观' },
-    { text: '诚实' },
-    { text: '正直' },
-    { text: '可靠' },
-    { text: '慷慨' },
-    { text: '耐心' },
-    { text: '积极' },
-    { text: '理性' },
-    { text: '感性' },
-    { text: '稳重' },
-    { text: '活泼' },
-    { text: '冷静' },
-    { text: '外向' },
-    { text: '内向' },
-    { text: '独立' },
-    { text: '合作' },
-    { text: '创新' },
-    { text: '踏实' },
-    { text: '细心' },
-    { text: '有条理' },
-    { text: '整洁' },
-    { text: '爱干净' },
-    { text: '有趣' },
-    { text: '健谈' },
-    { text: '安静' },
-    { text: '乐于助人' },
-    { text: '善解人意' },
-    { text: '有同理心' },
-    { text: '有爱心' },
-    { text: '有正义感' },
-    { text: '有创造力' },
-    { text: '有领导力' },
-    { text: '有团队精神' },
-    { text: '有毅力' },
-    { text: '有耐心' },
-    { text: '有幽默感' },
-    { text: '有品味' },
-    { text: '有活力' },
-    { text: '温柔' },
-    { text: '坚强' },
-    { text: '勇敢' }
-  ]
+  words: () => []
 })
+
+// API基础URL
+const API_BASE_URL = CONFIG.apiBaseUrl
 
 // Emits
 const emit = defineEmits<{
-  (e: 'confirm', words: string[]): void
-  (e: 'selectionChange', words: string[]): void
+  (e: 'confirm' | 'selectionChange', words: string[]): void
 }>()
 
 // 响应式数据
 const selectedWords = ref<string[]>([])
+const presetWords = ref<string[]>([])
+const loading = ref(false)
+const error = ref<string | null>(null)
 
 // 计算属性
 const isSelected = (word: string) => {
   return selectedWords.value.includes(word)
 }
 
+// 获取显示的词汇列表（优先使用props传入的词汇，否则使用从后端获取的预设词汇）
+const displayWords = computed(() => {
+  if (props.words && props.words.length > 0) {
+    return props.words
+  }
+  return presetWords.value.map(word => ({ text: word }))
+})
+
 // 方法
+const fetchPresetWords = async () => {
+  try {
+    loading.value = true
+    error.value = null
+    const response = await fetch(`${API_BASE_URL}/api/wordcloud/words`)
+    if (response.ok) {
+      const data = await response.json()
+      presetWords.value = data
+    } else {
+      error.value = '获取预设词汇失败'
+    }
+  } catch (err) {
+    console.error('获取预设词汇失败:', err)
+    error.value = '网络连接失败，请检查后端服务是否运行'
+    // 使用默认词汇作为后备
+    presetWords.value = [
+      '友善', '幽默', '责任心', '细心', '热情', '开朗', '善解人意', '聪明', '勤奋', '乐观',
+      '诚实', '正直', '可靠', '慷慨', '耐心', '积极', '理性', '感性', '稳重', '活泼',
+      '冷静', '外向', '内向', '独立', '合作', '创新', '踏实', '有条理', '整洁', '爱干净',
+      '有趣', '健谈', '安静', '乐于助人', '有同理心', '有爱心', '有正义感', '有创造力',
+      '有领导力', '有团队精神', '有毅力', '有幽默感', '有品味', '有活力', '温柔', '坚强', '勇敢'
+    ]
+  } finally {
+    loading.value = false
+  }
+}
+
 const toggleSelection = (word: string) => {
   const index = selectedWords.value.indexOf(word)
   if (index > -1) {
@@ -178,11 +177,20 @@ const emitSelectionChange = () => {
   emit('selectionChange', [...selectedWords.value])
 }
 
+// 组件挂载时自动获取预设词汇
+onMounted(() => {
+  // 只有当没有通过props传入词汇时才从后端获取
+  if (!props.words || props.words.length === 0) {
+    fetchPresetWords()
+  }
+})
+
 // 导出方法供父组件调用
 defineExpose({
   selectedWords,
   clearAll,
-  toggleSelection
+  toggleSelection,
+  fetchPresetWords
 })
 </script>
 

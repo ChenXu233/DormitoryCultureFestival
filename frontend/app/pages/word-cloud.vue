@@ -15,7 +15,7 @@
             <WordCloudSelector 
               ref="selectorRef"
               @confirm="handleWordSelectionConfirm"
-              @selectionChange="handleWordSelectionChange"
+              @selection-change="handleWordSelectionChange"
             />
           </div>
         </div>
@@ -81,7 +81,6 @@
             <WordCloud 
               ref="wordCloudRef"
               :words="wordCloudData"
-              :theme="wordCloudTheme"
               @rendered="handleWordCloudRendered"
             />
             
@@ -93,16 +92,12 @@
             
             <!-- 全局词云加载状态 -->
             <div v-if="activeTab === 'global' && loading" class="text-center py-16 text-gray-500">
-              <div class="mb-4 w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+              <div class="mb-4 w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto"/>
               <p>加载全局词云数据中...</p>
             </div>
           </div>
           
-          <!-- 词云主题设置 -->
-          <WordCloudThemeSelector 
-            v-model="themeSettings"
-            @change="handleThemeChange"
-          />
+
         </div>
       </div>
     </div>
@@ -121,7 +116,7 @@
             :src="shareImageUrl" 
             alt="词云分享" 
             class="w-full rounded border border-gray-200"
-          />
+          >
         </div>
         <div class="mb-4">
           <label class="block text-sm font-medium text-gray-700 mb-1">分享链接</label>
@@ -130,7 +125,7 @@
             :value="shareUrl" 
             readonly 
             class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-          />
+          >
         </div>
         <div class="flex gap-2">
           <button 
@@ -160,7 +155,6 @@
 import { ref, reactive, computed, nextTick, onMounted } from 'vue'
 import WordCloud from '../components/WordCloud.vue'
 import WordCloudSelector from '../components/WordCloudSelector.vue'
-import WordCloudThemeSelector from '../components/WordCloudThemeSelector.vue'
 
 // API基础URL
 import CONFIG from '../config/config'
@@ -181,7 +175,6 @@ const shareUrl = ref('')
 const showToast = ref(false)
 const toastMessage = ref('')
 const activeTab = ref<'personal' | 'global'>('personal')
-const presetWords = ref<string[]>([])
 
 // 主题设置
 const themeSettings = reactive({
@@ -191,22 +184,6 @@ const themeSettings = reactive({
   textScale: 100
 })
 
-// 词云主题数据
-const wordCloudTheme = computed(() => {
-  const themes = {
-    default: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'],
-    blue: ['#3b82f6', '#60a5fa', '#93c5fd', '#bfdbfe', '#dbeafe'],
-    green: ['#10b981', '#34d399', '#6ee7b7', '#a7f3d0', '#d1fae5'],
-    warm: ['#f59e0b', '#fbbf24', '#fcd34d', '#fde68a', '#fef3c7'],
-    purple: ['#8b5cf6', '#a78bfa', '#c4b5fd', '#ddd6fe', '#ede9fe'],
-    pastel: ['#fca5a5', '#f9a8d4', '#c4b5fd', '#93c5fd', '#6ee7b7']
-  }
-  
-  return {
-    bgColor: themeSettings.bgColor,
-    colors: themes[themeSettings.colorTheme as keyof typeof themes] || themes.default
-  }
-})
 
 // 当前显示的词云数据
 const wordCloudData = computed(() => {
@@ -255,17 +232,7 @@ const fetchGlobalWordCloud = async () => {
   }
 }
 
-const fetchPresetWords = async () => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/wordcloud/words`)
-    if (response.ok) {
-      const data = await response.json()
-      presetWords.value = data
-    }
-  } catch (error) {
-    console.error('获取预设词汇失败:', error)
-  }
-}
+// 移除fetchPresetWords函数，因为WordCloudSelector组件现在会自动获取预设词汇
 
 const saveWordCloudSelection = async (words: string[]) => {
   try {
@@ -283,13 +250,13 @@ const saveWordCloudSelection = async (words: string[]) => {
     })
     
     if (response.ok) {
-      const data = await response.json()
-      return data.id
+      await response.json()
+      return true
     }
   } catch (error) {
     console.error('保存词云选择失败:', error)
   }
-  return null
+  return false
 }
 
 // 方法
@@ -302,9 +269,9 @@ const handleWordSelectionConfirm = async (words: string[]) => {
   
   // 保存到后端
   if (words.length > 0) {
-    const entryId = await saveWordCloudSelection(words)
-    if (entryId) {
-      showToastMessage('词云选择已保存')
+    const success = await saveWordCloudSelection(words)
+    if (success) {
+      showToastMessage('词频统计已更新')
       // 重新获取全局词云数据
       fetchGlobalWordCloud()
     }
@@ -315,18 +282,14 @@ const handleWordSelectionConfirm = async (words: string[]) => {
   })
 }
 
-const handleThemeChange = (theme: any) => {
-  nextTick(() => {
-    wordCloudRef.value?.generateWordCloud()
-  })
-}
+
 
 const handleWordCloudRendered = () => {
   wordCloudGenerated.value = true
 }
 
 const downloadWordCloud = () => {
-  if (!wordCloudRef.value || !process.client) return
+  if (!wordCloudRef.value || !import.meta.client) return
   
   const canvas = document.querySelector('canvas')
   if (canvas) {
@@ -347,7 +310,7 @@ const downloadWordCloud = () => {
 }
 
 const shareWordCloud = async () => {
-  if (!wordCloudRef.value || !process.client) return
+  if (!wordCloudRef.value || !import.meta.client) return
   
   const canvas = document.querySelector('canvas')
   if (canvas) {
@@ -367,7 +330,7 @@ const shareWordCloud = async () => {
 }
 
 const copyShareUrl = () => {
-  if (!process.client) return
+  if (!import.meta.client) return
   
   navigator.clipboard.writeText(shareUrl.value)
     .then(() => {
@@ -395,7 +358,7 @@ const switchTab = (tab: 'personal' | 'global') => {
 
 // 页面加载时检查URL参数，恢复词汇选择
 const initFromUrl = () => {
-  if (!process.client) return
+  if (!import.meta.client) return
   
   const params = new URLSearchParams(window.location.search)
   const tabParam = params.get('tab')
@@ -421,7 +384,6 @@ const initFromUrl = () => {
 // 组件挂载时初始化
 onMounted(async () => {
   initFromUrl()
-  await fetchPresetWords()
   await fetchGlobalWordCloud()
   
   // 数据加载完成后生成词云

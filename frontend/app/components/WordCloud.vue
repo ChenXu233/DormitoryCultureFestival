@@ -7,13 +7,13 @@
       :style="{ backgroundColor: theme.bgColor }"
     >
       <!-- 词云画布 -->
-      <canvas ref="canvasRef" class="max-w-full max-h-full"></canvas>
+      <canvas ref="canvasRef" class="max-w-full max-h-full"/>
     </div>
     
     <!-- 加载状态 -->
     <div v-if="loading" class="absolute inset-0 flex items-center justify-center bg-white/80">
       <div class="text-center">
-        <div class="mb-2 w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+        <div class="mb-2 w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto"/>
         <p>生成词云中...</p>
       </div>
     </div>
@@ -33,7 +33,7 @@ import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
 
 // 只在客户端导入wordcloud库
 let WordCloud: any = null
-if (process.client) {
+if (import.meta.client) {
   import('wordcloud').then(module => {
     WordCloud = module.default || module
   })
@@ -41,7 +41,7 @@ if (process.client) {
 
 // Props
 interface Props {
-  words: Array<{ text: string; value: number }>
+  words?: Array<{ text: string; value: number }>
   theme?: {
     bgColor?: string
     colors?: string[]
@@ -78,57 +78,66 @@ const generateWordCloud = async () => {
   loading.value = true
   
   try {
-    await nextTick()
-    
-    // 获取容器尺寸
-    const containerWidth = wordcloudContainer.value.clientWidth
-    const containerHeight = wordcloudContainer.value.clientHeight
-    
-    // 设置canvas尺寸
-    if (canvasRef.value) {
-      canvasRef.value.width = containerWidth
-      canvasRef.value.height = containerHeight
-    }
-    
-    // 确保数据格式正确
-    const wordList = props.words.map(item => [item.text, item.value])
-    
-    const options = {
-      list: wordList,
-      gridSize: Math.round(16 * containerWidth / 1024),
-      weightFactor: (size: number) => {
-        // 根据词频调整词的大小
-        return Math.pow(size, 0.8) * containerWidth / 1024 * 15
-      },
-      fontFamily: '"Segoe UI", "Microsoft YaHei", sans-serif',
-      color: () => props.theme.colors[Math.floor(Math.random() * props.theme.colors.length)],
-      rotateRatio: 0.5,
-      rotationSteps: 2,
-      backgroundColor: props.theme.bgColor,
-      drawOutOfBound: false,
-      shrinkToFit: true,
-      shape: 'circle',
-      ellipticity: 0.65,
-      clearCanvas: true,
-      minSize: 10,
-      minRotation: -45,
-      maxRotation: 45
-    }
-    
-    // 使用canvas元素生成词云
-    if (canvasRef.value) {
-      WordCloud(canvasRef.value, options)
-    } else {
-      // 备用方案：使用容器元素
-      WordCloud(wordcloudContainer.value, options)
-    }
+      await nextTick()
+      
+      // 获取容器尺寸
+      const containerWidth = wordcloudContainer.value.clientWidth
+      const containerHeight = wordcloudContainer.value.clientHeight
+      
+      // 设置canvas尺寸
+      if (canvasRef.value) {
+        canvasRef.value.width = containerWidth
+        canvasRef.value.height = containerHeight
+      }
+      
+      // 首先按词频降序排序，确保大词先被放置，避免大词占据过多空间
+      const sortedWords = [...props.words].sort((a, b) => b.value - a.value)
+      
+      // 数据归一化处理
+      const values = sortedWords.map(item => item.value)
+      const maxValue = Math.max(...values)
+      const minValue = Math.min(...values)
+      const valueRange = maxValue - minValue || 1 // 避免除零错误
+      
+      // 确保数据格式正确并进行归一化
+      const wordList = sortedWords.map(item => {
+        // 将值归一化到1-100的范围，保持相对关系
+        const normalizedValue = 1 + ((item.value - minValue) / valueRange) * 99
+        return [item.text, normalizedValue]
+      })
+
+      const colors = props.theme.colors || ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6']
+      
+      const options = {
+        list: wordList,
+        gridSize: Math.round(16 * containerWidth / 1024),
+        weightFactor: (size: number) => {
+          return Math.pow(size, 0.7) * containerWidth / 1024 * 30
+        },
+        fontFamily: '"Microsoft YaHei", "Segoe UI", sans-serif', // 优先使用中文字体
+        color: () => colors[Math.floor(Math.random() * colors.length)],
+        rotateRatio: 0.3, // 减少旋转比例，提高中文可读性
+        backgroundColor: props.theme.bgColor,
+        drawOutOfBound: false,
+        shrinkToFit: true,
+        ellipticity: 0.65,
+        clearCanvas: true,
+      }
+      
+      // 使用canvas元素生成词云
+      if (canvasRef.value) {
+        WordCloud(canvasRef.value, options)
+      } else {
+        // 备用方案：使用容器元素
+        WordCloud(wordcloudContainer.value, options)
+      }
     
     emit('rendered')
   } catch (error) {
     console.error('词云生成失败:', error)
-    // 如果词云生成失败，显示错误信息
+    // 错误处理，避免引用作用域外的变量
     console.log('词云数据:', props.words)
-    console.log('词云选项:', options)
+    console.log('容器尺寸:', wordcloudContainer.value?.clientWidth, wordcloudContainer.value?.clientHeight)
   } finally {
     loading.value = false
   }
@@ -144,9 +153,15 @@ watch(() => props.theme, () => {
   generateWordCloud()
 }, { deep: true })
 
-// 组件挂载时生成词云
+// 窗口大小变化时重新生成词云
+const handleResize = () => {
+  generateWordCloud()
+}
+
+// 组件挂载时的初始化（合并为单个onMounted）
 onMounted(() => {
   isClient.value = true
+  
   // 如果WordCloud库已经加载，立即生成词云
   if (WordCloud) {
     generateWordCloud()
@@ -157,21 +172,15 @@ onMounted(() => {
       generateWordCloud()
     })
   }
-})
-
-// 窗口大小变化时重新生成词云
-const handleResize = () => {
-  generateWordCloud()
-}
-
-onMounted(() => {
-  if (process.client) {
+  
+  // 添加窗口大小变化监听
+  if (import.meta.client) {
     window.addEventListener('resize', handleResize)
   }
 })
 
 onUnmounted(() => {
-  if (process.client) {
+  if (import.meta.client) {
     window.removeEventListener('resize', handleResize)
   }
 })

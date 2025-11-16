@@ -16,7 +16,7 @@
         <div class="text-center">
           <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
             <svg class="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
           </div>
           <h2 class="text-2xl font-semibold text-gray-800 mb-4">
@@ -38,7 +38,7 @@
                   type="text" 
                   placeholder="例如：A101"
                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                />
+                >
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2 text-left">
@@ -49,7 +49,7 @@
                   type="text" 
                   placeholder="请输入你的姓名"
                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                />
+                >
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2 text-left">
@@ -60,14 +60,14 @@
                   type="text" 
                   placeholder="请输入你要测试默契度的室友姓名"
                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                />
+                >
               </div>
             </div>
             
             <button 
-              @click="startQuiz"
               :disabled="!dormitoryId || !participantName || !targetRoommate"
               class="w-full mt-6 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200"
+              @click="startQuiz"
             >
               开始答题
             </button>
@@ -97,16 +97,17 @@
             <button
               v-for="(option, index) in currentQuestion.options"
               :key="index"
-              @click="selectAnswer(index)"
               :class="[
                 'w-full text-left px-4 py-3 border rounded-lg transition-colors duration-200',
                 selectedAnswer === index 
                   ? 'border-green-500 bg-green-50 text-green-700' 
                   : 'border-gray-300 hover:border-green-300 hover:bg-green-50'
               ]"
+              @click="selectAnswer(index)"
             >
               <div class="flex items-center">
-                <span class="w-6 h-6 rounded-full border-2 flex items-center justify-center mr-3"
+                <span
+class="w-6 h-6 rounded-full border-2 flex items-center justify-center mr-3"
                       :class="selectedAnswer === index ? 'border-green-500 bg-green-500 text-white' : 'border-gray-400'">
                   {{ String.fromCharCode(65 + index) }}
                 </span>
@@ -119,15 +120,14 @@
         <!-- 导航按钮 -->
         <div class="flex justify-between">
           <button
-            @click="previousQuestion"
             :disabled="currentQuestionIndex === 0"
             class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+            @click="previousQuestion"
           >
             上一题
           </button>
           
           <button
-            @click="nextQuestion"
             :class="[
               'px-6 py-2 rounded-lg font-medium',
               selectedAnswer !== null 
@@ -135,6 +135,7 @@
                 : 'bg-gray-300 text-gray-500 cursor-not-allowed'
             ]"
             :disabled="selectedAnswer === null"
+            @click="nextQuestion"
           >
             {{ currentQuestionIndex === questions.length - 1 ? '提交答案' : '下一题' }}
           </button>
@@ -146,7 +147,7 @@
         <div class="text-center">
           <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
             <svg class="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
           </div>
           
@@ -192,8 +193,8 @@
           <!-- 操作按钮 -->
           <div class="flex flex-col sm:flex-row gap-4 justify-center">
             <button 
-              @click="restartQuiz"
               class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-200"
+              @click="restartQuiz"
             >
               重新答题
             </button>
