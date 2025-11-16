@@ -2,10 +2,24 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .router.wordcloud import router as wordcloud_router
 from .router.quiz import router as quiz_router
+from .database import init_db
+from contextlib import asynccontextmanager
+
+
+@asynccontextmanager
+async def lifepan(app: FastAPI):
+    # Initialize database or other startup tasks
+    await init_db()
+    try:
+        # yield control back to FastAPI so the app runs
+        yield
+    finally:
+        # Optional cleanup/shutdown logic can go here, e.g. closing DB connections
+        pass
 
 
 def create_app() -> FastAPI:
-    app = FastAPI(title="寝室文化节API", version="1.0.0")
+    app = FastAPI(title="寝室文化节API", version="1.0.0", lifespan=lifepan)
 
     # 配置CORS中间件，允许前端访问
     app.add_middleware(
@@ -27,10 +41,10 @@ def create_app() -> FastAPI:
         return {"status": "healthy"}
 
     # 包含词云路由
-    app.include_router(wordcloud_router)
+    app.include_router(wordcloud_router, prefix="/api")
 
     # 包含答题模块路由
-    app.include_router(quiz_router)
+    app.include_router(quiz_router, prefix="/api")
 
     return app
 

@@ -8,18 +8,11 @@ class AppConfig(BaseSettings):
     APP_NAME: str = "ChenXuBlog"
     LOG_LEVEL: str = "DEBUG"
     DEBUG: bool = False
-    DATABASE_URI: str = "sqlite+aiosqlite:///./data/database/blog.db"
+    DATABASE_URI: str = "sqlite+aiosqlite:///./data/database/db.db"
     IMG_PATH: Path = Path("./data/images")
     LOG_PATH: Path = Path("./logs")
     IMAGE_BED_PATH: Path = Path("./data/images")
     PORT: int = 8000
-    ACCESS_SECRET_KEY: str
-    REFRESH_SECRET_KEY: str
-    MAIL_USERNAME: str
-    MAIL_PASSWORD: str
-    MAIL_FROM: str
-    MAIL_PORT: int
-    MAIL_SERVER: str
 
     class Config:
         env_file = ".env"  # 指定 .env 文件路径

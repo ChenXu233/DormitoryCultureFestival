@@ -20,58 +20,19 @@
             </svg>
           </div>
           <h2 class="text-2xl font-semibold text-gray-800 mb-4">
-            开始答题
+            个人特质测试
           </h2>
-          <p class="text-gray-600 mb-6">
-            请填写基本信息，然后开始答题。题目将测试你对室友的了解程度。
+          <p class="text-gray-600 mb-8">
+            通过答题来推断你的个人特质，完成后将获得4位唯一代码用于特质匹配
           </p>
 
-          <!-- 基本信息表单 -->
-          <div class="max-w-md mx-auto">
-            <div class="space-y-4">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2 text-left">
-                  寝室编号
-                </label>
-                <input 
-                  v-model="dormitoryId"
-                  type="text" 
-                  placeholder="例如：A101"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                >
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2 text-left">
-                  你的姓名
-                </label>
-                <input 
-                  v-model="participantName"
-                  type="text" 
-                  placeholder="请输入你的姓名"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                >
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2 text-left">
-                  目标室友姓名
-                </label>
-                <input 
-                  v-model="targetRoommate"
-                  type="text" 
-                  placeholder="请输入你要测试默契度的室友姓名"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                >
-              </div>
-            </div>
-            
-            <button 
-              :disabled="!dormitoryId || !participantName || !targetRoommate"
-              class="w-full mt-6 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200"
-              @click="startQuiz"
-            >
-              开始答题
-            </button>
-          </div>
+          <!-- 开始测试按钮 -->
+          <button 
+            class="px-12 py-4 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors duration-200 text-lg"
+            @click="startQuiz"
+          >
+            开始测试
+          </button>
         </div>
       </div>
 
@@ -152,40 +113,45 @@ class="w-6 h-6 rounded-full border-2 flex items-center justify-center mr-3"
           </div>
           
           <h2 class="text-2xl font-semibold text-gray-800 mb-4">
-            答题完成！
+            特质测试完成！
           </h2>
           
-          <!-- 匹配度展示 -->
+          <!-- 唯一代码展示 -->
           <div class="max-w-md mx-auto mb-6">
             <div class="bg-gradient-to-r from-green-400 to-blue-500 rounded-lg p-8 text-white">
-              <div class="text-5xl font-bold mb-2">{{ result.match_percentage }}%</div>
-              <div class="text-lg">{{ result.match_level }}</div>
+              <div class="text-5xl font-bold mb-2">{{ result.unique_code }}</div>
+              <div class="text-lg">你的4位唯一代码</div>
             </div>
             
             <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
               <div class="text-blue-800 font-medium text-center">
-                {{ result.analysis }}
+                {{ result.message }}
               </div>
             </div>
             
-            <div class="grid grid-cols-3 gap-4 mt-6 text-center">
-              <div>
-                <div class="text-2xl font-bold text-green-600">{{ result.matched_count }}</div>
-                <div class="text-sm text-gray-600">匹配题数</div>
+            <!-- 特质展示 -->
+            <div v-if="result.traits" class="mt-6">
+              <h3 class="text-lg font-semibold text-gray-800 mb-4">你的主要特质：</h3>
+              <div class="grid grid-cols-2 gap-3">
+                <div 
+                  v-for="(trait, dimension) in result.traits" 
+                  :key="dimension"
+                  class="bg-gray-50 border border-gray-200 rounded-lg p-3 text-center"
+                >
+                  <div class="text-sm text-gray-600">{{ dimension }}</div>
+                  <div class="font-medium text-green-600">{{ trait }}</div>
+                </div>
               </div>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4 mt-6 text-center">
               <div>
-                <div class="text-2xl font-bold text-blue-600">{{ result.total_questions }}</div>
-                <div class="text-sm text-gray-600">总题数</div>
+                <div class="text-2xl font-bold text-green-600">{{ questions.length }}</div>
+                <div class="text-sm text-gray-600">答题数量</div>
               </div>
               <div>
                 <div class="text-2xl font-bold text-purple-600">{{ formatTime(result.time_spent) }}</div>
                 <div class="text-sm text-gray-600">用时</div>
-              </div>
-            </div>
-            
-            <div v-if="result.rank" class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-              <div class="text-yellow-800 font-medium text-center">
-                你在排行榜排名：第 {{ result.rank }} 名
               </div>
             </div>
           </div>
@@ -199,10 +165,10 @@ class="w-6 h-6 rounded-full border-2 flex items-center justify-center mr-3"
               重新答题
             </button>
             <NuxtLink 
-              to="/quiz-leaderboard"
+              to="/match"
               class="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors duration-200 text-center"
             >
-              查看排行榜
+              特质匹配
             </NuxtLink>
             <NuxtLink 
               to="/"
@@ -234,15 +200,12 @@ definePageMeta({
 // 答题状态
 const quizStarted = ref(false)
 const quizCompleted = ref(false)
-const dormitoryId = ref('')
-const participantName = ref('')
-const targetRoommate = ref('')
 
 // 题目相关
 const questions = ref<any[]>([])
 const currentQuestionIndex = ref(0)
 const selectedAnswer = ref<number | null>(null)
-const answers = ref<Record<number, number>>({})
+const answers = ref<Record<string, string>>({})
 
 // 计时器
 const elapsedTime = ref(0)
@@ -250,16 +213,10 @@ let timer: NodeJS.Timeout | null = null
 
 // 答题结果
 const result = ref({
-  participant_name: '',
-  dormitory_id: '',
-  target_roommate: '',
-  matched_count: 0,
-  total_questions: 0,
-  match_percentage: 0,
-  match_level: '',
-  analysis: '',
-  time_spent: 0,
-  rank: null as number | null
+  unique_code: '',
+  traits: {} as Record<string, string>,
+  message: '',
+  time_spent: 0
 })
 
 // 计算当前问题
@@ -277,8 +234,8 @@ const formatTime = (seconds: number) => {
 // 开始答题
 const startQuiz = async () => {
   try {
-    // 获取题目
-    const response = await $fetch(`${API_BASE_URL}/api/quiz/questions?count=5`)
+    // 获取所有题目
+    const response = await $fetch(`${API_BASE_URL}/api/quiz/questions`)
     questions.value = response
     quizStarted.value = true
     
@@ -296,14 +253,14 @@ const startQuiz = async () => {
 // 选择答案
 const selectAnswer = (index: number) => {
   selectedAnswer.value = index
-  answers.value[currentQuestion.value.id] = index
+  answers.value[currentQuestion.value.id] = index.toString()
 }
 
 // 上一题
 const previousQuestion = () => {
   if (currentQuestionIndex.value > 0) {
     currentQuestionIndex.value--
-    selectedAnswer.value = answers.value[currentQuestion.value.id] ?? null
+    selectedAnswer.value = parseInt(answers.value[currentQuestion.value.id] ?? null)
   }
 }
 
@@ -311,7 +268,7 @@ const previousQuestion = () => {
 const nextQuestion = async () => {
   if (currentQuestionIndex.value < questions.value.length - 1) {
     currentQuestionIndex.value++
-    selectedAnswer.value = answers.value[currentQuestion.value.id] ?? null
+    selectedAnswer.value = parseInt(answers.value[currentQuestion.value.id] ?? null)
   } else {
     // 提交答案
     await submitQuiz()
@@ -322,9 +279,6 @@ const nextQuestion = async () => {
 const submitQuiz = async () => {
   try {
     const submission = {
-      dormitory_id: dormitoryId.value,
-      participant_name: participantName.value,
-      target_roommate: targetRoommate.value,
       answers: answers.value,
       submitted_at: new Date().toISOString()
     }
@@ -358,9 +312,6 @@ const restartQuiz = () => {
   selectedAnswer.value = null
   answers.value = {}
   elapsedTime.value = 0
-  dormitoryId.value = ''
-  participantName.value = ''
-  targetRoommate.value = ''
 }
 
 // 组件卸载时清理计时器

@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List, Optional, Dict, Any
+from typing import Dict, List, Optional
 from datetime import datetime
 
 
@@ -9,39 +9,34 @@ class QuizQuestion(BaseModel):
     id: int
     question: str
     options: List[str]
-    category: str  # 问题分类，如：生活习惯、兴趣爱好等
+    traits: List[str]  # 关联的特质维度
 
 
 class QuizSubmission(BaseModel):
     """答题提交模型"""
 
-    dormitory_id: str  # 寝室ID
-    participant_name: str  # 参与者姓名
-    target_roommate: str  # 答题对象（哪个室友）
-    answers: Dict[int, int]  # 问题ID到答案索引的映射
-    submitted_at: datetime
+    participant_name: Optional[str] = None
+    answers: Dict[str, str]  # question_id: answer_index
+    submitted_at: datetime = None
+
+
+class TraitAnalysis(BaseModel):
+    """特质分析模型"""
+
+    traits: Dict[str, str]  # 维度: 主要特质
+    compatibility_score: int
+    match_analysis: List[str]
 
 
 class MatchResult(BaseModel):
-    """匹配度结果模型"""
+    """匹配结果模型"""
 
-    match_score: int  # 匹配度分数（0-100）
-    total_questions: int  # 总题数
-    matched_answers: int  # 匹配的答案数
-    match_percentage: float  # 匹配百分比
-    time_spent: int  # 用时（秒）
-    ranking: Optional[int] = None  # 排名
-    match_level: str  # 匹配等级
-    insights: List[str]  # 匹配度分析
-
-
-class DormitoryMatchStats(BaseModel):
-    """寝室匹配度统计"""
-
-    dormitory_id: str
-    total_participants: int
-    average_match_score: float
-    best_match_score: int
-    total_submissions: int
-    last_submission_time: datetime
-    match_rankings: Dict[str, int]  # 各参与者匹配度排名
+    code1: str
+    code2: str
+    participant1: str
+    participant2: str
+    compatibility_score: int
+    traits1: Dict[str, str]
+    traits2: Dict[str, str]
+    match_analysis: List[str]
+    message: str

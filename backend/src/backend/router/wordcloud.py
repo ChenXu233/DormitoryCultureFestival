@@ -5,7 +5,7 @@ from ..schema.wordcloud import WordCloudEntry
 
 
 # 创建路由器
-router = APIRouter(prefix="/api/wordcloud", tags=["wordcloud"])
+router = APIRouter(prefix="/wordcloud", tags=["wordcloud"])
 
 
 @router.post("/save", response_model=dict)
