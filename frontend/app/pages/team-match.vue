@@ -93,7 +93,8 @@
             <h3 class="text-lg font-semibold text-gray-800 mb-4">团队特质分析</h3>
             <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
               <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div v-for="(traitInfo, dimension) in matchResult.team_trait_analysis?.dominant_traits" :key="dimension"
+                <div
+v-for="(traitInfo, dimension) in matchResult.team_trait_analysis?.dominant_traits" :key="dimension"
                      class="text-center">
                   <div class="text-sm text-gray-600 mb-1">{{ dimension }}</div>
                   <div class="font-medium text-green-600">{{ traitInfo.trait }}</div>
@@ -107,7 +108,8 @@
           <div class="mt-8">
             <h3 class="text-lg font-semibold text-gray-800 mb-4">成员特质详情</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div v-for="member in matchResult.participants" :key="member.code" 
+              <div
+v-for="member in matchResult.participants" :key="member.code" 
                    class="bg-gray-50 border border-gray-200 rounded-lg p-4">
                 <h4 class="font-medium text-gray-800 mb-3">{{ member.name || `成员${member.code}` }}</h4>
                 <div class="space-y-2">
