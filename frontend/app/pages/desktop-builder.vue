@@ -49,21 +49,12 @@
 
       <!-- 中间画布区域 -->
       <div class="flex-1 flex flex-col">
-        <!-- 工具栏 -->
-        <div class="bg-white border-b p-4">
-          <DesktopBuilderToolbar 
-            :selected-element="selectedElement"
-            @element-update="onElementUpdate"
-            @delete-element="deleteElement"
-          />
-        </div>
-        
-        <!-- 画布 -->
-        <div class="flex-1 p-8 overflow-auto">
-          <DesktopBuilderCanvas 
+        <!-- 画布区域 -->
+        <div class="flex-1 p-4 overflow-auto">
+          <DesktopBuilder 
             ref="canvasRef"
             :elements="elements"
-            :background="currentBackground"
+            :background="currentBackground.color"
             :selected-element="selectedElement"
             @element-select="onElementSelect"
             @element-update="onElementUpdate"
@@ -130,8 +121,7 @@ definePageMeta({
 
 // 导入组件
 import ElementPanel from '~/components/ElementPanel.vue'
-import DesktopBuilderToolbar from '~/components/DesktopBuilder.vue'
-import DesktopBuilderCanvas from '~/components/DesktopBuilder.vue'
+import DesktopBuilder from '~/components/DesktopBuilder.vue'
 import BackgroundPanel from '~/components/BackgroundPanel.vue'
 import SaveSharePanel from '~/components/SaveSharePanel.vue'
 

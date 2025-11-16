@@ -160,6 +160,7 @@ const contextMenu = reactive({
   y: 0, 
   element: null as DesktopElement | null 
 })
+const background = ref(props.background)
 
 // 桌面元素
 const elements = ref<DesktopElement[]>(props.initialElements)
@@ -199,7 +200,7 @@ const onDrop = (event: DragEvent) => {
         rotation: 0,
         scale: 1,
         zIndex: elements.value.length + 1,
-        size: 2
+        size: elementData.size || 2 // 使用变体自带的大小，如果没有则默认为2
       }
       
       elements.value.push(newElement)
@@ -363,9 +364,19 @@ onUnmounted(() => {
   document.removeEventListener('click', closeContextMenu)
 })
 
+// 处理背景变化
+const onBackgroundChange = (newBackground: string) => {
+  background.value = newBackground
+}
+
 // 监听属性变化
 watch(() => props.initialElements, (newElements) => {
   elements.value = newElements
+}, { immediate: true })
+
+// 监听props中的背景变化
+watch(() => props.background, (newBg) => {
+  background.value = newBg
 }, { immediate: true })
 
 // 暴露方法给父组件
