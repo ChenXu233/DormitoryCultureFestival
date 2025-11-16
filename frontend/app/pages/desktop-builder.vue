@@ -14,14 +14,14 @@
           </div>
           <div class="flex items-center space-x-3">
             <button 
-              @click="resetCanvas"
               class="px-4 py-2 text-gray-600 hover:text-gray-800 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              @click="resetCanvas"
             >
               重置
             </button>
             <button 
-              @click="showSavePanel = true"
               class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+              @click="showSavePanel = true"
             >
               保存与分享
             </button>
@@ -38,8 +38,8 @@
           <!-- 背景选择面板 -->
           <BackgroundPanel 
             ref="backgroundPanelRef"
-            @background-change="onBackgroundChange"
             class="mb-6"
+            @background-change="onBackgroundChange"
           />
           
           <!-- 元素选择面板 -->
@@ -95,8 +95,8 @@
           <div class="flex items-center justify-between mb-4">
             <h3 class="text-xl font-semibold text-gray-900">保存与分享</h3>
             <button 
-              @click="showSavePanel = false"
               class="text-gray-400 hover:text-gray-600 transition-colors"
+              @click="showSavePanel = false"
             >
               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -118,6 +118,13 @@
 
 <script setup lang="ts">
 // 设置页面元信息
+// 导入组件
+import ElementPanel from '~/components/ElementPanel.vue'
+import DesktopBuilderToolbar from '~/components/DesktopBuilder.vue'
+import DesktopBuilderCanvas from '~/components/DesktopBuilder.vue'
+import BackgroundPanel from '~/components/BackgroundPanel.vue'
+import SaveSharePanel from '~/components/SaveSharePanel.vue'
+
 useSeoMeta({
   title: '寝室桌面搭建 - 宿舍文化节',
   description: '拖拽元素到桌面上，打造你理想的寝室桌面，支持旋转、缩放、层级排序等操作'
@@ -127,13 +134,6 @@ useSeoMeta({
 definePageMeta({
   layout: false
 })
-
-// 导入组件
-import ElementPanel from '~/components/ElementPanel.vue'
-import DesktopBuilderToolbar from '~/components/DesktopBuilder.vue'
-import DesktopBuilderCanvas from '~/components/DesktopBuilder.vue'
-import BackgroundPanel from '~/components/BackgroundPanel.vue'
-import SaveSharePanel from '~/components/SaveSharePanel.vue'
 
 // 响应式数据
 const elements = ref<any[]>([])

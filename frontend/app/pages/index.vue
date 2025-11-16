@@ -14,7 +14,8 @@
           </div>
           <div class="hidden md:flex items-center space-x-8">
             <NuxtLink to="/quiz" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">特质测试</NuxtLink>
-            <NuxtLink to="/match" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">特质匹配</NuxtLink>
+            <NuxtLink to="/match" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">双人匹配</NuxtLink>
+            <NuxtLink to="/team-match" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">团队匹配</NuxtLink>
             <NuxtLink to="/word-cloud" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">词云生成</NuxtLink>
             <NuxtLink to="/desktop-builder" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">桌面搭建</NuxtLink>
           </div>
@@ -55,20 +56,39 @@
           </NuxtLink>
         </div>
 
-        <!-- 特质匹配卡片 -->
+        <!-- 双人匹配卡片 -->
         <div class="bg-white border border-gray-200 rounded-xl p-8 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
           <div class="w-16 h-16 bg-green-100 rounded-xl flex items-center justify-center mb-6">
             <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
             </svg>
           </div>
-          <h3 class="text-xl font-semibold text-gray-900 mb-3">特质匹配</h3>
+          <h3 class="text-xl font-semibold text-gray-900 mb-3">双人匹配</h3>
           <p class="text-gray-600 text-sm mb-6">
-            输入两个4位代码，查看特质匹配度
+            输入两个4位代码，查看双人特质匹配度
           </p>
           <NuxtLink 
             to="/match" 
             class="inline-flex items-center justify-center w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-6 rounded-lg transition-all duration-200"
+          >
+            开始匹配
+          </NuxtLink>
+        </div>
+
+        <!-- 团队匹配卡片 -->
+        <div class="bg-white border border-gray-200 rounded-xl p-8 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+          <div class="w-16 h-16 bg-orange-100 rounded-xl flex items-center justify-center mb-6">
+            <svg class="w-8 h-8 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+            </svg>
+          </div>
+          <h3 class="text-xl font-semibold text-gray-900 mb-3">团队匹配</h3>
+          <p class="text-gray-600 text-sm mb-6">
+            输入四个4位代码，查看团队特质匹配度
+          </p>
+          <NuxtLink 
+            to="/team-match" 
+            class="inline-flex items-center justify-center w-full bg-orange-600 hover:bg-orange-700 text-white font-medium py-3 px-6 rounded-lg transition-all duration-200"
           >
             开始匹配
           </NuxtLink>
@@ -83,7 +103,7 @@
           </div>
           <h3 class="text-xl font-semibold text-gray-900 mb-3">词云生成</h3>
           <p class="text-gray-600 text-sm mb-6">
-            选择理想室友特质，生成专属词云
+            选择理想室友特质，生成非常好看的词云
           </p>
           <NuxtLink 
             to="/word-cloud" 

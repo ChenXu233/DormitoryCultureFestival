@@ -5,148 +5,204 @@ import random
 import string
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from ..schema.quiz import QuizQuestion, QuizSubmission, MatchResult
+from ..schema.quiz import (
+    QuizQuestion,
+    QuizSubmission,
+    MatchResult,
+    TeamMatchRequest,
+    TeamMatchResult,
+)
 from ..model.quiz import QuizResult
 from ..database import async_session
 
 router = APIRouter(prefix="/quiz", tags=["答题模块"])
 
-# 特质维度定义
+# 特质维度定义（根据MD文件中的对应维度）
 TRAIT_DIMENSIONS = {
-    "生活习惯": ["整洁", "随性", "规律", "灵活"],
-    "社交倾向": ["外向", "内向", "平衡", "选择性社交"],
-    "作息规律": ["早睡早起", "夜猫子", "规律作息", "弹性作息"],
-    "学习风格": ["独立学习", "小组学习", "视觉学习", "听觉学习"],
-    "娱乐偏好": ["安静活动", "户外活动", "社交活动", "创意活动"],
-    "饮食习惯": ["健康饮食", "随意饮食", "美食家", "简单饮食"],
-    "卫生习惯": ["高度整洁", "适度整洁", "随性", "注重细节"],
-    "沟通方式": ["直接沟通", "委婉沟通", "书面沟通", "行动沟通"],
+    "生活习惯": ["秩序执政官", "灵活适应者", "规律执行者", "随性自由者"],
+    "社交倾向": ["氛围感应炉", "外向活跃者", "内向安静者", "平衡调节者"],
+    "作息规律": ["生物钟协调员", "早睡早起者", "夜猫子", "弹性作息者"],
+    "学习风格": ["知识催化剂", "独立学习者", "小组学习者", "多元学习者"],
+    "娱乐偏好": ["快乐能量站", "安静活动者", "户外活动者", "社交活动者"],
+    "饮食习惯": ["味蕾合伙人", "健康饮食者", "美食探索者", "简单饮食者"],
+    "卫生习惯": ["空间美化师", "高度整洁者", "适度整洁者", "舒适导向者"],
+    "沟通方式": ["信号中继器", "直接沟通者", "委婉沟通者", "行动沟通者"],
 }
 
-# 题库数据 - 每个选项包含对预设特质的加分项（专业问卷风格）
+# 题库数据 - 每个选项包含对预设特质的加分项（趣味化问卷风格）
 QUIZ_QUESTIONS = [
     {
         "id": 1,
-        "question": "你通常如何度过周末？",
-        "options": ["宅在寝室休息", "和朋友外出聚会", "学习或工作", "参加户外活动"],
+        "question": "周末生存指南：你的首选模式是？",
+        "options": [
+            "A. 寝室宅神：床是我永远的恋人与战场，休息充电才是正经事。",
+            "B. 社交牛人：呼朋引伴，组局逛街干饭，电量在人群中满格！",
+            "C. 卷王出动：图书馆、自习室是我的主舞台，学业/事业才是周末的归宿。",
+            "D. 户外达人：拥抱自然，骑行爬山，用运动唤醒多巴胺。",
+        ],
         "traits": ["生活习惯", "社交倾向", "娱乐偏好"],
         "option_scores": [
-            {"生活习惯": {"规律": 2}, "娱乐偏好": {"安静活动": 2}},
+            {"生活习惯": {"规律执行者": 2}, "娱乐偏好": {"安静活动者": 2}},
             {
-                "生活习惯": {"灵活": 2},
-                "社交倾向": {"外向": 2},
-                "娱乐偏好": {"社交活动": 1},
+                "生活习惯": {"灵活适应者": 2},
+                "社交倾向": {"外向活跃者": 2},
+                "娱乐偏好": {"社交活动者": 1},
             },
-            {"生活习惯": {"规律": 1}, "学习风格": {"独立学习": 2}},
-            {"生活习惯": {"灵活": 1}, "娱乐偏好": {"户外活动": 2}},
+            {"生活习惯": {"规律执行者": 1}, "学习风格": {"独立学习者": 2}},
+            {"生活习惯": {"灵活适应者": 1}, "娱乐偏好": {"户外活动者": 2}},
         ],
     },
     {
         "id": 2,
-        "question": "你的学习习惯是怎样的？",
-        "options": ["独自安静学习", "喜欢小组讨论", "边听音乐边学习", "需要完全安静"],
+        "question": "期末破防时，你的复习姿势是？",
+        "options": [
+            "A. 孤独的王者：习惯单打独斗，一壶水一本书，一个人就是一支队伍。",
+            "B. 讨论区战神：必须和小伙伴一起，互相提问答疑，知识在碰撞中巩固。",
+            "C. BGM 爱好者：耳机一戴，谁都不爱，白噪音或音乐是专注的必备 BGM。",
+            "D. 绝对安静派：需要图书馆级别的静音环境，一点声响都会破功。",
+        ],
         "traits": ["学习风格", "生活习惯"],
         "option_scores": [
-            {"学习风格": {"独立学习": 2}, "生活习惯": {"规律": 1}},
-            {"学习风格": {"小组学习": 2}, "社交倾向": {"外向": 1}},
-            {"学习风格": {"听觉学习": 2}, "生活习惯": {"灵活": 1}},
-            {"学习风格": {"视觉学习": 2}, "生活习惯": {"规律": 1}},
+            {"学习风格": {"独立学习者": 2}, "生活习惯": {"规律执行者": 1}},
+            {"学习风格": {"小组学习者": 2}, "社交倾向": {"外向活跃者": 1}},
+            {"学习风格": {"多元学习者": 2}, "生活习惯": {"灵活适应者": 1}},
+            {"学习风格": {"独立学习者": 2}, "生活习惯": {"规律执行者": 1}},
         ],
     },
     {
         "id": 3,
-        "question": "你整理个人物品的频率是？",
-        "options": ["每天整理", "2-3天一次", "每周整理", "需要时才整理"],
+        "question": "你的书桌/床位通常是什么画风？",
+        "options": [
+            "A. 样板间风格：物品各归其位，随手整理，强迫症感到极度舒适。",
+            "B. 周期性整洁：偶尔会看不下去，然后进行一次高效的大扫除。",
+            "C. 周末仪式感：将大扫除作为一周的结束和新一周的开始。",
+            'D. 凌乱美学派："乱中有序"是我的哲学，别动，我能找到任何东西！',
+        ],
         "traits": ["卫生习惯", "生活习惯"],
         "option_scores": [
-            {"卫生习惯": {"高度整洁": 3}, "生活习惯": {"规律": 2}},
-            {"卫生习惯": {"适度整洁": 2}, "生活习惯": {"规律": 1}},
-            {"卫生习惯": {"适度整洁": 1}, "生活习惯": {"灵活": 1}},
-            {"卫生习惯": {"随性": 2}, "生活习惯": {"灵活": 2}},
+            {"卫生习惯": {"高度整洁者": 3}, "生活习惯": {"规律执行者": 2}},
+            {"卫生习惯": {"适度整洁者": 2}, "生活习惯": {"规律执行者": 1}},
+            {"卫生习惯": {"适度整洁者": 1}, "生活习惯": {"灵活适应者": 1}},
+            {"卫生习惯": {"舒适导向者": 2}, "生活习惯": {"灵活适应者": 2}},
         ],
     },
     {
         "id": 4,
-        "question": "你更喜欢哪种社交方式？",
-        "options": ["大型聚会", "小范围聊天", "一对一交流", "线上社交"],
+        "question": '你的"社交电量"通常如何消耗？',
+        "options": [
+            "A. 能量爆棚：热衷大型聚会和集体活动，人越多越嗨。",
+            "B. 精准放电：偏爱三五知己的小范围深度聊天，质量高于数量。",
+            "C. 节能模式：享受一对一的交流，更能建立深厚的情感连接。",
+            'D. 线上王者：线上侃侃而谈，线下可能"电量不足"，擅长文字交流。',
+        ],
         "traits": ["社交倾向", "沟通方式"],
         "option_scores": [
-            {"社交倾向": {"外向": 3}, "沟通方式": {"直接沟通": 1}},
-            {"社交倾向": {"平衡": 2}, "沟通方式": {"委婉沟通": 1}},
-            {"社交倾向": {"内向": 2}, "沟通方式": {"委婉沟通": 2}},
-            {"社交倾向": {"选择性社交": 2}, "沟通方式": {"书面沟通": 2}},
+            {"社交倾向": {"外向活跃者": 3}, "沟通方式": {"直接沟通者": 1}},
+            {"社交倾向": {"平衡调节者": 2}, "沟通方式": {"委婉沟通者": 1}},
+            {"社交倾向": {"内向安静者": 2}, "沟通方式": {"委婉沟通者": 2}},
+            {"社交倾向": {"氛围感应炉": 2}, "沟通方式": {"信号中继器": 2}},
         ],
     },
     {
         "id": 5,
-        "question": "你的作息时间通常是？",
-        "options": ["22:00前睡觉", "22:00-24:00睡觉", "24:00-2:00睡觉", "2:00后睡觉"],
+        "question": "深夜寝室里，你通常属于哪一派？",
+        "options": [
+            'A. 养生先锋：秉承"美容觉"原则，熄灯就睡，迎接清晨的太阳。',
+            "B. 标准作息：跟随学校的作息时间表，规律作息，健康生活。",
+            "C. 弹性作息：根据当天任务灵活调整，偶尔熬夜，但尽量不死磕。",
+            "D. 夜猫子本猫：灵感总在深夜爆发，夜晚是我精神的巅峰时段。",
+        ],
         "traits": ["作息规律", "生活习惯"],
         "option_scores": [
-            {"作息规律": {"早睡早起": 3}, "生活习惯": {"规律": 2}},
-            {"作息规律": {"规律作息": 2}, "生活习惯": {"规律": 2}},
-            {"作息规律": {"弹性作息": 2}, "生活习惯": {"灵活": 2}},
-            {"作息规律": {"夜猫子": 3}, "生活习惯": {"灵活": 2}},
+            {"作息规律": {"早睡早起者": 3}, "生活习惯": {"规律执行者": 2}},
+            {"作息规律": {"生物钟协调员": 2}, "生活习惯": {"规律执行者": 2}},
+            {"作息规律": {"弹性作息者": 2}, "生活习惯": {"灵活适应者": 2}},
+            {"作息规律": {"夜猫子": 3}, "生活习惯": {"灵活适应者": 2}},
         ],
     },
     {
         "id": 6,
-        "question": "你选择食物时最看重什么？",
-        "options": ["健康营养", "口味美味", "方便快捷", "价格实惠"],
+        "question": "食堂/外卖抉择时，你最看重啥？",
+        "options": [
+            "A. 健康卫士：营养均衡是首位，轻食沙拉常在我的菜单。",
+            "B. 味蕾探险家：味道至上，愿意为了一口好吃的穿越整个校园。",
+            "C. 极简主义者：方便快捷最重要，能填饱肚子且不耽误时间就行。",
+            "D. 性价比之王：精打细算，用最少的钱获得最大的满足感。",
+        ],
         "traits": ["饮食习惯", "生活习惯"],
         "option_scores": [
-            {"饮食习惯": {"健康饮食": 3}, "生活习惯": {"规律": 1}},
-            {"饮食习惯": {"美食家": 2}, "生活习惯": {"灵活": 1}},
-            {"饮食习惯": {"简单饮食": 2}, "生活习惯": {"灵活": 1}},
-            {"饮食习惯": {"随意饮食": 2}, "生活习惯": {"灵活": 1}},
+            {"饮食习惯": {"健康饮食者": 3}, "生活习惯": {"规律执行者": 1}},
+            {"饮食习惯": {"美食探索者": 2}, "生活习惯": {"灵活适应者": 1}},
+            {"饮食习惯": {"简单饮食者": 2}, "生活习惯": {"灵活适应者": 1}},
+            {"饮食习惯": {"味蕾合伙人": 2}, "生活习惯": {"灵活适应者": 1}},
         ],
     },
     {
         "id": 7,
-        "question": "遇到问题时，你通常如何解决？",
-        "options": ["直接说出来", "委婉表达", "写下来思考", "先观察再行动"],
+        "question": "小组作业出现分歧，你的第一反应是？",
+        "options": [
+            "A. 直球选手：直接提出自己的想法和疑虑，高效沟通解决问题。",
+            'B. 委婉大师：会先肯定对方，再用"我们是不是可以…"的方式建议。',
+            "C. 文档高手：倾向于先整理好自己的思路和论据，用文档说话。",
+            "D. 观察行动派：不急于表态，先观察局势，再用行动示范自己的方案。",
+        ],
         "traits": ["沟通方式", "学习风格"],
         "option_scores": [
-            {"沟通方式": {"直接沟通": 3}, "社交倾向": {"外向": 1}},
-            {"沟通方式": {"委婉沟通": 3}, "社交倾向": {"平衡": 1}},
-            {"沟通方式": {"书面沟通": 2}, "学习风格": {"视觉学习": 2}},
-            {"沟通方式": {"行动沟通": 2}, "学习风格": {"独立学习": 2}},
+            {"沟通方式": {"直接沟通者": 3}, "社交倾向": {"外向活跃者": 1}},
+            {"沟通方式": {"委婉沟通者": 3}, "社交倾向": {"平衡调节者": 1}},
+            {"沟通方式": {"信号中继器": 2}, "学习风格": {"知识催化剂": 2}},
+            {"沟通方式": {"行动沟通者": 2}, "学习风格": {"独立学习者": 2}},
         ],
     },
     {
         "id": 8,
-        "question": "你最喜欢的放松方式是什么？",
-        "options": ["听音乐/看书", "运动健身", "和朋友聊天", "玩游戏/看电影"],
+        "question": '经历"满课地狱"后，你如何快速回血？',
+        "options": [
+            "A. 静态恢复：戴上耳机听歌，或看一本闲书，让世界安静下来。",
+            "B. 动态解压：去操场跑几圈或者健身房出出汗，挥洒汗水解千愁。",
+            "C. 话疗专家：找室友或好友疯狂输出、大吐苦水，说完就好了。",
+            "D. 虚拟世界：开局游戏或刷部剧，瞬间沉浸，烦恼全抛在脑后。",
+        ],
         "traits": ["娱乐偏好", "社交倾向"],
         "option_scores": [
-            {"娱乐偏好": {"安静活动": 3}, "社交倾向": {"内向": 1}},
-            {"娱乐偏好": {"户外活动": 2}, "社交倾向": {"外向": 2}},
-            {"娱乐偏好": {"社交活动": 3}, "社交倾向": {"外向": 2}},
-            {"娱乐偏好": {"创意活动": 2}, "学习风格": {"视觉学习": 1}},
+            {"娱乐偏好": {"安静活动者": 3}, "社交倾向": {"内向安静者": 1}},
+            {"娱乐偏好": {"户外活动者": 2}, "社交倾向": {"外向活跃者": 2}},
+            {"娱乐偏好": {"社交活动者": 3}, "社交倾向": {"外向活跃者": 2}},
+            {"娱乐偏好": {"快乐能量站": 2}, "学习风格": {"知识催化剂": 1}},
         ],
     },
     {
         "id": 9,
-        "question": "你对个人空间的整洁度要求？",
-        "options": ["必须一尘不染", "保持基本整洁", "舒适即可", "不太在意"],
+        "question": '你对寝室个人"领地"的整洁度有多执着？',
+        "options": [
+            "A. 洁癖担当：无法容忍任何灰尘，桌面和床铺必须时刻整洁如新。",
+            "B. 整洁维护者：会定期收拾，保持一个看得过去的整洁环境。",
+            "C. 舒适导向：东西可以多，但不能脏，乱一点但有自己秩序也很舒服。",
+            "D. 自由灵魂：追求精神世界的富足，对外在环境整洁度要求不高。",
+        ],
         "traits": ["卫生习惯", "生活习惯"],
         "option_scores": [
-            {"卫生习惯": {"高度整洁": 3}, "生活习惯": {"规律": 2}},
-            {"卫生习惯": {"适度整洁": 2}, "生活习惯": {"规律": 1}},
-            {"卫生习惯": {"适度整洁": 1}, "生活习惯": {"灵活": 1}},
-            {"卫生习惯": {"随性": 2}, "生活习惯": {"灵活": 2}},
+            {"卫生习惯": {"高度整洁者": 3}, "生活习惯": {"规律执行者": 2}},
+            {"卫生习惯": {"适度整洁者": 2}, "生活习惯": {"规律执行者": 1}},
+            {"卫生习惯": {"适度整洁者": 1}, "生活习惯": {"灵活适应者": 1}},
+            {"卫生习惯": {"舒适导向者": 2}, "生活习惯": {"灵活适应者": 2}},
         ],
     },
     {
         "id": 10,
-        "question": "你更喜欢哪种学习环境？",
-        "options": ["完全安静", "有背景音乐", "与人讨论", "户外环境"],
+        "question": '你理想中的"完美自习室"是？',
+        "options": [
+            "A. 默书馆：鸦雀无声，连翻书声都显得刺耳，绝对安静才能专注。",
+            "B. 白噪音舱：需要有一些背景音，比如图书馆的轻微嘈杂或轻音乐。",
+            "C. 研讨间：喜欢和同学一起学习，可以随时低声交流、互相启发。",
+            "D. 露天咖啡馆：喜欢在通风、有自然光的环境下学习，比如室外或窗边。",
+        ],
         "traits": ["学习风格", "娱乐偏好"],
         "option_scores": [
-            {"学习风格": {"独立学习": 3}, "社交倾向": {"内向": 1}},
-            {"学习风格": {"听觉学习": 2}, "生活习惯": {"灵活": 1}},
-            {"学习风格": {"小组学习": 2}, "社交倾向": {"外向": 2}},
-            {"学习风格": {"视觉学习": 2}, "娱乐偏好": {"户外活动": 1}},
+            {"学习风格": {"独立学习者": 3}, "社交倾向": {"内向安静者": 1}},
+            {"学习风格": {"多元学习者": 2}, "生活习惯": {"灵活适应者": 1}},
+            {"学习风格": {"小组学习者": 2}, "社交倾向": {"外向活跃者": 2}},
+            {"学习风格": {"知识催化剂": 2}, "娱乐偏好": {"户外活动者": 1}},
         ],
     },
 ]
@@ -347,7 +403,9 @@ async def submit_quiz(submission: QuizSubmission, db: AsyncSession = Depends(get
 
 
 @router.post("/match", response_model=Dict[str, Any])
-async def match_traits(code1: str, code2: str, db: AsyncSession = Depends(get_db)):
+async def match_traits(request: Dict[str, Any], db: AsyncSession = Depends(get_db)):
+    code1 = request.get("code1")
+    code2 = request.get("code2")
     """通过两个代码匹配特质"""
     # 从数据库查询代码1
     result1 = await db.execute(select(QuizResult).where(QuizResult.code == code1))
@@ -371,20 +429,71 @@ async def match_traits(code1: str, code2: str, db: AsyncSession = Depends(get_db
         submission1.primary_traits, submission2.primary_traits
     )
 
+    # 返回前端期望的数据结构
     return {
+        "compatibility_score": compatibility_score,
+        "match_analysis": match_analysis,
+        "traits1": submission1.primary_traits,
+        "traits2": submission2.primary_traits,
+        "participant1_name": submission1.participant_name or "匿名用户",
+        "participant2_name": submission2.participant_name or "匿名用户",
+        # 保留其他数据供可能的使用
         "code1": code1,
         "code2": code2,
-        "participant1": submission1.participant_name or "匿名用户",
-        "participant2": submission2.participant_name or "匿名用户",
-        "compatibility_score": compatibility_score,
         "trait_scores1": submission1.trait_scores,
         "trait_scores2": submission2.trait_scores,
         "primary_traits1": submission1.primary_traits,
         "primary_traits2": submission2.primary_traits,
         "radar_data1": submission1.radar_data,
         "radar_data2": submission2.radar_data,
-        "match_analysis": match_analysis,
         "message": f"特质匹配完成！匹配度为：{compatibility_score}%",
+    }
+
+
+@router.post("/team-match", response_model=Dict[str, Any])
+async def match_team_traits(
+    request: Dict[str, Any], db: AsyncSession = Depends(get_db)
+):
+    """四人团队特质匹配"""
+    codes = request.get("codes", [])
+
+    if len(codes) != 4:
+        raise HTTPException(status_code=400, detail="请提供4个有效的代码")
+
+    # 从数据库查询所有四个代码对应的答题结果
+    submissions = []
+    for code in codes:
+        result = await db.execute(select(QuizResult).where(QuizResult.code == code))
+        submission = result.scalar_one_or_none()
+        if not submission:
+            raise HTTPException(status_code=404, detail=f"代码 {code} 不存在")
+        submissions.append(submission)
+
+    # 计算团队特质匹配度
+    team_compatibility_score = calculate_team_compatibility(submissions)
+
+    # 分析团队特质分布
+    team_trait_analysis = analyze_team_traits(submissions)
+
+    # 生成团队评语（基于团队中特定特质最多的人）
+    team_commentary = generate_team_commentary(team_trait_analysis)
+
+    # 返回团队匹配结果
+    return {
+        "team_compatibility_score": team_compatibility_score,
+        "team_trait_analysis": team_trait_analysis,
+        "team_commentary": team_commentary,
+        "participants": [
+            {
+                "code": submission.code,
+                "name": submission.participant_name or "匿名用户",
+                "primary_traits": submission.primary_traits,
+                "trait_scores": submission.trait_scores,
+                "radar_data": submission.radar_data,
+            }
+            for submission in submissions
+        ],
+        "message": f"四人团队特质匹配完成！团队匹配度为：{team_compatibility_score}%",
     }
 
 
@@ -428,6 +537,256 @@ def generate_match_analysis(traits1, traits2):
                 )
 
     return analysis
+
+
+def calculate_team_compatibility(submissions):
+    """计算四人团队的特质匹配度"""
+    if len(submissions) != 4:
+        return 0
+
+    # 计算所有两两组合的匹配度
+    total_compatibility = 0
+    pair_count = 0
+
+    for i in range(4):
+        for j in range(i + 1, 4):
+            compatibility = calculate_trait_compatibility(
+                submissions[i].primary_traits, submissions[j].primary_traits
+            )
+            total_compatibility += compatibility
+            pair_count += 1
+
+    # 计算平均匹配度
+    if pair_count > 0:
+        return int(total_compatibility / pair_count)
+    return 0
+
+
+def analyze_team_traits(submissions):
+    """分析团队特质分布"""
+    if len(submissions) != 4:
+        return {}
+
+    # 统计每个维度中各种特质的出现次数
+    trait_distribution = {}
+
+    for submission in submissions:
+        for dimension, trait in submission.primary_traits.items():
+            if dimension not in trait_distribution:
+                trait_distribution[dimension] = {}
+
+            if trait not in trait_distribution[dimension]:
+                trait_distribution[dimension][trait] = 0
+            trait_distribution[dimension][trait] += 1
+
+    # 找出每个维度中最常见的特质
+    dominant_traits = {}
+    for dimension, traits in trait_distribution.items():
+        if traits:
+            dominant_trait = max(traits.items(), key=lambda x: x[1])
+            dominant_traits[dimension] = {
+                "trait": dominant_trait[0],
+                "count": dominant_trait[1],
+                "percentage": int((dominant_trait[1] / 4) * 100),
+            }
+
+    # 找出团队中最突出的特质维度（出现次数最多的特质）
+    most_common_trait_info = None
+    for dimension, info in dominant_traits.items():
+        if (
+            not most_common_trait_info
+            or info["count"] > most_common_trait_info["count"]
+        ):
+            most_common_trait_info = {
+                "dimension": dimension,
+                "trait": info["trait"],
+                "count": info["count"],
+                "percentage": info["percentage"],
+            }
+
+    return {
+        "trait_distribution": trait_distribution,
+        "dominant_traits": dominant_traits,
+        "most_common_trait": most_common_trait_info,
+    }
+
+
+def generate_team_commentary(team_trait_analysis):
+    """生成团队评语，基于团队中特定特质最多的人"""
+    if not team_trait_analysis or not team_trait_analysis.get("most_common_trait"):
+        return {
+            "title": "多元融合团队",
+            "commentary": "你们的团队特质分布均衡，每个人都有自己的特色，能够形成良好的互补关系。",
+        }
+
+    most_common = team_trait_analysis["most_common_trait"]
+    dimension = most_common["dimension"]
+    trait = most_common["trait"]
+    count = most_common["count"]
+
+    # 根据匹配度设计文档中的维度组合生成评语
+    dimension_combinations = {
+        "生活习惯": ["社交", "作息", "学习", "娱乐", "饮食", "卫生", "沟通"],
+        "社交倾向": ["作息", "学习", "娱乐", "饮食", "卫生", "沟通"],
+        "作息规律": ["学习", "娱乐", "饮食", "卫生", "沟通"],
+        "学习风格": ["娱乐", "饮食", "卫生", "沟通"],
+        "娱乐偏好": ["饮食", "卫生", "沟通"],
+        "饮食习惯": ["卫生", "沟通"],
+        "卫生习惯": ["沟通"],
+    }
+
+    # 获取该维度可能的组合维度
+    possible_combinations = dimension_combinations.get(dimension, [])
+
+    # 根据团队特质分布选择最合适的组合维度
+    best_combination = None
+    best_count = 0
+
+    for combo_dim in possible_combinations:
+        if combo_dim in team_trait_analysis["dominant_traits"]:
+            combo_count = team_trait_analysis["dominant_traits"][combo_dim]["count"]
+            if combo_count > best_count:
+                best_count = combo_count
+                best_combination = combo_dim
+
+    # 如果没有找到合适的组合，使用默认评语
+    if not best_combination:
+        return {
+            "title": f"{trait}主导团队",
+            "commentary": f"你们的团队以{trait}为主导，这种特质的一致性为团队带来了独特的优势。",
+        }
+
+    # 根据维度组合生成评语
+    combination_titles = {
+        ("生活习惯", "社交"): (
+            "自律社交家",
+            "既能打理好井井有条的个人生活，又能在社交场合中游刃有余，你们在自律与开放间找到了完美的平衡点。",
+        ),
+        ("生活习惯", "作息"): (
+            "永续节奏器",
+            "你们将生活规律与作息节奏深度融合，形成了一种稳定而可持续的日常模式，让寝室如同一个高效且温馨的生态系统。",
+        ),
+        ("生活习惯", "学习"): (
+            "高效沉淀池",
+            "良好的生活习惯为学习奠定了坚实基础，让你们能在专注投入后获得扎实的收获，是厚积薄发的典范。",
+        ),
+        ("生活习惯", "娱乐"): (
+            "品质生活家",
+            "你们懂得张弛有道，既能认真生活，也精通如何放松，善于从日常和娱乐中发现并创造高品质的乐趣。",
+        ),
+        ("生活习惯", "饮食"): (
+            "日常仪式官",
+            "你们将规律的饮食融入生活哲学，即使是简单的一日三餐，也能被你们经营出满满的仪式感和幸福感。",
+        ),
+        ("生活习惯", "卫生"): (
+            "洁癖共鸣体",
+            "对生活品质和环境卫生有着共同的高要求，彼此理解并共同维护着那份令人心安的整洁与有序。",
+        ),
+        ("生活习惯", "沟通"): (
+            "规则翻译器",
+            "善于将生活习惯转化为清晰的沟通语言，能有效地制定、解释并协同执行寝室的各项'公约'，是制度的良好维护者。",
+        ),
+        ("社交倾向", "作息"): (
+            "能量调度员",
+            "能根据彼此的作息能量状态，灵活安排社交互动，既尊重休息时间，也能在共同活跃时充分享受交流的快乐。",
+        ),
+        ("社交倾向", "学习"): (
+            "学术社交圈",
+            "在学习与社交间架起桥梁，能组建高效的学习小组，也能在知识分享中增进友谊，实现 1+1>2 的共赢。",
+        ),
+        ("社交倾向", "娱乐"): (
+            "派对引擎",
+            "你们是集体欢乐的制造核心，总能点燃气氛，策划出令人难忘的娱乐活动，是当之无愧的寝室气氛担当。",
+        ),
+        ("社交倾向", "饮食"): (
+            "美食雷达",
+            "对美食有着共同的热情和敏锐的嗅觉，不仅是彼此的'饭搭子'，更是探索城市美味地图的最佳拍档。",
+        ),
+        ("社交倾向", "卫生"): (
+            "温馨共建者",
+            "既注重公共环境的整洁，也乐于通过共同劳动（如大扫除）来增进社交互动，是寝室温暖的共同营造者。",
+        ),
+        ("社交倾向", "沟通"): (
+            "频道同步者",
+            "沟通方式与社交频率高度同频，总能迅速理解对方的点，交流起来毫不费力，是彼此最佳的倾诉和倾听对象。",
+        ),
+        ("作息规律", "学习"): (
+            "时间规划局",
+            "能将作息规律与学习高峰期完美结合，制定出最科学高效的日程表，是时间管理领域的资深专家。",
+        ),
+        ("作息规律", "娱乐"): (
+            "续航管理员",
+            "懂得如何通过娱乐来为身心充电，也能在尽情玩耍后迅速回归休息状态，是精力管理的优等生。",
+        ),
+        ("作息规律", "饮食"): (
+            "养生联盟",
+            "深谙'食饮有节，起居有常'之道，将规律的饮食和作息结合，是寝室里的健康生活实践派。",
+        ),
+        ("作息规律", "卫生"): (
+            "晨型清洁组",
+            "或许是在清晨或夜晚，总能默契地共同维护寝室整洁，在安静中完成打扫，互不打扰又彼此支持。",
+        ),
+        ("作息规律", "沟通"): (
+            "静音协议",
+            "深刻理解并尊重彼此的作息时间，能在需要安静时自动切换沟通模式（如使用文字），是体贴的模范。",
+        ),
+        ("学习风格", "娱乐"): (
+            "劳逸平衡师",
+            "坚信'学就学个踏实，玩就玩个痛快'，能在两种模式间无缝切换，是寝室里最懂得平衡之道的生活家。",
+        ),
+        ("学习风格", "饮食"): (
+            "脑力加油站",
+            "深知美食对学习的重要性，能在挑灯夜战或完成报告后，用恰到好处的美味互相慰藉，补充脑力。",
+        ),
+        ("学习风格", "卫生"): (
+            "思维清道夫",
+            "注重学习环境的整洁，认为清理物理空间有助于理清思路，是书桌和思路都保持清晰的代表。",
+        ),
+        ("学习风格", "沟通"): (
+            "知识交换站",
+            "乐于并善于分享学习心得和方法，通过有效的沟通碰撞出思维的火花，是彼此学业上最佳的益友。",
+        ),
+        ("娱乐偏好", "饮食"): (
+            "享乐优化局",
+            "最懂如何将娱乐与美食结合，达到快乐最大值，是策划寝室观影聚餐等活动的金牌策划师。",
+        ),
+        ("娱乐偏好", "卫生"): (
+            "玩趣保洁员",
+            "即便在尽情娱乐后，也能默契地快速恢复环境整洁，做到了'欢乐留心底，场地速清理'。",
+        ),
+        ("娱乐偏好", "沟通"): (
+            "梗文化研究所",
+            "你们创造的内部梗和笑点是寝室的独特文化，沟通方式本身就成了一种极富乐趣的娱乐活动。",
+        ),
+        ("饮食习惯", "卫生"): (
+            "美食洁癖党",
+            "享受美食，但更注重用餐环境和厨余处理，对美食的爱好与对整洁的追求在你们身上并存。",
+        ),
+        ("饮食习惯", "沟通"): (
+            "餐桌议事厅",
+            "饭桌是你们最好的交流场所，许多重要决策和深度谈话，都在分享美食的过程中轻松达成。",
+        ),
+        ("卫生习惯", "沟通"): (
+            "空间协调组",
+            "能通过友好沟通妥善解决卫生分工等公共空间问题，是寝室公共区域和谐的基石。",
+        ),
+    }
+
+    title, commentary = combination_titles.get(
+        (dimension, best_combination),
+        (
+            f"{trait}主导团队",
+            f"你们的团队以{trait}为主导，这种特质的一致性为团队带来了独特的优势。",
+        ),
+    )
+
+    return {
+        "title": title,
+        "commentary": commentary,
+        "dominant_dimension": dimension,
+        "dominant_trait": trait,
+        "combination_dimension": best_combination,
+    }
 
 
 @router.get("/stats", response_model=Dict[str, Any])
@@ -476,111 +835,4 @@ async def get_quiz_stats(db: AsyncSession = Depends(get_db)):
         "best_match_score": best_match_score,
         "last_submission_time": last_submission.submitted_at,
         "top_rankings": match_rankings,
-    }
-
-
-@router.get("/leaderboard", response_model=List[Dict[str, Any]])
-async def get_leaderboard(db: AsyncSession = Depends(get_db)):
-    """获取答题排行榜"""
-    # 从数据库查询所有答题记录
-    result = await db.execute(select(QuizResult))
-    all_submissions = result.scalars().all()
-
-    if not all_submissions:
-        return []
-
-    # 计算每个参与者的得分
-    participant_scores = {}
-    for submission in all_submissions:
-        participant_name = submission.participant_name or "匿名用户"
-        total_questions = len(submission.answers)
-
-        if total_questions > 0:
-            # 计算答案多样性得分
-            answer_patterns = {}
-            for answer_index in submission.answers.values():
-                answer_patterns[answer_index] = answer_patterns.get(answer_index, 0) + 1
-            diversity_score = len(answer_patterns) / total_questions
-            match_score = int(diversity_score * 100)
-
-            # 确定匹配等级
-            if match_score >= 90:
-                match_level = "非常了解"
-                analysis = "对室友的了解非常全面！"
-            elif match_score >= 70:
-                match_level = "比较了解"
-                analysis = "对室友有不错的了解！"
-            elif match_score >= 50:
-                match_level = "基本了解"
-                analysis = "对室友有一定了解！"
-            else:
-                match_level = "需要更多了解"
-                analysis = "还需要更多时间了解室友～"
-
-            # 只保留每个参与者的最高分
-            if (
-                participant_name not in participant_scores
-                or match_score > participant_scores[participant_name]["score"]
-            ):
-                participant_scores[participant_name] = {
-                    "score": match_score,
-                    "total_questions": total_questions,
-                    "match_level": match_level,
-                    "analysis": analysis,
-                    "submitted_at": submission.submitted_at,
-                }
-
-    # 转换为排行榜结果
-    leaderboard = []
-    for participant_name, score_data in participant_scores.items():
-        leaderboard.append(
-            {
-                "participant_name": participant_name,
-                "match_score": score_data["score"],
-                "total_questions": score_data["total_questions"],
-                "match_level": score_data["match_level"],
-                "analysis": score_data["analysis"],
-                "submitted_at": score_data["submitted_at"],
-            }
-        )
-
-    # 按得分排序并设置排名
-    leaderboard.sort(key=lambda x: x["match_score"], reverse=True)
-    for i, result in enumerate(leaderboard):
-        result["rank"] = i + 1
-
-    return leaderboard
-
-
-@router.get("/verify/{code}")
-async def verify_quiz_code(code: str, db: AsyncSession = Depends(get_db)):
-    """验证答题唯一代码"""
-    # 从数据库查询代码
-    result = await db.execute(select(QuizResult).where(QuizResult.code == code))
-    submission = result.scalar_one_or_none()
-
-    if not submission:
-        raise HTTPException(status_code=404, detail="无效的代码")
-
-    # 计算得分
-    total_questions = len(submission.answers)
-    if total_questions > 0:
-        answer_patterns = {}
-        for answer_index in submission.answers.values():
-            answer_patterns[answer_index] = answer_patterns.get(answer_index, 0) + 1
-        diversity_score = len(answer_patterns) / total_questions
-        match_score = int(diversity_score * 100)
-    else:
-        match_score = 0
-
-    return {
-        "code_valid": True,
-        "participant_name": submission.participant_name or "匿名用户",
-        "match_score": match_score,
-        "total_questions": total_questions,
-        "trait_scores": submission.trait_scores,
-        "primary_traits": submission.primary_traits,
-        "radar_data": submission.radar_data,
-        "generated_at": submission.submitted_at,
-        "message": "代码验证成功",
     }

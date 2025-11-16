@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 from datetime import datetime
 
 
@@ -39,4 +39,20 @@ class MatchResult(BaseModel):
     traits1: Dict[str, str]
     traits2: Dict[str, str]
     match_analysis: List[str]
+    message: str
+
+
+class TeamMatchRequest(BaseModel):
+    """团队匹配请求模型"""
+
+    codes: List[str]  # 四个参与者的代码列表
+
+
+class TeamMatchResult(BaseModel):
+    """团队匹配结果模型"""
+
+    team_compatibility_score: int
+    team_trait_analysis: Dict[str, Any]
+    team_commentary: Dict[str, str]
+    participants: List[Dict[str, Any]]
     message: str

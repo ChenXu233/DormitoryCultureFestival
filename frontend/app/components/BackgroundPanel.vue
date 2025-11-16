@@ -6,7 +6,6 @@
       <div 
         v-for="background in backgrounds" 
         :key="background.id"
-        @click="selectBackground(background)"
         :class="[
           'h-20 rounded-lg cursor-pointer border-2 transition-all group relative overflow-hidden',
           selectedBackground.id === background.id 
@@ -14,6 +13,7 @@
             : 'border-gray-200 hover:border-gray-300'
         ]"
         :style="{ background: background.color }"
+        @click="selectBackground(background)"
       >
         <!-- 背景预览 -->
         <div 
@@ -43,23 +43,23 @@
       <h3 class="font-medium text-gray-700 mb-3">自定义背景</h3>
       <div class="flex items-center space-x-3">
         <input 
-          type="color" 
-          v-model="customColor"
-          @change="onCustomColorChange"
+          v-model="customColor" 
+          type="color"
           class="w-12 h-12 rounded border-2 border-gray-300 cursor-pointer"
+          @change="onCustomColorChange"
         >
         <div class="flex-1">
           <input 
-            type="text" 
-            v-model="customColor"
-            @input="onCustomColorInput"
+            v-model="customColor" 
+            type="text"
             placeholder="#FFFFFF"
             class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+            @input="onCustomColorInput"
           >
         </div>
         <button 
-          @click="applyCustomBackground"
           class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm transition-colors"
+          @click="applyCustomBackground"
         >
           应用
         </button>
@@ -72,10 +72,10 @@
       <div class="space-y-2">
         <label class="flex items-center space-x-2 cursor-pointer">
           <input 
-            type="checkbox" 
-            v-model="enableGradient"
-            @change="onEffectChange"
+            v-model="enableGradient" 
+            type="checkbox"
             class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            @change="onEffectChange"
           >
           <span class="text-sm text-gray-700">渐变背景</span>
         </label>
@@ -84,41 +84,41 @@
           <div class="flex items-center space-x-3">
             <span class="text-sm text-gray-600 w-16">起始色</span>
             <input 
-              type="color" 
-              v-model="gradientStart"
-              @change="onGradientChange"
+              v-model="gradientStart" 
+              type="color"
               class="w-8 h-8 rounded border border-gray-300 cursor-pointer"
+              @change="onGradientChange"
             >
             <input 
-              type="text" 
-              v-model="gradientStart"
-              @input="onGradientChange"
+              v-model="gradientStart" 
+              type="text"
               class="flex-1 px-2 py-1 border border-gray-300 rounded text-sm"
+              @input="onGradientChange"
             >
           </div>
           <div class="flex items-center space-x-3">
             <span class="text-sm text-gray-600 w-16">结束色</span>
             <input 
-              type="color" 
-              v-model="gradientEnd"
-              @change="onGradientChange"
+              v-model="gradientEnd" 
+              type="color"
               class="w-8 h-8 rounded border border-gray-300 cursor-pointer"
+              @change="onGradientChange"
             >
             <input 
-              type="text" 
-              v-model="gradientEnd"
-              @input="onGradientChange"
+              v-model="gradientEnd" 
+              type="text"
               class="flex-1 px-2 py-1 border border-gray-300 rounded text-sm"
+              @input="onGradientChange"
             >
           </div>
         </div>
         
         <label class="flex items-center space-x-2 cursor-pointer">
           <input 
-            type="checkbox" 
-            v-model="enablePattern"
-            @change="onEffectChange"
+            v-model="enablePattern" 
+            type="checkbox"
             class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            @change="onEffectChange"
           >
           <span class="text-sm text-gray-700">纹理图案</span>
         </label>

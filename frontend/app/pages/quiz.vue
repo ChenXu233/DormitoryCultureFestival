@@ -64,14 +64,16 @@
           
           <!-- 选项列表 -->
           <div class="space-y-3">
-            <button v-for="(option, index) in currentQuestion.options" :key="index"
+            <button
+v-for="(option, index) in currentQuestion.options" :key="index"
               :class="[
                 'w-full text-left px-4 py-3 border rounded-lg transition-colors duration-200',
                 selectedAnswer === index ? 'border-green-500 bg-green-50 text-green-700' : 'border-gray-300 hover:border-green-300 hover:bg-green-50'
               ]"
               @click="selectAnswer(index)">
               <div class="flex items-center">
-                <span class="w-6 h-6 rounded-full border-2 flex items-center justify-center mr-3"
+                <span
+class="w-6 h-6 rounded-full border-2 flex items-center justify-center mr-3"
                       :class="selectedAnswer === index ? 'border-green-500 bg-green-500 text-white' : 'border-gray-400'">{{ String.fromCharCode(65 + index) }}</span>
                 <span>{{ option }}</span>
               </div>
@@ -133,7 +135,7 @@
             <!-- 雷达图与特质展示 -->
               <div class="mt-6">
                 <client-only>
-                  <RadarChart v-if="result.radar_data" :radar-data="result.radar_data"></RadarChart>
+                  <RadarChart v-if="result.radar_data" :radar-data="result.radar_data"/>
                 </client-only>
 
                 <!-- 特质展示 -->
@@ -175,7 +177,13 @@
               to="/match"
               class="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors duration-200 text-center"
             >
-              特质匹配
+              双人匹配
+            </NuxtLink>
+            <NuxtLink 
+              to="/team-match"
+              class="px-6 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg transition-colors duration-200 text-center"
+            >
+              团队匹配
             </NuxtLink>
             <NuxtLink 
               to="/"

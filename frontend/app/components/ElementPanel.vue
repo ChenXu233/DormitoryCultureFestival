@@ -9,13 +9,13 @@
         <button 
           v-for="category in categories" 
           :key="category.id"
-          @click="selectedCategory = category.id"
           :class="[
             'px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap',
             selectedCategory === category.id 
               ? 'bg-blue-600 text-white' 
               : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
           ]"
+          @click="selectedCategory = category.id"
         >
           {{ category.name }}
         </button>

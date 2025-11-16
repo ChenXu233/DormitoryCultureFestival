@@ -1,6 +1,6 @@
 <template>
   <div class="radar-chart">
-    <canvas ref="canvas"></canvas>
+    <canvas ref="canvas"/>
   </div>
 </template>
 
@@ -12,7 +12,7 @@ const canvas = ref<HTMLCanvasElement | null>(null)
 let chart: any = null
 
 onMounted(async () => {
-  if (!process.client) return
+  if (!import.meta.client) return
   // dynamically import Chart.js only on client
   const ChartModule = await import('chart.js/auto')
   const Chart = (ChartModule as any).default || (ChartModule as any).Chart || ChartModule

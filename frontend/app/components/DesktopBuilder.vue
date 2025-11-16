@@ -5,20 +5,20 @@
       <h2 class="text-xl font-semibold text-gray-800">我的桌面</h2>
       <div class="flex space-x-2">
         <button 
-          @click="clearDesktop"
           class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"
+          @click="clearDesktop"
         >
           清空桌面
         </button>
         <button 
-          @click="saveDesktop"
           class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors"
+          @click="saveDesktop"
         >
           保存配置
         </button>
         <button 
-          @click="downloadImage"
           class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+          @click="downloadImage"
         >
           下载图片
         </button>
@@ -87,27 +87,27 @@
       :style="{ left: contextMenu.x + 'px', top: contextMenu.y + 'px' }"
     >
       <button 
-        @click="deleteElement"
         class="w-full px-4 py-2 text-left text-red-600 hover:bg-red-50 flex items-center"
+        @click="deleteElement"
       >
         <span class="mr-2">🗑️</span> 删除元素
       </button>
       <button 
-        @click="duplicateElement"
         class="w-full px-4 py-2 text-left text-blue-600 hover:bg-blue-50 flex items-center"
+        @click="duplicateElement"
       >
         <span class="mr-2">📋</span> 复制元素
       </button>
-      <div class="border-t my-1"></div>
+      <div class="border-t my-1"/>
       <button 
-        @click="bringToFront"
         class="w-full px-4 py-2 text-left text-purple-600 hover:bg-purple-50 flex items-center"
+        @click="bringToFront"
       >
         <span class="mr-2">⬆️</span> 置顶
       </button>
       <button 
-        @click="sendToBack"
         class="w-full px-4 py-2 text-left text-purple-600 hover:bg-purple-50 flex items-center"
+        @click="sendToBack"
       >
         <span class="mr-2">⬇️</span> 置底
       </button>
@@ -210,7 +210,7 @@ const onDrop = (event: DragEvent) => {
 
 // 元素拖拽
 let isDragging = false
-let dragOffset = { x: 0, y: 0 }
+const dragOffset = { x: 0, y: 0 }
 
 const startDrag = (element: DesktopElement, event: MouseEvent) => {
   isDragging = true
