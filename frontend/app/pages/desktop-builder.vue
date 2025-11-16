@@ -195,7 +195,7 @@
 
     <!-- 操作提示 -->
     <div class="mt-4 text-sm text-gray-600 text-center">
-      <p>💡 提示：拖拽元素到桌面，右键点击元素可进行编辑操作</p>
+      <p>💡 提示：拖拽元素到桌面，右键点击元素并选择"编辑元素"进行属性调整</p>
     </div>
 
     <!-- 右键菜单 -->
@@ -206,16 +206,22 @@
       @click.stop
     >
       <button 
-        class="w-full px-4 py-2 text-left text-red-600 hover:bg-red-50 flex items-center"
-        @click="deleteElement"
+        class="w-full px-4 py-2 text-left text-green-600 hover:bg-green-50 flex items-center"
+        @click="editElement"
       >
-        <span class="mr-2">🗑️</span> 删除元素
+        <span class="mr-2">✏️</span> 编辑元素
       </button>
       <button 
         class="w-full px-4 py-2 text-left text-blue-600 hover:bg-blue-50 flex items-center"
         @click="duplicateElement"
       >
         <span class="mr-2">📋</span> 复制元素
+      </button>
+      <button 
+        class="w-full px-4 py-2 text-left text-red-600 hover:bg-red-50 flex items-center"
+        @click="deleteElement"
+      >
+        <span class="mr-2">🗑️</span> 删除元素
       </button>
       <div class="border-t my-1"></div>
       <button 
@@ -518,7 +524,9 @@ const dragOffset = { x: 0, y: 0 }
 
 const startDrag = (element: DesktopElement, event: MouseEvent) => {
   isDragging = true
-  selectedElement.value = element
+  
+  // 拖拽时不选中元素，避免编辑面板出现
+  const draggingElement = element
   
   dragOffset.x = event.clientX - element.x
   dragOffset.y = event.clientY - element.y
@@ -526,19 +534,18 @@ const startDrag = (element: DesktopElement, event: MouseEvent) => {
   document.addEventListener('mousemove', onDrag)
   document.addEventListener('mouseup', stopDrag)
   
-  emit('elementSelected', element)
-}
-
-const onDrag = (event: MouseEvent) => {
-  if (isDragging && selectedElement.value && desktopCanvas.value) {
-    const rect = desktopCanvas.value.getBoundingClientRect()
-    const x = event.clientX - dragOffset.x
-    const y = event.clientY - dragOffset.y
-    
-    selectedElement.value.x = Math.max(0, Math.min(x, rect.width - 50))
-    selectedElement.value.y = Math.max(0, Math.min(y, rect.height - 50))
-    
-    emit('update:elements', elements.value)
+  // 拖拽时直接更新元素位置，不通过selectedElement
+  function onDrag(event: MouseEvent) {
+    if (isDragging && desktopCanvas.value) {
+      const rect = desktopCanvas.value.getBoundingClientRect()
+      const x = event.clientX - dragOffset.x
+      const y = event.clientY - dragOffset.y
+      
+      draggingElement.x = Math.max(0, Math.min(x, rect.width - 50))
+      draggingElement.y = Math.max(0, Math.min(y, rect.height - 50))
+      
+      emit('update:elements', elements.value)
+    }
   }
 }
 
@@ -562,9 +569,16 @@ const showContextMenu = (event: MouseEvent, element: DesktopElement) => {
   contextMenu.x = event.clientX
   contextMenu.y = event.clientY
   contextMenu.element = element
-  selectedElement.value = element
-  
-  emit('elementSelected', element)
+  // 右键点击元素时不自动选中，只在选择编辑选项时才选中
+}
+
+// 编辑元素
+const editElement = () => {
+  if (contextMenu.element) {
+    selectedElement.value = contextMenu.element
+    contextMenu.visible = false
+    emit('elementSelected', contextMenu.element)
+  }
 }
 
 // 删除元素
@@ -613,18 +627,18 @@ const rotateElement = (angle: number) => {
 
 // 层级控制
 const bringToFront = () => {
-  if (selectedElement.value) {
+  if (contextMenu.element) {
     const maxZIndex = Math.max(...elements.value.map(el => el.zIndex))
-    selectedElement.value.zIndex = maxZIndex + 1
+    contextMenu.element.zIndex = maxZIndex + 1
     contextMenu.visible = false
     emit('update:elements', elements.value)
   }
 }
 
 const sendToBack = () => {
-  if (selectedElement.value) {
+  if (contextMenu.element) {
     const minZIndex = Math.min(...elements.value.map(el => el.zIndex))
-    selectedElement.value.zIndex = Math.max(1, minZIndex - 1)
+    contextMenu.element.zIndex = Math.max(1, minZIndex - 1)
     contextMenu.visible = false
     emit('update:elements', elements.value)
   }
