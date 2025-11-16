@@ -59,6 +59,7 @@ onMounted(async () => {
   })
 })
 
+// Update chart when data changes
 watch(
   () => props.radarData,
   (nv) => {
@@ -73,6 +74,7 @@ watch(
   { immediate: true, deep: true }
 )
 
+// Clean up chart instance before unmount
 onBeforeUnmount(() => {
   if (chart) {
     chart.destroy()

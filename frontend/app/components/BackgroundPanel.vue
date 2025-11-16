@@ -1,4 +1,4 @@
-<template>
+  <template>
   <div class="background-panel">
     <h2 class="text-xl font-semibold text-gray-800 mb-4">桌面背景</h2>
     
@@ -18,7 +18,7 @@
         <!-- 背景预览 -->
         <div 
           class="absolute inset-0 flex items-center justify-center text-white font-medium transition-transform group-hover:scale-105"
-          :style="{ 
+          :style="{
             textShadow: '0 1px 2px rgba(0,0,0,0.3)',
             color: getContrastColor(background.color)
           }"
@@ -136,6 +136,13 @@ interface Background {
   type?: 'solid' | 'gradient' | 'pattern'
 }
 
+// 定义纹理图案接口
+interface Pattern {
+  id: number | string
+  name: string
+  value: string
+}
+
 // 定义组件属性
 interface Props {
   backgrounds?: Background[]
@@ -144,7 +151,7 @@ interface Props {
 
 // 定义组件事件
 interface Emits {
-  (e: 'backgroundChange', background: Background): void
+  (e: 'background-change', background: Background): void
 }
 
 // 组件属性
@@ -155,13 +162,64 @@ const props = withDefaults(defineProps<Props>(), {
     { id: 3, name: '黑色桌面', color: '#2d3748', type: 'solid' },
     { id: 4, name: '蓝色桌面', color: '#bee3f8', type: 'solid' },
     { id: 5, name: '绿色桌面', color: '#c6f6d5', type: 'solid' },
-    { id: 6, name: '粉色桌面', color: '#fed7d7', type: 'solid' }
+    { id: 6, name: '粉色桌面', color: '#fed7d7', type: 'solid' },
+    { id: 7, name: '木纹纹理', color: '#deb887', type: 'pattern' },
+    { id: 8, name: '网格纹理', color: '#f0f0f0', type: 'pattern' }
   ],
   initialBackground: () => ({ id: 1, name: '木质桌面', color: '#f5deb3', type: 'solid' })
 })
 
 // 组件事件
 const emit = defineEmits<Emits>()
+
+// 纹理图案列表
+const patterns = ref<Pattern[]>([
+  {
+    id: 1,
+    name: '斜条纹',
+    value: 'repeating-linear-gradient(45deg, #f0f0f0, #f0f0f0 10px, #e0e0e0 10px, #e0e0e0 20px)'
+  },
+  {
+    id: 2,
+    name: '横线',
+    value: 'repeating-linear-gradient(0deg, #f0f0f0, #f0f0f0 10px, #e0e0e0 10px, #e0e0e0 11px)'
+  },
+  {
+    id: 3,
+    name: '圆点',
+    value: 'radial-gradient(circle, #e0e0e0 2px, transparent 2px) 0 0 / 10px 10px'
+  },
+  {
+    id: 4,
+    name: '方格',
+    value: 'linear-gradient(45deg, #e0e0e0 25%, transparent 25%) -5px 0, linear-gradient(-45deg, #e0e0e0 25%, transparent 25%) -5px 0, linear-gradient(45deg, transparent 75%, #e0e0e0 75%), linear-gradient(-45deg, transparent 75%, #e0e0e0 75%)'
+  },
+  {
+    id: 5,
+    name: '波浪',
+    value: 'repeating-radial-gradient(circle at 50% 50%, #f0f0f0, #f0f0f0 5px, #e0e0e0 5px, #e0e0e0 10px)'
+  },
+  {
+    id: 6,
+    name: '点阵',
+    value: 'linear-gradient(90deg, #e0e0e0 1px, transparent 1px) 0 0 / 10px 10px, linear-gradient(#e0e0e0 1px, transparent 1px) 0 0 / 10px 10px'
+  },
+  {
+    id: 7,
+    name: '木纹',
+    value: 'repeating-linear-gradient(45deg, #deb887, #deb887 2px, #d2b48c 2px, #d2b48c 4px)'
+  },
+  {
+    id: 8,
+    name: '牛仔布',
+    value: 'repeating-linear-gradient(90deg, #2b580c 1px, transparent 1px) 0 0 / 15px 15px, repeating-linear-gradient(0deg, #2b580c 1px, transparent 1px) 0 0 / 15px 15px, #558b2f'
+  },
+  {
+    id: 9,
+    name: '大理石',
+    value: 'radial-gradient(circle at 50% 50%, #f5f5f5, #f5f5f5 1px, #e0e0e0 1px, #e0e0e0 2px) 0 0 / 20px 20px'
+  }
+])
 
 // 响应式数据
 const selectedBackground = ref<Background>(props.initialBackground)
@@ -170,6 +228,17 @@ const enableGradient = ref(false)
 const enablePattern = ref(false)
 const gradientStart = ref('#bee3f8')
 const gradientEnd = ref('#c6f6d5')
+const selectedPatternId = ref<number | string>(1)
+
+// 获取背景样式
+const getBackgroundStyle = (background: Background) => {
+  if (background.type === 'pattern') {
+    // 为预设的纹理背景添加对应的样式
+    if (background.id === 7) return { background: patterns.value[6].value } // 木纹纹理
+    if (background.id === 8) return { background: patterns.value[5].value } // 网格纹理
+  }
+  return { background: background.color }
+}
 
 // 根据背景颜色获取对比色
 const getContrastColor = (hexColor: string) => {
@@ -192,7 +261,22 @@ const selectBackground = (background: Background) => {
   enableGradient.value = false
   enablePattern.value = false
   
-  emit('backgroundChange', background)
+  emit('background-change', background)
+}
+
+// 选择纹理图案
+const selectPattern = (pattern: Pattern) => {
+  selectedPatternId.value = pattern.id
+  
+  const patternBackground: Background = {
+    id: `pattern-${pattern.id}`,
+    name: pattern.name,
+    color: pattern.value,
+    type: 'pattern'
+  }
+  
+  selectedBackground.value = patternBackground
+  emit('background-change', patternBackground)
 }
 
 // 自定义颜色变化
@@ -205,7 +289,7 @@ const onCustomColorChange = () => {
   }
   
   selectedBackground.value = customBackground
-  emit('backgroundChange', customBackground)
+  emit('background-change', customBackground)
 }
 
 const onCustomColorInput = () => {
@@ -231,25 +315,20 @@ const onGradientChange = () => {
     }
     
     selectedBackground.value = gradientBackground
-    emit('backgroundChange', gradientBackground)
+    emit('background-change', gradientBackground)
   }
 }
 
 // 效果变化
 const onEffectChange = () => {
   if (enableGradient.value) {
+    enablePattern.value = false
     onGradientChange()
   } else if (enablePattern.value) {
-    // 图案背景（简化实现）
-    const patternBackground: Background = {
-      id: 'pattern',
-      name: '纹理图案',
-      color: 'repeating-linear-gradient(45deg, #f0f0f0, #f0f0f0 10px, #e0e0e0 10px, #e0e0e0 20px)',
-      type: 'pattern'
-    }
-    
-    selectedBackground.value = patternBackground
-    emit('backgroundChange', patternBackground)
+    enableGradient.value = false
+    // 默认选择第一个纹理图案
+    const selectedPattern = patterns.value.find(p => p.id === selectedPatternId.value) || patterns.value[0]
+    selectPattern(selectedPattern)
   } else {
     // 恢复默认背景
     selectBackground(props.backgrounds[0])
@@ -261,6 +340,11 @@ watch(() => props.initialBackground, (newBackground) => {
   if (newBackground) {
     selectedBackground.value = newBackground
     customColor.value = newBackground.color
+    
+    // 如果初始背景是纹理图案，启用纹理选项
+    if (newBackground.type === 'pattern') {
+      enablePattern.value = true
+    }
   }
 }, { immediate: true })
 
