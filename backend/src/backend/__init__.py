@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .router.wordcloud import router as wordcloud_router
 from .router.quiz import router as quiz_router
+from .router.certificate import router as certificate_router
 from .database import init_db
 from contextlib import asynccontextmanager
 
@@ -46,6 +47,8 @@ def create_app() -> FastAPI:
     # 包含答题模块路由
     app.include_router(quiz_router, prefix="/api")
 
+    # 包含证书模块路由
+    app.include_router(certificate_router, prefix="/api")
     return app
 
 
