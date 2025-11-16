@@ -11,54 +11,64 @@ const props = defineProps<{ radarData: { dimensions: string[]; scores: number[];
 const canvas = ref<HTMLCanvasElement | null>(null)
 let chart: any = null
 
-onMounted(async () => {
-  if (!process.client) return
-  // dynamically import Chart.js only on client
-  const ChartModule = await import('chart.js/auto')
-  const Chart = (ChartModule as any).default || (ChartModule as any).Chart || ChartModule
-
-  if (!canvas.value) return
-
-  chart = new Chart(canvas.value, {
-    type: 'radar',
-    data: {
-      labels: props.radarData?.dimensions || [],
-      datasets: [
-        {
-          label: '特质得分',
-          data: props.radarData?.scores || [],
-          backgroundColor: 'rgba(34,197,94,0.2)',
-          borderColor: 'rgba(34,197,94,1)',
-          pointBackgroundColor: 'rgba(34,197,94,1)',
-        },
-      ],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: true,
-      scales: {
-        r: {
-          suggestedMin: 0,
-          suggestedMax: props.radarData?.max_score ?? 100,
-          ticks: {
-            stepSize: 20,
+// Helper function to create the chart
+const createChart = async () => {
+  if (!process.client || !canvas.value) return
+  
+  try {
+    // Import chart.js/auto which registers all components automatically
+    const { Chart } = await import('chart.js/auto')
+    
+    // Create the chart with proper configuration
+    chart = new Chart(canvas.value, {
+      type: 'radar',
+      data: {
+        labels: props.radarData?.dimensions || [],
+        datasets: [
+          {
+            label: '特质得分',
+            data: props.radarData?.scores || [],
+            backgroundColor: 'rgba(34,197,94,0.2)',
+            borderColor: 'rgba(34,197,94,1)',
+            pointBackgroundColor: 'rgba(34,197,94,1)',
           },
-          pointLabels: {
-            font: {
-              size: 12,
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        scales: {
+          r: {
+            suggestedMin: 0,
+            suggestedMax: props.radarData?.max_score ?? 100,
+            ticks: {
+              stepSize: 20,
+            },
+            pointLabels: {
+              font: {
+                size: 12,
+              },
             },
           },
         },
-      },
-      plugins: {
-        legend: {
-          display: false,
+        plugins: {
+          legend: {
+            display: false,
+          },
         },
       },
-    },
-  })
+    })
+  } catch (error) {
+    console.error('Error initializing chart:', error)
+  }
+}
+
+// Initialize the chart on mount
+onMounted(() => {
+  createChart()
 })
 
+// Update chart when data changes
 watch(
   () => props.radarData,
   (nv) => {
@@ -73,6 +83,7 @@ watch(
   { immediate: true, deep: true }
 )
 
+// Clean up chart instance before unmount
 onBeforeUnmount(() => {
   if (chart) {
     chart.destroy()
