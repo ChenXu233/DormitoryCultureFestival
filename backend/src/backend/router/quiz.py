@@ -23,67 +23,131 @@ TRAIT_DIMENSIONS = {
     "沟通方式": ["直接沟通", "委婉沟通", "书面沟通", "行动沟通"],
 }
 
-# 题库数据 - 通过答题推断个人特质
+# 题库数据 - 每个选项包含对预设特质的加分项（专业问卷风格）
 QUIZ_QUESTIONS = [
     {
         "id": 1,
         "question": "你通常如何度过周末？",
         "options": ["宅在寝室休息", "和朋友外出聚会", "学习或工作", "参加户外活动"],
         "traits": ["生活习惯", "社交倾向", "娱乐偏好"],
+        "option_scores": [
+            {"生活习惯": {"规律": 2}, "娱乐偏好": {"安静活动": 2}},
+            {
+                "生活习惯": {"灵活": 2},
+                "社交倾向": {"外向": 2},
+                "娱乐偏好": {"社交活动": 1},
+            },
+            {"生活习惯": {"规律": 1}, "学习风格": {"独立学习": 2}},
+            {"生活习惯": {"灵活": 1}, "娱乐偏好": {"户外活动": 2}},
+        ],
     },
     {
         "id": 2,
         "question": "你的学习习惯是怎样的？",
         "options": ["独自安静学习", "喜欢小组讨论", "边听音乐边学习", "需要完全安静"],
         "traits": ["学习风格", "生活习惯"],
+        "option_scores": [
+            {"学习风格": {"独立学习": 2}, "生活习惯": {"规律": 1}},
+            {"学习风格": {"小组学习": 2}, "社交倾向": {"外向": 1}},
+            {"学习风格": {"听觉学习": 2}, "生活习惯": {"灵活": 1}},
+            {"学习风格": {"视觉学习": 2}, "生活习惯": {"规律": 1}},
+        ],
     },
     {
         "id": 3,
         "question": "你整理个人物品的频率是？",
         "options": ["每天整理", "2-3天一次", "每周整理", "需要时才整理"],
         "traits": ["卫生习惯", "生活习惯"],
+        "option_scores": [
+            {"卫生习惯": {"高度整洁": 3}, "生活习惯": {"规律": 2}},
+            {"卫生习惯": {"适度整洁": 2}, "生活习惯": {"规律": 1}},
+            {"卫生习惯": {"适度整洁": 1}, "生活习惯": {"灵活": 1}},
+            {"卫生习惯": {"随性": 2}, "生活习惯": {"灵活": 2}},
+        ],
     },
     {
         "id": 4,
         "question": "你更喜欢哪种社交方式？",
         "options": ["大型聚会", "小范围聊天", "一对一交流", "线上社交"],
         "traits": ["社交倾向", "沟通方式"],
+        "option_scores": [
+            {"社交倾向": {"外向": 3}, "沟通方式": {"直接沟通": 1}},
+            {"社交倾向": {"平衡": 2}, "沟通方式": {"委婉沟通": 1}},
+            {"社交倾向": {"内向": 2}, "沟通方式": {"委婉沟通": 2}},
+            {"社交倾向": {"选择性社交": 2}, "沟通方式": {"书面沟通": 2}},
+        ],
     },
     {
         "id": 5,
         "question": "你的作息时间通常是？",
         "options": ["22:00前睡觉", "22:00-24:00睡觉", "24:00-2:00睡觉", "2:00后睡觉"],
         "traits": ["作息规律", "生活习惯"],
+        "option_scores": [
+            {"作息规律": {"早睡早起": 3}, "生活习惯": {"规律": 2}},
+            {"作息规律": {"规律作息": 2}, "生活习惯": {"规律": 2}},
+            {"作息规律": {"弹性作息": 2}, "生活习惯": {"灵活": 2}},
+            {"作息规律": {"夜猫子": 3}, "生活习惯": {"灵活": 2}},
+        ],
     },
     {
         "id": 6,
         "question": "你选择食物时最看重什么？",
         "options": ["健康营养", "口味美味", "方便快捷", "价格实惠"],
         "traits": ["饮食习惯", "生活习惯"],
+        "option_scores": [
+            {"饮食习惯": {"健康饮食": 3}, "生活习惯": {"规律": 1}},
+            {"饮食习惯": {"美食家": 2}, "生活习惯": {"灵活": 1}},
+            {"饮食习惯": {"简单饮食": 2}, "生活习惯": {"灵活": 1}},
+            {"饮食习惯": {"随意饮食": 2}, "生活习惯": {"灵活": 1}},
+        ],
     },
     {
         "id": 7,
         "question": "遇到问题时，你通常如何解决？",
         "options": ["直接说出来", "委婉表达", "写下来思考", "先观察再行动"],
         "traits": ["沟通方式", "学习风格"],
+        "option_scores": [
+            {"沟通方式": {"直接沟通": 3}, "社交倾向": {"外向": 1}},
+            {"沟通方式": {"委婉沟通": 3}, "社交倾向": {"平衡": 1}},
+            {"沟通方式": {"书面沟通": 2}, "学习风格": {"视觉学习": 2}},
+            {"沟通方式": {"行动沟通": 2}, "学习风格": {"独立学习": 2}},
+        ],
     },
     {
         "id": 8,
         "question": "你最喜欢的放松方式是什么？",
         "options": ["听音乐/看书", "运动健身", "和朋友聊天", "玩游戏/看电影"],
         "traits": ["娱乐偏好", "社交倾向"],
+        "option_scores": [
+            {"娱乐偏好": {"安静活动": 3}, "社交倾向": {"内向": 1}},
+            {"娱乐偏好": {"户外活动": 2}, "社交倾向": {"外向": 2}},
+            {"娱乐偏好": {"社交活动": 3}, "社交倾向": {"外向": 2}},
+            {"娱乐偏好": {"创意活动": 2}, "学习风格": {"视觉学习": 1}},
+        ],
     },
     {
         "id": 9,
         "question": "你对个人空间的整洁度要求？",
         "options": ["必须一尘不染", "保持基本整洁", "舒适即可", "不太在意"],
         "traits": ["卫生习惯", "生活习惯"],
+        "option_scores": [
+            {"卫生习惯": {"高度整洁": 3}, "生活习惯": {"规律": 2}},
+            {"卫生习惯": {"适度整洁": 2}, "生活习惯": {"规律": 1}},
+            {"卫生习惯": {"适度整洁": 1}, "生活习惯": {"灵活": 1}},
+            {"卫生习惯": {"随性": 2}, "生活习惯": {"灵活": 2}},
+        ],
     },
     {
         "id": 10,
         "question": "你更喜欢哪种学习环境？",
         "options": ["完全安静", "有背景音乐", "与人讨论", "户外环境"],
         "traits": ["学习风格", "娱乐偏好"],
+        "option_scores": [
+            {"学习风格": {"独立学习": 3}, "社交倾向": {"内向": 1}},
+            {"学习风格": {"听觉学习": 2}, "生活习惯": {"灵活": 1}},
+            {"学习风格": {"小组学习": 2}, "社交倾向": {"外向": 2}},
+            {"学习风格": {"视觉学习": 2}, "娱乐偏好": {"户外活动": 1}},
+        ],
     },
 ]
 
@@ -119,101 +183,41 @@ async def generate_4_digit_code(db: AsyncSession):
 
 
 def analyze_traits(answers):
-    """分析答题结果，推断个人特质并计算分数"""
+    """分析答题结果，推断个人特质并计算分数（基于每个选项的加分表）"""
     # 初始化特质分数
     trait_scores = {
         dimension: {trait: 0 for trait in traits}
         for dimension, traits in TRAIT_DIMENSIONS.items()
     }
 
-    # 定义答案与特质的映射关系
-    answer_trait_mapping = {
-        # 问题1: 你通常如何度过周末？
-        1: {
-            0: {"生活习惯": "规律", "娱乐偏好": "安静活动"},
-            1: {"生活习惯": "灵活", "社交倾向": "外向", "娱乐偏好": "社交活动"},
-            2: {"生活习惯": "规律", "学习风格": "独立学习"},
-            3: {"生活习惯": "灵活", "娱乐偏好": "户外活动"},
-        },
-        # 问题2: 你的学习习惯是怎样的？
-        2: {
-            0: {"学习风格": "独立学习", "生活习惯": "规律"},
-            1: {"学习风格": "小组学习", "社交倾向": "外向"},
-            2: {"学习风格": "听觉学习", "生活习惯": "灵活"},
-            3: {"学习风格": "视觉学习", "生活习惯": "规律"},
-        },
-        # 问题3: 你整理个人物品的频率是？
-        3: {
-            0: {"卫生习惯": "高度整洁", "生活习惯": "规律"},
-            1: {"卫生习惯": "适度整洁", "生活习惯": "规律"},
-            2: {"卫生习惯": "适度整洁", "生活习惯": "灵活"},
-            3: {"卫生习惯": "随性", "生活习惯": "灵活"},
-        },
-        # 问题4: 你更喜欢哪种社交方式？
-        4: {
-            0: {"社交倾向": "外向", "沟通方式": "直接沟通"},
-            1: {"社交倾向": "平衡", "沟通方式": "委婉沟通"},
-            2: {"社交倾向": "内向", "沟通方式": "委婉沟通"},
-            3: {"社交倾向": "选择性社交", "沟通方式": "书面沟通"},
-        },
-        # 问题5: 你的作息时间通常是？
-        5: {
-            0: {"作息规律": "早睡早起", "生活习惯": "规律"},
-            1: {"作息规律": "规律作息", "生活习惯": "规律"},
-            2: {"作息规律": "弹性作息", "生活习惯": "灵活"},
-            3: {"作息规律": "夜猫子", "生活习惯": "灵活"},
-        },
-        # 问题6: 你选择食物时最看重什么？
-        6: {
-            0: {"饮食习惯": "健康饮食", "生活习惯": "规律"},
-            1: {"饮食习惯": "美食家", "生活习惯": "灵活"},
-            2: {"饮食习惯": "简单饮食", "生活习惯": "灵活"},
-            3: {"饮食习惯": "随意饮食", "生活习惯": "灵活"},
-        },
-        # 问题7: 遇到问题时，你通常如何解决？
-        7: {
-            0: {"沟通方式": "直接沟通", "社交倾向": "外向"},
-            1: {"沟通方式": "委婉沟通", "社交倾向": "平衡"},
-            2: {"沟通方式": "书面沟通", "学习风格": "视觉学习"},
-            3: {"沟通方式": "行动沟通", "学习风格": "独立学习"},
-        },
-        # 问题8: 你最喜欢的放松方式是什么？
-        8: {
-            0: {"娱乐偏好": "安静活动", "社交倾向": "内向"},
-            1: {"娱乐偏好": "户外活动", "社交倾向": "外向"},
-            2: {"娱乐偏好": "社交活动", "社交倾向": "外向"},
-            3: {"娱乐偏好": "创意活动", "学习风格": "视觉学习"},
-        },
-        # 问题9: 你对个人空间的整洁度要求？
-        9: {
-            0: {"卫生习惯": "高度整洁", "生活习惯": "规律"},
-            1: {"卫生习惯": "适度整洁", "生活习惯": "规律"},
-            2: {"卫生习惯": "适度整洁", "生活习惯": "灵活"},
-            3: {"卫生习惯": "随性", "生活习惯": "灵活"},
-        },
-        # 问题10: 你更喜欢哪种学习环境？
-        10: {
-            0: {"学习风格": "独立学习", "社交倾向": "内向"},
-            1: {"学习风格": "听觉学习", "生活习惯": "灵活"},
-            2: {"学习风格": "小组学习", "社交倾向": "外向"},
-            3: {"学习风格": "视觉学习", "娱乐偏好": "户外活动"},
-        },
-    }
+    # 构建快速查找：问题ID -> option_scores 列表
+    question_score_map = {q["id"]: q.get("option_scores", []) for q in QUIZ_QUESTIONS}
 
-    # 分析每个问题的答案对应的特质
+    # 累加每个选项给到的分数
     for question_id, answer_index in answers.items():
-        question_id_int = int(question_id)
-        answer_index_int = int(answer_index)
+        try:
+            qid = int(question_id)
+            idx = int(answer_index)
+        except Exception:
+            continue
 
-        # 根据映射关系增加特质分数
-        if (
-            question_id_int in answer_trait_mapping
-            and answer_index_int in answer_trait_mapping[question_id_int]
-        ):
-            trait_mapping = answer_trait_mapping[question_id_int][answer_index_int]
-            for dimension, trait in trait_mapping.items():
-                if dimension in trait_scores and trait in trait_scores[dimension]:
-                    trait_scores[dimension][trait] += 1
+        option_scores = question_score_map.get(qid)
+        if not option_scores or idx < 0 or idx >= len(option_scores):
+            continue
+
+        score_map = option_scores[idx]
+        # score_map: {dimension: {trait: points, ...}, ...}
+        for dimension, trait_map in score_map.items():
+            if dimension not in trait_scores:
+                # 忽略未注册的维度
+                continue
+            for trait, points in trait_map.items():
+                if trait in trait_scores[dimension]:
+                    try:
+                        trait_scores[dimension][trait] += int(points)
+                    except Exception:
+                        # 忽略非整数分值
+                        continue
 
     # 计算每个维度的主要特质
     primary_traits = {}
@@ -222,15 +226,13 @@ def analyze_traits(answers):
             primary_trait = max(traits.items(), key=lambda x: x[1])
             primary_traits[dimension] = primary_trait[0]
 
-    # 找出分数最高的两个特质维度
+    # 找出分数最高的两个特质维度（按维度平均分）
     dimension_scores = {}
     for dimension, traits in trait_scores.items():
-        # 计算维度的总分（所有特质分数的平均值）
         total_score = sum(traits.values())
         avg_score = total_score / len(traits) if traits else 0
         dimension_scores[dimension] = avg_score
 
-    # 按分数排序，取前两个
     top_dimensions = sorted(dimension_scores.items(), key=lambda x: x[1], reverse=True)[
         :2
     ]
@@ -240,7 +242,7 @@ def analyze_traits(answers):
         if dim in primary_traits
     }
 
-    # 生成雷达图数据
+    # 生成雷达图数据（使用每个维度的得分相对于该维度可能的最高分进行标准化）
     radar_data = generate_radar_data(trait_scores)
 
     return trait_scores, top_primary_traits, radar_data
@@ -248,21 +250,40 @@ def analyze_traits(answers):
 
 def generate_radar_data(trait_scores):
     """生成雷达图数据"""
-    # 计算每个维度的总分（标准化到0-100）
     dimensions = list(TRAIT_DIMENSIONS.keys())
     scores = []
 
+    # 计算每个维度可能的最大总分（基于问卷中各题的最大加分）
+    max_possible_by_dimension = {dim: 0 for dim in dimensions}
+    for q in QUIZ_QUESTIONS:
+        opt_scores = q.get("option_scores", [])
+        # 对于该题每个维度，取该题中所有选项在该维度上给予的最大分
+        per_question_max = {}
+        for opt in opt_scores:
+            for dim, trait_map in opt.items():
+                per_question_max[dim] = max(
+                    per_question_max.get(dim, 0),
+                    sum(
+                        int(v)
+                        for v in trait_map.values()
+                        if isinstance(v, (int, float))
+                    ),
+                )
+
+        for dim, val in per_question_max.items():
+            if dim in max_possible_by_dimension:
+                max_possible_by_dimension[dim] += val
+
+    # 现在根据实际得分与可能最高分来标准化到0-100
     for dimension in dimensions:
-        if dimension in trait_scores:
-            traits = trait_scores[dimension]
-            # 计算维度总分（所有特质分数的平均值）
-            total_score = sum(traits.values())
-            avg_score = total_score / len(traits) if traits else 0
-            # 标准化到0-100（假设最大可能分数为5）
-            normalized_score = min(avg_score * 20, 100)
-            scores.append(int(normalized_score))
+        traits = trait_scores.get(dimension, {})
+        total_score = sum(traits.values())
+        max_possible = max_possible_by_dimension.get(dimension, 0)
+        if max_possible > 0:
+            normalized = int(min(100, (total_score / max_possible) * 100))
         else:
-            scores.append(0)
+            normalized = 0
+        scores.append(normalized)
 
     return {"dimensions": dimensions, "scores": scores, "max_score": 100}
 
@@ -298,13 +319,31 @@ async def submit_quiz(submission: QuizSubmission, db: AsyncSession = Depends(get
     await db.commit()
     await db.refresh(quiz_result)
 
-    return {
+    # 返回给前端的数据，包含前端页面预期的字段名
+    # 前端 `quiz.vue` 期望 `unique_code`, `message`, `traits` (主要特质) 以及 `trait_scores` 和 `radar_data`
+    response_payload = {
         "unique_code": unique_code,
         "trait_scores": trait_scores,
         "primary_traits": top_primary_traits,
+        "traits": top_primary_traits,
         "radar_data": radar_data,
-        "message": f"答题完成！你的4位唯一代码是：{unique_code}，请记住这个代码用于特质匹配。",
+        "message": f"答题完成！你的唯一代码是：{unique_code}，请记住这个代码用于特质匹配。",
     }
+
+    # 尝试从提交数据中计算用时（如果前端上传了 submitted_at）
+    try:
+        if submission.submitted_at:
+            # submitted_at 由前端传入，可能为 datetime 或字符串（pydantic 已解析为 datetime）
+            time_spent_seconds = int(
+                (datetime.now() - submission.submitted_at).total_seconds()
+            )
+            # 不强求准确，这只是一个可选字段，前端也会本地计算并覆盖
+            response_payload["time_spent"] = max(time_spent_seconds, 0)
+    except Exception:
+        # 忽略计算错误，不影响主要流程
+        response_payload["time_spent"] = 0
+
+    return response_payload
 
 
 @router.post("/match", response_model=Dict[str, Any])
