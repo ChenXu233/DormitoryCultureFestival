@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from src.backend.router.quiz import router as quiz_router
 from src.backend.router.wordcloud import router as wordcloud_router
+from src.backend.router.certificate import router as certificate_router
 from src.backend.database import init_db
 
 # 创建FastAPI应用
@@ -19,6 +20,7 @@ app.add_middleware(
 # 注册路由
 app.include_router(quiz_router, prefix="/api")
 app.include_router(wordcloud_router, prefix="/api")
+app.include_router(certificate_router, prefix="/api")
 
 
 @app.on_event("startup")
