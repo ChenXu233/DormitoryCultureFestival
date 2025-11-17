@@ -57,7 +57,7 @@
         </div>
 
         <!-- 双人匹配卡片 -->
-        <div class="bg-white border border-gray-200 rounded-xl p-8 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+        <!-- <div class="bg-white border border-gray-200 rounded-xl p-8 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
           <div class="w-16 h-16 bg-green-100 rounded-xl flex items-center justify-center mb-6">
             <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
@@ -73,7 +73,7 @@
           >
             开始匹配
           </NuxtLink>
-        </div>
+        </div> -->
 
         <!-- 团队匹配卡片 -->
         <div class="bg-white border border-gray-200 rounded-xl p-8 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">

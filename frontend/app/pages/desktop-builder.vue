@@ -520,37 +520,36 @@ const onDrop = (event: DragEvent) => {
 
 // 元素拖拽
 let isDragging = false
+let draggingElement: DesktopElement | null = null
 const dragOffset = { x: 0, y: 0 }
+
+const onDrag = (event: MouseEvent) => {
+  if (isDragging && draggingElement && desktopCanvas.value) {
+    const rect = desktopCanvas.value.getBoundingClientRect()
+    const x = event.clientX - dragOffset.x
+    const y = event.clientY - dragOffset.y
+    
+    draggingElement.x = Math.max(0, Math.min(x, rect.width - 50))
+    draggingElement.y = Math.max(0, Math.min(y, rect.height - 50))
+    
+    emit('update:elements', elements.value)
+  }
+}
 
 const startDrag = (element: DesktopElement, event: MouseEvent) => {
   isDragging = true
-  
-  // 拖拽时不选中元素，避免编辑面板出现
-  const draggingElement = element
+  draggingElement = element
   
   dragOffset.x = event.clientX - element.x
   dragOffset.y = event.clientY - element.y
   
   document.addEventListener('mousemove', onDrag)
   document.addEventListener('mouseup', stopDrag)
-  
-  // 拖拽时直接更新元素位置，不通过selectedElement
-  function onDrag(event: MouseEvent) {
-    if (isDragging && desktopCanvas.value) {
-      const rect = desktopCanvas.value.getBoundingClientRect()
-      const x = event.clientX - dragOffset.x
-      const y = event.clientY - dragOffset.y
-      
-      draggingElement.x = Math.max(0, Math.min(x, rect.width - 50))
-      draggingElement.y = Math.max(0, Math.min(y, rect.height - 50))
-      
-      emit('update:elements', elements.value)
-    }
-  }
 }
 
 const stopDrag = () => {
   isDragging = false
+  draggingElement = null
   document.removeEventListener('mousemove', onDrag)
   document.removeEventListener('mouseup', stopDrag)
 }
