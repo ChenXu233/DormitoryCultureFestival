@@ -10,186 +10,48 @@
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
       <!-- 左侧：元素面板 -->
       <div class="lg:col-span-1">
-        <!-- 内置元素面板组件 -->
-        <div class="bg-white rounded-lg shadow-md border border-gray-200 p-4 h-full">
-          <h3 class="text-lg font-semibold mb-4 text-gray-800">可选元素</h3>
-          
-          <!-- 元素分类 -->
-          <div class="mb-4">
-            <button 
-              v-for="category in elementCategories" 
-              :key="category.id"
-              :class="[
-                'px-3 py-1.5 rounded-md text-sm mb-2 mr-2 inline-block',
-                activeCategory === category.id 
-                  ? 'bg-blue-100 text-blue-700 font-medium' 
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              ]"
-              @click="activeCategory = category.id"
-            >
-              {{ category.name }}
-            </button>
-          </div>
-          
-          <!-- 元素网格 -->
-          <div class="grid grid-cols-2 gap-3">
-            <div 
-              v-for="element in getFilteredElements()" 
-              :key="element.name"
-              class="element-item p-3 bg-gray-50 rounded-lg border border-gray-200 cursor-move hover:border-blue-300 hover:bg-blue-50 transition-colors text-center"
-              draggable="true"
-              @dragstart="onElementDragStart(element, $event)"
-              @click="onElementClick(element)"
-            >
-              <div class="text-2xl mb-1">{{ element.icon }}</div>
-              <div class="text-xs text-gray-600">{{ element.name }}</div>
-            </div>
-          </div>
-        </div>
+        <ElementPanel
+          :categories="elementCategories"
+          :elements="availableElements"
+          :active-category="activeCategory"
+          @category-change="activeCategory = $event"
+          @element-drag-start="onElementDragStart"
+          @element-click="onElementClick"
+        />
       </div>
 
       <!-- 中间：桌面构建区域 -->
       <div class="lg:col-span-3">
         <!-- 桌面工具栏 -->
-        <div class="toolbar flex flex-wrap justify-between items-center bg-white rounded-lg shadow-sm p-4 mb-4">
-          <h2 class="text-xl font-semibold text-gray-800 mb-2 sm:mb-0">我的桌面</h2>
-          <div class="flex space-x-2">
-            <button 
-              class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"
-              @click="clearDesktop"
-            >
-              清空桌面
-            </button>
-            <button 
-              class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors"
-              @click="saveDesktop"
-            >
-              保存配置
-            </button>
-            <button 
-              class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
-              @click="downloadImage"
-            >
-              下载图片
-            </button>
-          </div>
-        </div>
+        <Toolbar
+          @clear="clearDesktop"
+          @save="saveDesktop"
+          @download="downloadImage"
+        />
 
         <!-- 选中元素的编辑面板 -->
-        <div v-if="selectedElement" class="bg-white rounded-lg shadow-sm p-4 mb-4">
-          <h3 class="text-sm font-semibold text-gray-700 mb-2">编辑：{{ selectedElement.name }}</h3>
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div>
-              <label class="block text-xs text-gray-500 mb-1">旋转</label>
-              <input 
-                type="range" 
-                min="0" 
-                max="360" 
-                step="1" 
-                :value="selectedElement.rotation" 
-                @input="selectedElement.rotation = Number($event.target.value)"
-                class="w-full"
-              />
-              <span class="text-xs text-gray-500">{{ selectedElement.rotation }}°</span>
-            </div>
-            <div>
-              <label class="block text-xs text-gray-500 mb-1">缩放</label>
-              <input 
-                type="range" 
-                min="0.5" 
-                max="2" 
-                step="0.1" 
-                :value="selectedElement.scale" 
-                @input="selectedElement.scale = Number($event.target.value)"
-                class="w-full"
-              />
-              <span class="text-xs text-gray-500">{{ selectedElement.scale.toFixed(1) }}x</span>
-            </div>
-            <div>
-              <label class="block text-xs text-gray-500 mb-1">大小</label>
-              <input 
-                type="range" 
-                min="1" 
-                max="4" 
-                step="0.5" 
-                :value="selectedElement.size || 2" 
-                @input="selectedElement.size = Number($event.target.value)"
-                class="w-full"
-              />
-              <span class="text-xs text-gray-500">{{ (selectedElement.size || 2) }}rem</span>
-            </div>
-          </div>
-        </div>
+        <ElementEditor
+          :element="selectedElement"
+          @update:rotation="updateElementRotation"
+          @update:scale="updateElementScale"
+          @update:size="updateElementSize"
+        />
 
-        <!-- 桌面画布容器 - 添加3D透视效果 -->
-        <div class="perspective-container">
-          <div class="desktop-canvas-container" style="height: 500px;">
-            <!-- 桌面画布 - 3D立体桌面 -->
-            <div 
-              ref="desktopCanvas"
-              class="relative w-full h-full rounded-lg border-2 border-gray-300 overflow-hidden shadow-xl"
-              :style="getDesktopStyle()"
-              @dragover="onDragOver"
-              @drop="onDrop"
-              @click.self="deselectElement"
-            >
-              <!-- 桌面边缘装饰，增强立体感 -->
-              <div class="desktop-edge"></div>
-              <div class="desktop-legs"></div>
-              
-              <!-- 放置的元素 -->
-              <div 
-                v-for="element in elements" 
-                :key="element.id"
-                class="absolute cursor-move select-none transition-all duration-300"
-                :style="{
-                  left: element.x + 'px',
-                  top: element.y + 'px',
-                  transform: getElementTransform(element),
-                  zIndex: element.zIndex,
-                  perspective: '1000px'
-                }"
-                @mousedown="startDrag(element, $event)"
-                @contextmenu.prevent="showContextMenu($event, element)"
-                @mouseenter="elementHovered = element.id"
-                @mouseleave="elementHovered = null"
-              >
-                <div 
-                  :class="[
-                    'p-2 rounded-lg transition-all duration-300',
-                    selectedElement?.id === element.id 
-                      ? 'border-blue-500 ring-2 ring-blue-200 shadow-xl' 
-                      : 'border-transparent shadow-lg',
-                    elementHovered === element.id ? 'transform hover-scale' : ''
-                  ]"
-                  :style="getElement3DStyle(element)"
-                >
-                  <div class="text-center">
-                    <div 
-                      class="transform transition-transform duration-300 hover:scale-110"
-                      :style="{ fontSize: `${element.size || 2}rem` }"
-                    >
-                      {{ element.icon }}
-                    </div>
-                    <!-- 元素底部阴影，增强立体感 -->
-                    <div class="element-base"></div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- 空状态提示 -->
-              <div 
-                v-if="elements.length === 0"
-                class="absolute inset-0 flex items-center justify-center text-gray-400"
-              >
-                <div class="text-center">
-                  <div class="text-6xl mb-4">📱</div>
-                  <p class="text-lg">拖拽元素到桌面上开始搭建</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <!-- 桌面画布 -->
+        <DesktopCanvas
+          :elements="elements"
+          :background="background"
+          :height="500"
+          :selected-element-id="selectedElement?.id"
+          :hovered-element-id="elementHovered"
+          @drag-over="onDragOver"
+          @drop="onDrop"
+          @deselect-element="deselectElement"
+          @element-drag-start="startDrag"
+          @context-menu-show="showContextMenu"
+          @element-hover="elementHovered = $event"
+          ref="desktopCanvasRef"
+        />
       </div>
     </div>
 
@@ -199,88 +61,28 @@
     </div>
 
     <!-- 右键菜单 -->
-    <div 
-      v-if="contextMenu.visible"
-      class="fixed bg-white shadow-lg rounded-lg py-2 z-50 min-w-32"
-      :style="{ left: contextMenu.x + 'px', top: contextMenu.y + 'px' }"
-      @click.stop
-    >
-      <button 
-        class="w-full px-4 py-2 text-left text-green-600 hover:bg-green-50 flex items-center"
-        @click="editElement"
-      >
-        <span class="mr-2">✏️</span> 编辑元素
-      </button>
-      <button 
-        class="w-full px-4 py-2 text-left text-blue-600 hover:bg-blue-50 flex items-center"
-        @click="duplicateElement"
-      >
-        <span class="mr-2">📋</span> 复制元素
-      </button>
-      <button 
-        class="w-full px-4 py-2 text-left text-red-600 hover:bg-red-50 flex items-center"
-        @click="deleteElement"
-      >
-        <span class="mr-2">🗑️</span> 删除元素
-      </button>
-      <div class="border-t my-1"></div>
-      <button 
-        class="w-full px-4 py-2 text-left text-purple-600 hover:bg-purple-50 flex items-center"
-        @click="rotateElement(45)"
-      >
-        <span class="mr-2">↻</span> 顺时针旋转
-      </button>
-      <button 
-        class="w-full px-4 py-2 text-left text-purple-600 hover:bg-purple-50 flex items-center"
-        @click="rotateElement(-45)"
-      >
-        <span class="mr-2">↺</span> 逆时针旋转
-      </button>
-      <div class="border-t my-1"></div>
-      <button 
-        class="w-full px-4 py-2 text-left text-purple-600 hover:bg-purple-50 flex items-center"
-        @click="bringToFront"
-      >
-        <span class="mr-2">⬆️</span> 置顶
-      </button>
-      <button 
-        class="w-full px-4 py-2 text-left text-purple-600 hover:bg-purple-50 flex items-center"
-        @click="sendToBack"
-      >
-        <span class="mr-2">⬇️</span> 置底
-      </button>
-    </div>
+    <ContextMenu
+      :visible="contextMenu.visible"
+      :x="contextMenu.x"
+      :y="contextMenu.y"
+      @edit="editElement"
+      @duplicate="duplicateElement"
+      @delete="deleteElement"
+      @rotate="rotateElement"
+      @bring-to-front="bringToFront"
+      @send-to-back="sendToBack"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, onUnmounted, watch } from 'vue'
-
-// 定义元素接口 - 扩展以支持3D属性
-interface DesktopElement {
-  id: number | string
-  name: string
-  icon: string
-  x: number
-  y: number
-  rotation: number
-  scale: number
-  zIndex: number
-  size?: number
-  category?: string
-  isCabinet?: boolean
-  // 3D相关属性
-  depth?: number
-  rotationX?: number
-  rotationY?: number
-  material?: string
-}
-
-// 元素类别
-interface ElementCategory {
-  id: string
-  name: string
-}
+import { ref, reactive, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
+import ElementPanel from '../components/ElementPanel.vue'
+import DesktopCanvas from '../components/DesktopCanvas.vue'
+import Toolbar from '../components/Toolbar.vue'
+import ElementEditor from '../components/ElementEditor.vue'
+import ContextMenu from '../components/ContextMenu.vue'
+import type { DesktopElement, ElementCategory, DraggableElement, ContextMenuState, DesktopConfig } from '../components/types'
 
 // 定义组件属性
 interface Props {
@@ -297,7 +99,7 @@ interface Emits {
 
 // 组件属性
 const props = withDefaults(defineProps<Props>(), {
-  background: '#f5deb3',
+  background: '#f8fafc',
   initialElements: () => []
 })
 
@@ -305,17 +107,19 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<Emits>()
 
 // 响应式数据
-const desktopCanvas = ref<HTMLElement>()
+const desktopCanvasRef = ref<InstanceType<typeof DesktopCanvas>>()
 const selectedElement = ref<DesktopElement | null>(null)
-const contextMenu = reactive({ 
-  visible: false, 
-  x: 0, 
-  y: 0, 
-  element: null as DesktopElement | null 
-})
+const elementHovered = ref<string | null>(null)
+const draggingElement = ref<DesktopElement | null>(null)
+const dragOffset = ref({ x: 0, y: 0 })
 const background = ref(props.background)
-const elementHovered = ref<number | string | null>(null)
 const activeCategory = ref('all')
+const contextMenu = reactive<ContextMenuState>({
+  visible: false,
+  x: 0,
+  y: 0,
+  element: null
+})
 
 // 桌面元素
 const elements = ref<DesktopElement[]>(props.initialElements)
@@ -324,45 +128,58 @@ const elements = ref<DesktopElement[]>(props.initialElements)
 const elementCategories: ElementCategory[] = [
   { id: 'all', name: '全部' },
   { id: 'electronics', name: '电子设备' },
-  { id: 'furniture', name: '家具' },
-  { id: 'stationery', name: '文具' },
-  { id: 'decorations', name: '装饰品' }
+  { id: 'study', name: '学习资料' },
+  { id: 'tools', name: '小工具' },
+  { id: 'daily', name: '生活用品' }
 ]
 
 // 预定义的可拖拽元素
 const availableElements = [
-  // 电子设备
+  // 电子设备 - 电脑套装
   { name: '电脑', icon: '💻', category: 'electronics' },
+  { name: '键盘', icon: '⌨️', category: 'electronics' },
+  { name: '鼠标', icon: '🖱️', category: 'electronics' },
+  
+  // 电子设备 - 移动设备
   { name: '手机', icon: '📱', category: 'electronics' },
   { name: '平板', icon: '📟', category: 'electronics' },
+  
+  // 电子设备 - 音频设备
   { name: '耳机', icon: '🎧', category: 'electronics' },
-  { name: '相机', icon: '📷', category: 'electronics' },
-  { name: '台灯', icon: '💡', category: 'electronics' },
-  { name: '充电宝', icon: '🔋', category: 'electronics' },
   
-  // 家具
-  { name: '柜子', icon: '🗄️', category: 'furniture', isCabinet: true },
-  { name: '抽屉', icon: '🗃️', category: 'furniture', isCabinet: true },
-  { name: '书架', icon: '📚', category: 'furniture' },
-  { name: '椅子', icon: '🪑', category: 'furniture' },
+  // 学习资料 - 书籍资料
+  { name: '书籍', icon: '📚', category: 'study' },
   
-  // 文具
-  { name: '笔记本', icon: '📓', category: 'stationery' },
-  { name: '书本', icon: '📕', category: 'stationery' },
-  { name: '铅笔', icon: '✏️', category: 'stationery' },
-  { name: '钢笔', icon: '🖋️', category: 'stationery' },
-  { name: '橡皮', icon: '🧽', category: 'stationery' },
-  { name: '订书机', icon: '🖇️', category: 'stationery' },
-  { name: '文件夹', icon: '📁', category: 'stationery' },
+  // 学习资料 - 书写工具
+  { name: '草稿纸', icon: '📝', category: 'study' },
+  { name: '笔', icon: '✏️', category: 'study' },
   
-  // 装饰品
-  { name: '绿植', icon: '🌱', category: 'decorations' },
-  { name: '相框', icon: '🖼️', category: 'decorations' },
-  { name: '时钟', icon: '⏰', category: 'decorations' },
-  { name: '咖啡杯', icon: '☕', category: 'decorations' },
-  { name: '水杯', icon: '🥤', category: 'decorations' },
-  { name: '纸巾', icon: '🧻', category: 'decorations' },
-  { name: '闹钟', icon: '⏱️', category: 'decorations' }
+  // 学习资料 - 笔记用品
+  { name: '便利贴', icon: '📋', category: 'study' },
+  
+  // 小工具 - 办公工具
+  { name: '美工刀', icon: '🔪', category: 'tools' },
+  { name: '订书机', icon: '🖇️', category: 'tools' },
+  { name: '纸巾', icon: '🧻', category: 'tools' },
+  
+  // 小工具 - 存储设备
+  { name: 'U盘', icon: '💾', category: 'tools' },
+  
+  // 小工具 - 时间工具
+  { name: '计算器', icon: '🧮', category: 'tools' },
+  { name: '时钟', icon: '⏰', category: 'tools' },
+  
+  // 生活用品 - 照明用品
+  { name: '台灯', icon: '💡', category: 'daily' },
+  
+  // 生活用品 - 饮水用品
+  { name: '水杯', icon: '🥤', category: 'daily' },
+  
+  // 生活用品 - 个人物品
+  { name: '小零食', icon: '🍪', category: 'daily' },
+  { name: '手办', icon: '🎎', category: 'daily' },
+  { name: '镜子', icon: '🪞', category: 'daily' },
+  { name: '化妆品', icon: '💄', category: 'daily' }
 ]
 
 // 获取过滤后的元素列表
@@ -451,28 +268,31 @@ const onElementDragStart = (element: any, event: DragEvent) => {
 
 const onElementClick = (element: any) => {
   // 点击元素面板中的元素时，自动添加到桌面中央
-  if (desktopCanvas.value) {
-    const rect = desktopCanvas.value.getBoundingClientRect()
-    const x = rect.width / 2 - 25
-    const y = rect.height / 2 - 25
-    
-    const newElement: DesktopElement = {
-      ...element,
-      id: Date.now(),
-      x: Math.max(0, Math.min(x, rect.width - 50)),
-      y: Math.max(0, Math.min(y, rect.height - 50)),
-      rotation: 0,
-      scale: 1,
-      zIndex: elements.value.length + 1,
-      size: element.size || 2,
-      depth: element.isCabinet ? 50 : 20,
-      rotationX: 0,
-      rotationY: 0,
-      material: element.isCabinet ? 'wood' : 'plastic'
+  if (desktopCanvasRef.value) {
+    const canvas = desktopCanvasRef.value.getCanvas()
+    if (canvas) {
+      const rect = canvas.getBoundingClientRect()
+      const x = rect.width / 2 - 25
+      const y = rect.height / 2 - 25
+      
+      const newElement: DesktopElement = {
+        ...element,
+        id: Date.now(),
+        x: Math.max(0, Math.min(x, rect.width - 50)),
+        y: Math.max(0, Math.min(y, rect.height - 50)),
+        rotation: 0,
+        scale: 1,
+        zIndex: elements.value.length + 1,
+        size: element.size || 2,
+        depth: element.isCabinet ? 50 : 20,
+        rotationX: 0,
+        rotationY: 0,
+        material: element.isCabinet ? 'wood' : 'plastic'
+      }
+      
+      elements.value.push(newElement)
+      emit('update:elements', elements.value)
     }
-    
-    elements.value.push(newElement)
-    emit('update:elements', elements.value)
   }
 }
 
@@ -490,58 +310,62 @@ const onDrop = (event: DragEvent) => {
   if (event.dataTransfer) {
     const elementData = JSON.parse(event.dataTransfer.getData('text/plain'))
     
-    if (desktopCanvas.value) {
-      const rect = desktopCanvas.value.getBoundingClientRect()
-      const x = event.clientX - rect.left - 25
-      const y = event.clientY - rect.top - 25
-      
-      // 创建新元素实例
-      const newElement: DesktopElement = {
-        ...elementData,
-        id: Date.now(),
-        x: Math.max(0, Math.min(x, rect.width - 50)),
-        y: Math.max(0, Math.min(y, rect.height - 50)),
-        rotation: 0,
-        scale: 1,
-        zIndex: elements.value.length + 1,
-        size: elementData.size || 2,
-        // 初始化3D属性
-        depth: elementData.isCabinet ? 50 : 20,
-        rotationX: 0,
-        rotationY: 0,
-        material: elementData.isCabinet ? 'wood' : 'plastic'
+    if (desktopCanvasRef.value) {
+      const canvas = desktopCanvasRef.value.getCanvas()
+      if (canvas) {
+        const rect = canvas.getBoundingClientRect()
+        const x = event.clientX - rect.left - 25
+        const y = event.clientY - rect.top - 25
+        
+        // 创建新元素实例
+        const newElement: DesktopElement = {
+          ...elementData,
+          id: Date.now(),
+          x: Math.max(0, Math.min(x, rect.width - 50)),
+          y: Math.max(0, Math.min(y, rect.height - 50)),
+          rotation: 0,
+          scale: 1,
+          zIndex: elements.value.length + 1,
+          size: elementData.size || 2,
+          // 初始化3D属性
+          depth: elementData.isCabinet ? 50 : 20,
+          rotationX: 0,
+          rotationY: 0,
+          material: elementData.isCabinet ? 'wood' : 'plastic'
+        }
+        
+        elements.value.push(newElement)
+        emit('update:elements', elements.value)
       }
-      
-      elements.value.push(newElement)
-      emit('update:elements', elements.value)
     }
   }
 }
 
 // 元素拖拽
 let isDragging = false
-let draggingElement: DesktopElement | null = null
-const dragOffset = { x: 0, y: 0 }
 
 const onDrag = (event: MouseEvent) => {
-  if (isDragging && draggingElement && desktopCanvas.value) {
-    const rect = desktopCanvas.value.getBoundingClientRect()
-    const x = event.clientX - dragOffset.x
-    const y = event.clientY - dragOffset.y
-    
-    draggingElement.x = Math.max(0, Math.min(x, rect.width - 50))
-    draggingElement.y = Math.max(0, Math.min(y, rect.height - 50))
-    
-    emit('update:elements', elements.value)
+  if (isDragging && draggingElement.value && desktopCanvasRef.value) {
+    const canvas = desktopCanvasRef.value.getCanvas()
+    if (canvas) {
+      const rect = canvas.getBoundingClientRect()
+      const x = event.clientX - dragOffset.value.x
+      const y = event.clientY - dragOffset.value.y
+      
+      draggingElement.value.x = Math.max(0, Math.min(x, rect.width - 50))
+      draggingElement.value.y = Math.max(0, Math.min(y, rect.height - 50))
+      
+      emit('update:elements', elements.value)
+    }
   }
 }
 
 const startDrag = (element: DesktopElement, event: MouseEvent) => {
   isDragging = true
-  draggingElement = element
+  draggingElement.value = element
   
-  dragOffset.x = event.clientX - element.x
-  dragOffset.y = event.clientY - element.y
+  dragOffset.value.x = event.clientX - element.x
+  dragOffset.value.y = event.clientY - element.y
   
   document.addEventListener('mousemove', onDrag)
   document.addEventListener('mouseup', stopDrag)
@@ -549,7 +373,7 @@ const startDrag = (element: DesktopElement, event: MouseEvent) => {
 
 const stopDrag = () => {
   isDragging = false
-  draggingElement = null
+  draggingElement.value = null
   document.removeEventListener('mousemove', onDrag)
   document.removeEventListener('mouseup', stopDrag)
 }
@@ -676,19 +500,22 @@ const downloadImage = async () => {
       // 动态导入html2canvas
       const html2canvas = (await import('html2canvas')).default;
       
-      if (desktopCanvas.value) {
-        const canvas = await html2canvas(desktopCanvas.value, {
-          scale: 2, // 提高清晰度
-          useCORS: true,
-          allowTaint: true,
-          logging: false
-        });
-        
-        // 创建下载链接
-        const link = document.createElement('a');
-        link.download = `桌面设计_${new Date().toLocaleDateString()}.png`;
-        link.href = canvas.toDataURL('image/png');
-        link.click();
+      if (desktopCanvasRef.value) {
+        const canvas = desktopCanvasRef.value.getCanvas()
+        if (canvas) {
+          const htmlCanvas = await html2canvas(canvas, {
+            scale: 2, // 提高清晰度
+            useCORS: true,
+            allowTaint: true,
+            logging: false
+          });
+          
+          // 创建下载链接
+          const link = document.createElement('a');
+          link.download = `桌面设计_${new Date().toLocaleDateString()}.png`;
+          link.href = htmlCanvas.toDataURL('image/png');
+          link.click();
+        }
       }
     } catch (error) {
       console.error('下载图片失败:', error);
@@ -766,127 +593,8 @@ defineExpose({
 </script>
 
 <style scoped>
-/* 3D透视容器 */
-.perspective-container {
-  perspective: 1500px;
-  margin: 20px 0;
-  width: 100%;
-  height: auto;
-}
-
-/* 桌面样式增强 */
-.desktop-edge {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 20px;
-  background: #deb887;
-  transform: translateY(100%) rotateX(90deg);
-  transform-origin: top;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
-}
-
-.desktop-legs {
-  position: absolute;
-  bottom: -20px;
-  left: 50px;
-  right: 50px;
-  height: 50px;
-  background: #8b4513;
-  transform: translateY(100%);
-  z-index: -1;
-}
-
-/* 元素底部底座，增强立体感 */
-.element-base {
-  position: absolute;
-  bottom: -10px;
-  left: 50%;
-  transform: translateX(-50%) rotateX(90deg);
-  width: 80%;
-  height: 10px;
-  background: rgba(0,0,0,0.1);
-  border-radius: 50%;
-  z-index: -1;
-}
-
-/* 悬停缩放效果 */
-.hover-scale {
-  transform: translateY(-5px) !important;
-  box-shadow: 0 15px 30px rgba(0,0,0,0.2) !important;
-}
-
-/* 鼠标样式 */
-.cursor-move {
-  cursor: move;
-}
-
-.cursor-move:active {
-  cursor: grabbing;
-}
-
-/* 平滑过渡效果 */
-.absolute {
-  transition: transform 0.1s ease-out, z-index 0s linear 0.1s;
-}
-
-/* 3D变换支持 */
-* {
-  transform-style: preserve-3d;
-}
-
-/* 桌面画布样式增强 */
-.desktop-canvas-container {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
-
-/* 工具栏样式 */
-.toolbar {
-  background-color: white;
-  border-radius: 8px;
-  padding: 12px 16px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  margin-bottom: 16px;
-}
-
-/* 元素项样式 */
-.element-item {
-  transition: all 0.2s ease;
-}
-
-.element-item:hover {
-  transform: translateY(-2px);
-}
-
-/* 输入滑块样式 */
-input[type="range"] {
-  -webkit-appearance: none;
-  height: 6px;
-  border-radius: 3px;
-  background: #e5e7eb;
-  outline: none;
-}
-
-input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: #3b82f6;
-  cursor: pointer;
-}
-
-input[type="range"]::-moz-range-thumb {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: #3b82f6;
-  cursor: pointer;
-  border: none;
+.desktop-builder {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 /* 响应式设计 */
@@ -894,79 +602,11 @@ input[type="range"]::-moz-range-thumb {
   .desktop-builder {
     padding: 1rem;
   }
-  
-  .perspective-container {
-    perspective: 1000px;
-  }
-  
-  .desktop-canvas-container {
-    height: 400px !important;
-  }
 }
 
 @media (max-width: 768px) {
   .desktop-builder {
     padding: 0.5rem;
   }
-  
-  .grid {
-    grid-template-columns: 1fr !important;
-    gap: 16px;
-  }
-  
-  .lg\:col-span-3,
-  .lg\:col-span-1 {
-    grid-column: span 1 !important;
-  }
-  
-  .toolbar {
-    flex-direction: column;
-    gap: 12px;
-  }
-  
-  .toolbar .flex.space-x-2 {
-    width: 100%;
-    justify-content: space-between;
-  }
-  
-  .desktop-canvas-container {
-    height: 350px !important;
-  }
-  
-  .perspective-container {
-    perspective: 800px;
-    margin: 10px 0;
-  }
-}
-
-@media (max-width: 480px) {
-  .desktop-canvas-container {
-    height: 300px !important;
-  }
-  
-  .toolbar .flex.space-x-2 {
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-  
-  .toolbar .flex.space-x-2 button {
-    flex: 1;
-    min-width: calc(50% - 4px);
-  }
-  
-  .grid.grid-cols-2 {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-/* 右键菜单动画 */
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.2s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
 }
 </style>

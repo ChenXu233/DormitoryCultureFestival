@@ -1,371 +1,231 @@
 <template>
-  <div class="element-panel">
-    <!-- 面板标题 -->
-    <h2 class="text-xl font-semibold text-gray-800 mb-4">桌面元素</h2>
+  <div class="bg-white rounded-lg shadow-md border border-gray-200 p-4 h-full">
+    <h3 class="text-lg font-semibold mb-4 text-gray-800">可选元素</h3>
     
-    <!-- 元素分类 -->
-    <div class="mb-6">
-      <div class="flex flex-wrap gap-2 mb-4">
+    <!-- 分类按钮 - 田字排列 -->
+    <div class="grid grid-cols-2 gap-3 mb-4">
+      <button 
+        v-for="category in categories" 
+        :key="category.id"
+        :class="[
+          'category-btn h-20 rounded-lg border-2 font-medium transition-all duration-200 flex flex-col items-center justify-center',
+          activeCategory === category.id 
+            ? 'bg-blue-500 text-white border-blue-600 shadow-lg transform scale-105' 
+            : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200 hover:border-gray-400 hover:shadow-md'
+        ]"
+        @click="selectCategory(category.id)"
+      >
+        <div class="text-2xl mb-1">{{ getCategoryIcon(category.id) }}</div>
+        <div class="text-sm">{{ category.name }}</div>
+      </button>
+    </div>
+    
+    <!-- 子分类区域 -->
+    <div v-if="selectedCategory" class="mb-4">
+      <!-- 子分类标题 -->
+      <div class="flex items-center justify-between mb-3">
+        <h4 class="font-medium text-gray-700">{{ getCurrentCategoryName() }} - 子分类</h4>
         <button 
-          v-for="category in categories" 
-          :key="category.id"
-          :class="[
-            'px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap',
-            selectedCategory === category.id 
-              ? 'bg-blue-600 text-white' 
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-          ]"
-          @click="selectedCategory = category.id"
+          @click="selectedCategory = null"
+          class="text-gray-500 hover:text-gray-700 text-sm"
         >
-          {{ category.name }}
+          返回
         </button>
       </div>
-    </div>
-
-    <!-- 元素列表 - 主元素+变体结构 -->
-    <div class="space-y-6 max-h-96 overflow-y-auto">
-      <div 
-        v-for="element in filteredElements" 
-        :key="element.id"
-        class="bg-gray-50 rounded-lg p-4 border-2 border-transparent hover:border-blue-300"
-      >
-        <!-- 主元素信息 -->
-        <div class="flex items-center justify-between mb-3">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 flex items-center justify-center text-2xl">
-              {{ element.icon }}
-            </div>
-            <span class="font-medium text-gray-700">{{ element.name }}</span>
-          </div>
-          <span class="text-xs text-gray-500">{{ element.variants.length }}个变体</span>
-        </div>
-        
-        <!-- 变体网格 -->
-        <div class="grid grid-cols-4 gap-2">
-          <div 
-            v-for="variant in element.variants" 
-            :key="variant.id"
-            class="bg-white rounded-lg p-2 cursor-pointer hover:bg-blue-50 transition-colors border border-gray-200 hover:border-blue-300 flex flex-col items-center"
-            draggable="true"
-            @dragstart="onDragStart($event, getVariantElement(element, variant))"
-            @dragend="onDragEnd"
-            @click="onElementClick(getVariantElement(element, variant))"
-          >
-            <div class="text-xl mb-1">{{ variant.icon }}</div>
-            <span class="text-xs text-gray-600">{{ variant.name }}</span>
-          </div>
+      
+      <!-- 子分类按钮 - 田字排列 -->
+      <div class="grid grid-cols-2 gap-2 mb-4">
+        <button 
+          v-for="subCategory in getSubCategories(selectedCategory)" 
+          :key="subCategory.id"
+          :class="[
+            'subcategory-btn h-16 rounded-md border font-medium transition-all duration-200 flex flex-col items-center justify-center',
+            activeSubCategory === subCategory.id 
+              ? 'bg-blue-100 text-blue-700 border-blue-300 shadow-md' 
+              : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50 hover:border-gray-300'
+          ]"
+          @click="selectSubCategory(subCategory.id)"
+        >
+          <div class="text-lg mb-1">{{ subCategory.icon }}</div>
+          <div class="text-xs">{{ subCategory.name }}</div>
+        </button>
+      </div>
+      
+      <!-- 元素网格 -->
+      <div class="grid grid-cols-3 gap-2">
+        <div 
+          v-for="element in getFilteredElements()" 
+          :key="element.name"
+          class="element-item p-2 bg-white rounded border border-gray-200 cursor-move hover:border-blue-300 hover:bg-blue-50 transition-all duration-200 text-center"
+          draggable="true"
+          @dragstart="$emit('element-drag-start', element, $event)"
+          @click="$emit('element-click', element)"
+        >
+          <div class="text-xl mb-1">{{ element.icon }}</div>
+          <div class="text-xs text-gray-600">{{ element.name }}</div>
         </div>
       </div>
     </div>
-
-    <!-- 空状态 -->
-    <div 
-      v-if="filteredElements.length === 0"
-      class="text-center py-8 text-gray-500"
-    >
-      <div class="text-4xl mb-2">📦</div>
-      <p class="text-sm">该分类暂无元素</p>
+    
+    <!-- 默认显示全部元素 -->
+    <div v-else class="grid grid-cols-3 gap-2">
+      <div 
+        v-for="element in getFilteredElements()" 
+        :key="element.name"
+        class="element-item p-2 bg-white rounded border border-gray-200 cursor-move hover:border-blue-300 hover:bg-blue-50 transition-all duration-200 text-center"
+        draggable="true"
+        @dragstart="$emit('element-drag-start', element, $event)"
+        @click="$emit('element-click', element)"
+      >
+        <div class="text-xl mb-1">{{ element.icon }}</div>
+        <div class="text-xs text-gray-600">{{ element.name }}</div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-
-// 定义变体接口
-interface ElementVariant {
-  id: number | string
-  name: string
-  icon: string
-  size?: number
-}
-
-// 定义元素接口
-interface DesktopElement {
-  id: number | string
-  name: string
-  icon: string
-  category: string
-  variants: ElementVariant[]
-}
-
-// 定义分类接口
-interface Category {
-  id: string
-  name: string
-}
+import type { ElementCategory, DraggableElement } from './types'
 
 // 定义组件属性
 interface Props {
-  categories?: Category[]
-  elements?: DesktopElement[]
+  categories: ElementCategory[]
+  elements: DraggableElement[]
+  activeCategory: string
 }
 
 // 定义组件事件
 interface Emits {
-  (e: 'dragStart', element: any, event: DragEvent): void
-  (e: 'dragEnd'): void
-  (e: 'elementClick', element: any): void
+  (e: 'category-change', categoryId: string): void
+  (e: 'element-drag-start', element: DraggableElement, event: DragEvent): void
+  (e: 'element-click', element: DraggableElement): void
+}
+
+// 定义子分类接口
+interface SubCategory {
+  id: string
+  name: string
+  icon: string
+  parentCategory: string
 }
 
 // 组件属性
-const props = withDefaults(defineProps<Props>(), {
-  categories: () => [
-    { id: 'study', name: '学习用品' },
-    { id: 'electronics', name: '电子设备' },
-    { id: 'daily', name: '生活用品' },
-    { id: 'decor', name: '装饰物品' },
-    { id: 'furniture', name: '家具' } // 添加家具分类
-  ],
-  elements: () => [
-    // 学习用品
-    {
-      id: 1, 
-      name: '书本', 
-      icon: '📚', 
-      category: 'study',
-      variants: [
-        { id: 101, name: '教科书', icon: '📖', size: 2.2 },
-        { id: 102, name: '小说', icon: '📓', size: 2 },
-        { id: 103, name: '杂志', icon: '📰', size: 1.8 },
-        { id: 104, name: '笔记本', icon: '📝', size: 1.6 }
-      ]
-    },
-    {
-      id: 2, 
-      name: '文具', 
-      icon: '✏️', 
-      category: 'study',
-      variants: [
-        { id: 201, name: '钢笔', icon: '✒️', size: 1.3 },
-        { id: 202, name: '铅笔', icon: '✏️', size: 1.2 },
-        { id: 203, name: '荧光笔', icon: '🖊️', size: 1.3 },
-        { id: 204, name: '橡皮擦', icon: '🧽', size: 1.1 }
-      ]
-    },
-    {
-      id: 3, 
-      name: '计算器', 
-      icon: '🧮', 
-      category: 'study',
-      variants: [
-        { id: 301, name: '科学计算器', icon: '🧮', size: 1.5 },
-        { id: 302, name: '普通计算器', icon: '🔢', size: 1.3 },
-        { id: 303, name: '算盘', icon: '🟥', size: 1.4 },
-        { id: 304, name: '函数计算器', icon: '🔣', size: 1.6 }
-      ]
-    },
-    
-    // 电子设备
-    {
-      id: 4, 
-      name: '电脑', 
-      icon: '💻', 
-      category: 'electronics',
-      variants: [
-        { id: 401, name: '笔记本电脑', icon: '💻', size: 2.2 },
-        { id: 402, name: '台式电脑', icon: '🖥️', size: 2.5 },
-        { id: 403, name: '平板电脑', icon: '📟', size: 1.8 },
-        { id: 404, name: '一体机', icon: '🖨️', size: 2.3 }
-      ]
-    },
-    {
-      id: 5, 
-      name: '手机', 
-      icon: '📱', 
-      category: 'electronics',
-      variants: [
-        { id: 501, name: '智能手机', icon: '📱', size: 1.4 },
-        { id: 502, name: '折叠手机', icon: '📲', size: 1.3 },
-        { id: 503, name: '游戏手机', icon: '🎮', size: 1.5 },
-        { id: 504, name: '复古手机', icon: '📞', size: 1.2 }
-      ]
-    },
-    
-    // 生活用品
-    {
-      id: 6, 
-      name: '水杯', 
-      icon: '🥤', 
-      category: 'daily',
-      variants: [
-        { id: 601, name: '塑料杯', icon: '🥤', size: 1.5 },
-        { id: 602, name: '保温杯', icon: '☕', size: 1.4 },
-        { id: 603, name: '玻璃杯', icon: '🥃', size: 1.6 },
-        { id: 604, name: '马克杯', icon: '🧋', size: 1.5 }
-      ]
-    },
-    {
-      id: 7, 
-      name: '台灯', 
-      icon: '💡', 
-      category: 'daily',
-      variants: [
-        { id: 701, name: '护眼台灯', icon: '💡', size: 1.8 },
-        { id: 702, name: '小夜灯', icon: '🌙', size: 1.5 },
-        { id: 703, name: 'LED灯', icon: '🔦', size: 1.6 },
-        { id: 704, name: '蜡烛灯', icon: '🕯️', size: 1.4 }
-      ]
-    },
-    
-    // 装饰物品
-    {
-      id: 8, 
-      name: '相框', 
-      icon: '🖼️', 
-      category: 'decor',
-      variants: [
-        { id: 801, name: '方形相框', icon: '🖼️', size: 1.8 },
-        { id: 802, name: '圆形相框', icon: '🎞️', size: 1.6 },
-        { id: 803, name: '相册', icon: '📷', size: 1.7 },
-        { id: 804, name: '照片墙', icon: '🏞️', size: 2 }
-      ]
-    },
-    {
-      id: 9, 
-      name: '植物', 
-      icon: '🌿', 
-      category: 'decor',
-      variants: [
-        { id: 901, name: '多肉植物', icon: '🌱', size: 1.3 },
-        { id: 902, name: '绿萝', icon: '🌿', size: 1.6 },
-        { id: 903, name: '仙人掌', icon: '🌵', size: 1.5 },
-        { id: 904, name: '花朵', icon: '🌸', size: 1.4 }
-      ]
-    },
-    {
-      id: 10, 
-      name: '摆件', 
-      icon: '🔮', 
-      category: 'decor',
-      variants: [
-        { id: 1001, name: '水晶球', icon: '🔮', size: 1.3 },
-        { id: 1002, name: '玩偶', icon: '🧸', size: 1.5 },
-        { id: 1003, name: '时钟', icon: '⏰', size: 1.4 },
-        { id: 1004, name: '香薰', icon: '🕯️', size: 1.2 }
-      ]
-    },
-    
-    // 添加家具分类 - 柜子
-    {
-      id: 11, 
-      name: '柜子', 
-      icon: '🗄️', 
-      category: 'furniture',
-      variants: [
-        { id: 1101, name: '床头柜', icon: '🗄️', size: 2.5 },
-        { id: 1102, name: '书柜', icon: '📚', size: 2.8 },
-        { id: 1103, name: '储物柜', icon: '📦', size: 2.6 },
-        { id: 1104, name: '抽屉柜', icon: '🗂️', size: 2.4 }
-      ]
-    },
-    {
-      id: 12, 
-      name: '高级柜子', 
-      icon: '🏬', 
-      category: 'furniture',
-      variants: [
-        { id: 1201, name: '多层柜', icon: '🏬', size: 3 },
-        { id: 1202, name: '玻璃柜', icon: '🪟', size: 2.9 },
-        { id: 1203, name: '衣柜', icon: '👔', size: 3.2 },
-        { id: 1204, name: '展示柜', icon: '🎁', size: 2.7 }
-      ]
-    }
-  ]
-})
+const props = defineProps<Props>()
 
 // 组件事件
 const emit = defineEmits<Emits>()
 
-// 响应式数据
-const selectedCategory = ref(props.categories[0]?.id || 'study')
+// 状态管理
+const selectedCategory = ref<string | null>(null)
+const activeSubCategory = ref<string | null>(null)
 
-// 计算属性：过滤元素
-const filteredElements = computed(() => {
+// 子分类配置
+const subCategories: SubCategory[] = [
+  // 电子设备子分类
+  { id: 'computer-set', name: '电脑套装', icon: '💻', parentCategory: 'electronics' },
+  { id: 'mobile-devices', name: '移动设备', icon: '📱', parentCategory: 'electronics' },
+  { id: 'audio-devices', name: '音频设备', icon: '🎧', parentCategory: 'electronics' },
+  
+  // 学习资料子分类
+  { id: 'books', name: '书籍资料', icon: '📚', parentCategory: 'study' },
+  { id: 'writing-tools', name: '书写工具', icon: '✏️', parentCategory: 'study' },
+  { id: 'notes', name: '笔记用品', icon: '📋', parentCategory: 'study' },
+  
+  // 小工具子分类
+  { id: 'office-tools', name: '办公工具', icon: '🖇️', parentCategory: 'tools' },
+  { id: 'storage-devices', name: '存储设备', icon: '💾', parentCategory: 'tools' },
+  { id: 'time-tools', name: '时间工具', icon: '⏰', parentCategory: 'tools' },
+  
+  // 生活用品子分类
+  { id: 'lighting', name: '照明用品', icon: '💡', parentCategory: 'daily' },
+  { id: 'drinkware', name: '饮水用品', icon: '🥤', parentCategory: 'daily' },
+  { id: 'personal-items', name: '个人物品', icon: '💄', parentCategory: 'daily' }
+]
+
+// 选择主分类
+const selectCategory = (categoryId: string) => {
+  selectedCategory.value = categoryId
+  activeSubCategory.value = null
+  emit('category-change', categoryId)
+}
+
+// 选择子分类
+const selectSubCategory = (subCategoryId: string) => {
+  activeSubCategory.value = subCategoryId
+}
+
+// 获取分类图标
+const getCategoryIcon = (categoryId: string) => {
+  const icons: Record<string, string> = {
+    'electronics': '💻',
+    'study': '📚',
+    'tools': '🔧',
+    'daily': '🏠'
+  }
+  return icons[categoryId] || '📦'
+}
+
+// 获取当前分类名称
+const getCurrentCategoryName = () => {
   const category = props.categories.find(cat => cat.id === selectedCategory.value)
-  if (!category) return []
-  
-  return props.elements.filter(el => el.category === category.id)
-})
-
-// 获取变体元素数据
-const getVariantElement = (element: DesktopElement, variant: ElementVariant) => {
-  return {
-    ...element,
-    id: `${element.id}-${variant.id}`,
-    name: `${element.name} - ${variant.name}`,
-    icon: variant.icon,
-    size: variant.size || 2,
-    isCabinet: element.name.includes('柜子') // 标记为柜子
-  }
+  return category?.name || ''
 }
 
-// 拖拽相关函数
-const onDragStart = (event: DragEvent, element: any) => {
-  if (event.dataTransfer) {
-    // 设置拖拽数据
-    event.dataTransfer.setData('text/plain', JSON.stringify(element))
-    event.dataTransfer.effectAllowed = 'copy'
-    
-    // 设置拖拽图片
-    const dragIcon = document.createElement('div')
-    dragIcon.textContent = element.icon
-    dragIcon.style.fontSize = '2rem'
-    dragIcon.style.opacity = '0'
-    document.body.appendChild(dragIcon)
-    
-    event.dataTransfer.setDragImage(dragIcon, 0, 0)
-    
-    setTimeout(() => {
-      document.body.removeChild(dragIcon)
-    }, 0)
+// 获取指定主分类的子分类
+const getSubCategories = (parentCategory: string) => {
+  return subCategories.filter(sub => sub.parentCategory === parentCategory)
+}
+
+// 获取过滤后的元素列表
+const getFilteredElements = () => {
+  if (!selectedCategory.value) {
+    // 显示全部元素
+    return props.elements
   }
   
-  emit('dragStart', element, event)
+  if (!activeSubCategory.value) {
+    // 显示主分类下的所有元素
+    return props.elements.filter(el => el.category === selectedCategory.value)
+  }
+  
+  // 根据子分类过滤元素
+  const subCategoryElements: Record<string, string[]> = {
+    // 电子设备子分类
+    'computer-set': ['电脑', '键盘', '鼠标'],
+    'mobile-devices': ['手机', '平板'],
+    'audio-devices': ['耳机'],
+    
+    // 学习资料子分类
+    'books': ['书籍'],
+    'writing-tools': ['笔', '草稿纸'],
+    'notes': ['便利贴'],
+    
+    // 小工具子分类
+    'office-tools': ['订书机', '美工刀', '纸巾'],
+    'storage-devices': ['U盘'],
+    'time-tools': ['时钟', '计算器'],
+    
+    // 生活用品子分类
+    'lighting': ['台灯'],
+    'drinkware': ['水杯'],
+    'personal-items': ['小零食', '手办', '镜子', '化妆品']
+  }
+  
+  const elementNames = subCategoryElements[activeSubCategory.value] || []
+  return props.elements.filter(el => 
+    el.category === selectedCategory.value && 
+    elementNames.includes(el.name)
+  )
 }
-
-const onDragEnd = () => {
-  emit('dragEnd')
-}
-
-// 元素点击事件
-const onElementClick = (element: any) => {
-  emit('elementClick', element)
-}
-
-// 暴露方法给父组件
-defineExpose({
-  selectedCategory,
-  filteredElements
-})
 </script>
 
 <style scoped>
-/* 自定义滚动条 */
-.space-y-6::-webkit-scrollbar {
-  width: 6px;
+.element-item {
+  transition: all 0.2s ease;
 }
 
-.space-y-6::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 3px;
-}
-
-.space-y-6::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 3px;
-}
-
-.space-y-6::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
-}
-
-/* 拖拽元素样式 */
-.cursor-grab {
-  cursor: grab;
-}
-
-.cursor-grab:active {
-  cursor: grabbing;
+.element-item:hover {
+  transform: translateY(-2px);
 }
 </style>
