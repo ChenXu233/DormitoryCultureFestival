@@ -8,9 +8,9 @@
       <div class="space-y-3">
         <div class="flex space-x-3">
           <button 
-            @click="saveDesign"
             :disabled="isSaving"
             class="flex-1 px-4 py-2 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 text-white rounded-lg transition-colors flex items-center justify-center space-x-2"
+            @click="saveDesign"
           >
             <svg v-if="isSaving" class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
@@ -26,8 +26,8 @@
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">设计名称</label>
           <input 
-            type="text" 
-            v-model="designName"
+            v-model="designName" 
+            type="text"
             placeholder="我的寝室桌面设计"
             class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500"
           >
@@ -55,8 +55,8 @@
                 </div>
               </div>
               <button 
-                @click.stop="deleteDesign(design.id)"
                 class="opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-red-500 transition-opacity"
+                @click.stop="deleteDesign(design.id)"
               >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
@@ -75,9 +75,9 @@
         <!-- 生成分享链接 -->
         <div>
           <button 
-            @click="generateShareLink"
             :disabled="!hasDesignData"
             class="w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white rounded-lg transition-colors flex items-center justify-center space-x-2"
+            @click="generateShareLink"
           >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
@@ -97,8 +97,8 @@
               class="flex-1 px-3 py-1 bg-white border border-blue-300 rounded text-sm text-blue-700"
             >
             <button 
-              @click="copyToClipboard"
               class="px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded text-sm transition-colors"
+              @click="copyToClipboard"
             >
               复制
             </button>
@@ -111,8 +111,8 @@
           <div class="text-sm text-gray-700">分享到：</div>
           <div class="flex space-x-2">
             <button 
-              @click="shareToWechat"
               class="flex-1 px-3 py-2 bg-green-500 hover:bg-green-600 text-white rounded text-sm transition-colors flex items-center justify-center space-x-1"
+              @click="shareToWechat"
             >
               <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M8.691 2.188C3.891 2.188 0 5.374 0 9.283c0 2.462 1.491 4.638 3.774 5.934-.105.38-.365 1.381-.42 1.603-.077.318-.246.384-.384.246-.246-.21-1.303-.945-1.845-1.429-.246-.21-.246-.21-.246-.42.105-.42.63-1.491.735-1.766C1.071 11.4.63 10.329.63 9.283c0-4.011 4.011-7.095 8.061-7.095s8.061 3.084 8.061 7.095-4.011 7.095-8.061 7.095c-.945 0-1.845-.21-2.73-.525l-2.625.945c-.21.105-.42.105-.525-.105-.105-.21-.105-.42.105-.63l1.26-1.575c-1.26-1.05-2.1-2.625-2.1-4.326 0-3.36 2.94-6.09 6.51-6.09s6.51 2.73 6.51 6.09-2.94 6.09-6.51 6.09c-.42 0-.84-.105-1.26-.21-.21 0-.42 0-.63.105l-.84.42c.315.42.735.84 1.155 1.155.63.525 1.365.945 2.205 1.26.84.315 1.68.42 2.625.42 4.011 0 7.095-3.084 7.095-7.095s-3.084-7.095-7.095-7.095z"/>
@@ -120,8 +120,8 @@
               <span>微信</span>
             </button>
             <button 
-              @click="shareToQQ"
               class="flex-1 px-3 py-2 bg-blue-400 hover:bg-blue-500 text-white rounded text-sm transition-colors flex items-center justify-center space-x-1"
+              @click="shareToQQ"
             >
               <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm-1.5 15.5h-3v-7h3v7zm6.5 0h-3v-7h3v7zm-3.25-9.5h-2.5c-.414 0-.75-.336-.75-.75s.336-.75.75-.75h2.5c.414 0 .75.336.75.75s-.336.75-.75.75z"/>
@@ -134,9 +134,9 @@
         <!-- 导出为图片 -->
         <div class="border-t pt-4">
           <button 
-            @click="exportAsImage"
             :disabled="!hasDesignData"
             class="w-full px-4 py-2 bg-purple-500 hover:bg-purple-600 disabled:bg-gray-300 text-white rounded-lg transition-colors flex items-center justify-center space-x-2"
+            @click="exportAsImage"
           >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>

@@ -4,7 +4,7 @@
     
     <!-- 加载状态 -->
     <div v-if="loading" class="mb-4 text-center">
-      <div class="inline-block w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+      <div class="inline-block w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"/>
       <p class="text-sm text-gray-500 mt-2">正在加载词汇列表...</p>
     </div>
     
