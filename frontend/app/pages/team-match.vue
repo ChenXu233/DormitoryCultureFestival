@@ -73,6 +73,84 @@
             团队匹配结果
           </h2>
           
+          <!-- 实时摄像窗口 -->
+          <div class="mb-8">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">团队合影时刻</h3>
+            <div class="max-w-md mx-auto">
+              <div class="relative bg-gray-900 rounded-lg overflow-hidden">
+                <video 
+                  ref="videoRef"
+                  v-show="!capturedPhoto"
+                  class="w-full h-64 object-cover"
+                  autoplay
+                  playsinline
+                ></video>
+                <canvas
+                  ref="canvasRef"
+                  v-show="capturedPhoto"
+                  class="w-full h-64 object-cover"
+                ></canvas>
+                
+                <!-- 拍照按钮 -->
+                <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2">
+                  <button
+                    v-if="!capturedPhoto && isCameraReady"
+                    @click="takePhoto"
+                    class="w-16 h-16 bg-white rounded-full border-4 border-gray-300 hover:bg-gray-100 transition-colors duration-200 flex items-center justify-center shadow-lg"
+                  >
+                    <svg class="w-8 h-8 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                  </button>
+                  
+                  <button
+                    v-if="capturedPhoto"
+                    @click="retakePhoto"
+                    class="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg transition-colors duration-200 text-sm"
+                  >
+                    重新拍照
+                  </button>
+                </div>
+                
+                <!-- 摄像头控制按钮 -->
+                <div class="absolute top-4 right-4 flex gap-2">
+                  <button
+                    v-if="!isCameraActive"
+                    @click="startCamera"
+                    class="p-2 bg-green-600 hover:bg-green-700 text-white rounded-full transition-colors duration-200"
+                    title="开启摄像头"
+                  >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                    </svg>
+                  </button>
+                  
+                  <button
+                    v-if="isCameraActive"
+                    @click="stopCamera"
+                    class="p-2 bg-red-600 hover:bg-red-700 text-white rounded-full transition-colors duration-200"
+                    title="关闭摄像头"
+                  >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              
+              <div v-if="!isCameraActive && !capturedPhoto" class="text-center py-8">
+                <button
+                  @click="startCamera"
+                  class="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-200"
+                >
+                  开启摄像头
+                </button>
+                <p class="text-sm text-gray-500 mt-2">点击开启摄像头，记录团队合影时刻</p>
+              </div>
+            </div>
+          </div>
+          
           <!-- 匹配度展示 -->
           <div class="max-w-md mx-auto mb-6">
             <div class="bg-gradient-to-r from-green-400 to-blue-500 rounded-lg p-8 text-white">
@@ -191,6 +269,14 @@ const codes = ref(['', '', '', ''])
 const loading = ref(false)
 const matchResult = ref<any>(null)
 
+// 摄像头状态
+const videoRef = ref<HTMLVideoElement>()
+const canvasRef = ref<HTMLCanvasElement>()
+const isCameraActive = ref(false)
+const isCameraReady = ref(false)
+const capturedPhoto = ref(false)
+let stream: MediaStream | null = null
+
 // 计算是否可以匹配
 const canMatch = computed(() => {
   return codes.value.every(code => code.length === 4)
@@ -222,5 +308,74 @@ const matchTeamTraits = async () => {
 const resetMatch = () => {
   codes.value = ['', '', '', '']
   matchResult.value = null
+  stopCamera()
+  capturedPhoto.value = false
 }
+
+// 开启摄像头
+const startCamera = async () => {
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: { 
+        width: { ideal: 1280 },
+        height: { ideal: 720 },
+        facingMode: 'user'
+      }
+    })
+    
+    if (videoRef.value) {
+      videoRef.value.srcObject = stream
+      videoRef.value.onloadedmetadata = () => {
+        isCameraReady.value = true
+        isCameraActive.value = true
+      }
+    }
+  } catch (error) {
+    console.error('无法访问摄像头:', error)
+    alert('无法访问摄像头，请检查权限设置')
+  }
+}
+
+// 关闭摄像头
+const stopCamera = () => {
+  if (stream) {
+    stream.getTracks().forEach(track => track.stop())
+    stream = null
+  }
+  if (videoRef.value) {
+    videoRef.value.srcObject = null
+  }
+  isCameraActive.value = false
+  isCameraReady.value = false
+}
+
+// 拍照
+const takePhoto = () => {
+  if (!videoRef.value || !canvasRef.value) return
+  
+  const video = videoRef.value
+  const canvas = canvasRef.value
+  const context = canvas.getContext('2d')
+  
+  if (context) {
+    // 设置canvas尺寸与视频一致
+    canvas.width = video.videoWidth
+    canvas.height = video.videoHeight
+    
+    // 绘制当前视频帧到canvas
+    context.drawImage(video, 0, 0, canvas.width, canvas.height)
+    
+    capturedPhoto.value = true
+  }
+}
+
+// 重新拍照
+const retakePhoto = () => {
+  capturedPhoto.value = false
+}
+
+// 页面卸载时清理摄像头
+onBeforeUnmount(() => {
+  stopCamera()
+})
 </script>
