@@ -33,7 +33,6 @@
         <ElementEditor
           :element="selectedElement"
           @update:rotation="updateElementRotation"
-          @update:scale="updateElementScale"
           @update:size="updateElementSize"
         />
 
@@ -49,7 +48,7 @@
           @deselect-element="deselectElement"
           @element-drag-start="startDrag"
           @context-menu-show="showContextMenu"
-          @element-hover="elementHovered = $event"
+          @element-hover="elementHovered = $event !== null ? String($event) : null"
           ref="desktopCanvasRef"
         />
       </div>
@@ -563,6 +562,22 @@ onUnmounted(() => {
 // 处理背景变化
 const onBackgroundChange = (newBackground: string) => {
   background.value = newBackground
+}
+
+// 处理元素旋转更新
+const updateElementRotation = (rotation: number) => {
+  if (selectedElement.value) {
+    selectedElement.value.rotation = rotation
+    emit('update:elements', elements.value)
+  }
+}
+
+// 处理元素尺寸更新
+const updateElementSize = (size: number) => {
+  if (selectedElement.value) {
+    selectedElement.value.size = size
+    emit('update:elements', elements.value)
+  }
 }
 
 // 监听属性变化

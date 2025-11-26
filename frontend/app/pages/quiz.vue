@@ -229,7 +229,7 @@ const answers = ref<Record<string, string>>({})
 
 // 计时器
 const elapsedTime = ref(0)
-let timer: NodeJS.Timeout | null = null
+let timer: ReturnType<typeof setInterval> | null = null
 
 // 答题结果
 const result = ref({
