@@ -19,12 +19,6 @@ export default defineNuxtConfig({
       fs: {
         allow: ['..'] // 或明确包含你的项目路径
       },
-      proxy: {
-      '/api': {
-        target: 'http://101.126.35.203:8000',
-        changeOrigin: true
-      }
-    }
     }
   },
 })
