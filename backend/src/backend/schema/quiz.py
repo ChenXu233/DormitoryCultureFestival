@@ -17,7 +17,7 @@ class QuizSubmission(BaseModel):
 
     participant_name: Optional[str] = None
     answers: Dict[str, str]  # question_id: answer_index
-    submitted_at: datetime = None
+    submitted_at: Optional[datetime] = None
 
 
 class TraitAnalysis(BaseModel):
