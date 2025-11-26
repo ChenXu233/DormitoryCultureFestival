@@ -18,6 +18,11 @@ async def lifepan(app: FastAPI):
         # Optional cleanup/shutdown logic can go here, e.g. closing DB connections
         pass
 
+origins = [
+    "http://localhost:3000",   # 本地开发前端
+    "http://101.126.35.203:3000",  # 如果你部署了前端在这个服务器
+    # "*" 也可以用来允许所有来源，但不推荐生产环境使用
+]
 
 def create_app() -> FastAPI:
     app = FastAPI(title="寝室文化节API", version="1.0.0", lifespan=lifepan)
@@ -25,7 +30,7 @@ def create_app() -> FastAPI:
     # 配置CORS中间件，允许前端访问
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],  # 生产环境应该配置具体的域名
+        allow_origins=origins,  # 生产环境应该配置具体的域名
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
