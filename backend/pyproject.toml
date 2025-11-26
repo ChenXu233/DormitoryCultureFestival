@@ -27,3 +27,4 @@ distribution = true
 
 [tool.pdm.scripts]
 dev = "uvicorn src.backend:app --reload"
+server = "uvicorn src.backend:app --port 8000 --host 0.0.0.0"
