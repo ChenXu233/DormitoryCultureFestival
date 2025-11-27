@@ -30,6 +30,7 @@ export interface DraggableElement {
   category?: string
   size?: number
   isCabinet?: boolean
+  variants?: string[] // 图片变体数组
 }
 
 // 右键菜单状态接口

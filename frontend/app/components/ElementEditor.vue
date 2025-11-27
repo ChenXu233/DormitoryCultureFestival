@@ -10,23 +10,10 @@
           max="360" 
           step="1" 
           :value="element.rotation" 
-          @input="$emit('update:rotation', Number($event.target.value))"
+          @input="$emit('update:rotation', $event.target ? Number(($event.target as HTMLInputElement).value) : 0)"
           class="w-full"
         />
         <span class="text-xs text-gray-500">{{ element.rotation }}°</span>
-      </div>
-      <div>
-        <label class="block text-xs text-gray-500 mb-1">缩放</label>
-        <input 
-          type="range" 
-          min="0.5" 
-          max="2" 
-          step="0.1" 
-          :value="element.scale" 
-          @input="$emit('update:scale', Number($event.target.value))"
-          class="w-full"
-        />
-        <span class="text-xs text-gray-500">{{ element.scale.toFixed(1) }}x</span>
       </div>
       <div>
         <label class="block text-xs text-gray-500 mb-1">大小</label>
@@ -36,7 +23,7 @@
           max="4" 
           step="0.5" 
           :value="element.size || 2" 
-          @input="$emit('update:size', Number($event.target.value))"
+          @input="$emit('update:size', $event.target ? Number(($event.target as HTMLInputElement).value) : 2)"
           class="w-full"
         />
         <span class="text-xs text-gray-500">{{ (element.size || 2) }}rem</span>
@@ -70,6 +57,7 @@ const emit = defineEmits<Emits>()
 <style scoped>
 /* 输入滑块样式 */
 input[type="range"] {
+  appearance: none;
   -webkit-appearance: none;
   height: 6px;
   border-radius: 3px;

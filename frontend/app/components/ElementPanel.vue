@@ -61,7 +61,10 @@
           @dragstart="$emit('element-drag-start', element, $event)"
           @click="$emit('element-click', element)"
         >
-          <div class="text-xl mb-1">{{ element.icon }}</div>
+          <div class="mb-1 flex items-center justify-center" style="height: 40px;">
+            <img v-if="isImageIcon(element.icon)" :src="element.icon" :alt="element.name" class="max-h-full max-w-full object-contain" />
+            <div v-else class="text-xl">{{ element.icon }}</div>
+          </div>
           <div class="text-xs text-gray-600">{{ element.name }}</div>
         </div>
       </div>
@@ -77,7 +80,10 @@
         @dragstart="$emit('element-drag-start', element, $event)"
         @click="$emit('element-click', element)"
       >
-        <div class="text-xl mb-1">{{ element.icon }}</div>
+        <div class="mb-1 flex items-center justify-center" style="height: 40px;">
+          <img v-if="isImageIcon(element.icon)" :src="element.icon" :alt="element.name" class="max-h-full max-w-full object-contain" />
+          <div v-else class="text-xl">{{ element.icon }}</div>
+        </div>
         <div class="text-xs text-gray-600">{{ element.name }}</div>
       </div>
     </div>
@@ -85,7 +91,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import type { ElementCategory, DraggableElement } from './types'
 
 // 定义组件属性
@@ -120,6 +126,14 @@ const emit = defineEmits<Emits>()
 const selectedCategory = ref<string | null>(null)
 const activeSubCategory = ref<string | null>(null)
 
+// 默认子分类映射
+const defaultSubCategories: Record<string, string> = {
+  'electronics': 'computer-set',    // 电子设备 -> 电脑套装
+  'study': 'books',                 // 学习资料 -> 书籍资料
+  'tools': 'office-tools',          // 小工具 -> 办公工具
+  'daily': 'lighting'               // 生活用品 -> 照明用品
+}
+
 // 子分类配置
 const subCategories: SubCategory[] = [
   // 电子设备子分类
@@ -146,7 +160,8 @@ const subCategories: SubCategory[] = [
 // 选择主分类
 const selectCategory = (categoryId: string) => {
   selectedCategory.value = categoryId
-  activeSubCategory.value = null
+  // 自动选择默认子分类
+  activeSubCategory.value = defaultSubCategories[categoryId] || null
   emit('category-change', categoryId)
 }
 
@@ -177,6 +192,11 @@ const getSubCategories = (parentCategory: string) => {
   return subCategories.filter(sub => sub.parentCategory === parentCategory)
 }
 
+// 判断是否为图片图标
+const isImageIcon = (icon: string) => {
+  return icon.startsWith('/') || icon.startsWith('http')
+}
+
 // 获取过滤后的元素列表
 const getFilteredElements = () => {
   if (!selectedCategory.value) {
@@ -189,35 +209,53 @@ const getFilteredElements = () => {
     return props.elements.filter(el => el.category === selectedCategory.value)
   }
   
-  // 根据子分类过滤元素
-  const subCategoryElements: Record<string, string[]> = {
+  // 根据子分类过滤元素 - 更新为匹配新的元素名称
+  const subCategoryElements: Record<string, (elementName: string) => boolean> = {
     // 电子设备子分类
-    'computer-set': ['电脑', '键盘', '鼠标'],
-    'mobile-devices': ['手机', '平板'],
-    'audio-devices': ['耳机'],
+    'computer-set': (name) => name.startsWith('电脑') || name.startsWith('键盘') || name.startsWith('鼠标'),
+    'mobile-devices': (name) => name.startsWith('手机') || name.startsWith('平板'),
+    'audio-devices': (name) => name.startsWith('耳机'),
     
     // 学习资料子分类
-    'books': ['书籍'],
-    'writing-tools': ['笔', '草稿纸'],
-    'notes': ['便利贴'],
+    'books': (name) => name.startsWith('书本'),
+    'writing-tools': (name) => name.startsWith('铅笔') || name.startsWith('钢笔'),
+    'notes': (name) => name.startsWith('便利贴'),
     
     // 小工具子分类
-    'office-tools': ['订书机', '美工刀', '纸巾'],
-    'storage-devices': ['U盘'],
-    'time-tools': ['时钟', '计算器'],
+    'office-tools': (name) => name.startsWith('美工刀') || name.startsWith('订书机') || name.startsWith('纸巾'),
+    'storage-devices': (name) => name.startsWith('U盘'),
+    'time-tools': (name) => name.startsWith('闹钟') || name.startsWith('计算器'),
     
     // 生活用品子分类
-    'lighting': ['台灯'],
-    'drinkware': ['水杯'],
-    'personal-items': ['小零食', '手办', '镜子', '化妆品']
+    'lighting': (name) => name.startsWith('台灯'),
+    'drinkware': (name) => name.startsWith('水杯'),
+    'personal-items': (name) => name.startsWith('薯片') || name.startsWith('蛋糕') || name.startsWith('镜子') || name.startsWith('口红') || name.startsWith('粉饼')
   }
   
-  const elementNames = subCategoryElements[activeSubCategory.value] || []
+  const filterFunction = subCategoryElements[activeSubCategory.value]
+  if (!filterFunction) return []
+  
   return props.elements.filter(el => 
     el.category === selectedCategory.value && 
-    elementNames.includes(el.name)
+    filterFunction(el.name)
   )
 }
+
+// 监听activeCategory变化，设置默认状态
+watch(() => props.activeCategory, (newCategory) => {
+  if (newCategory && newCategory !== 'all') {
+    selectedCategory.value = newCategory
+    activeSubCategory.value = defaultSubCategories[newCategory] || null
+  }
+}, { immediate: true })
+
+// 组件挂载时设置默认状态
+onMounted(() => {
+  if (props.activeCategory && props.activeCategory !== 'all') {
+    selectedCategory.value = props.activeCategory
+    activeSubCategory.value = defaultSubCategories[props.activeCategory] || null
+  }
+})
 </script>
 
 <style scoped>

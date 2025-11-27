@@ -3,11 +3,11 @@
     <!-- 页面标题 -->
     <div class="text-center mb-8">
       <h1 class="text-3xl font-bold text-gray-900 mb-2">寝室桌面搭建</h1>
-      <p class="text-gray-600">拖拽元素到桌面，打造你的专属学习空间</p>
+      <p class="text-gray-600">拖拽元素到桌面，打造你的专属学习环境</p>
     </div>
 
     <!-- 主要内容区域 -->
-    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 max-w-full mx-auto">
       <!-- 左侧：元素面板 -->
       <div class="lg:col-span-1">
         <ElementPanel
@@ -20,9 +20,9 @@
         />
       </div>
 
-      <!-- 中间：桌面构建区域 -->
+      <!-- 中间：桌面构建区 -->
       <div class="lg:col-span-3">
-        <!-- 桌面工具栏 -->
+        <!-- 桌面工具 -->
         <Toolbar
           @clear="clearDesktop"
           @save="saveDesktop"
@@ -40,7 +40,7 @@
         <DesktopCanvas
           :elements="elements"
           :background="background"
-          :height="500"
+          :height="800"
           :selected-element-id="selectedElement?.id"
           :hovered-element-id="elementHovered"
           @drag-over="onDragOver"
@@ -83,7 +83,7 @@ import ElementEditor from '../components/ElementEditor.vue'
 import ContextMenu from '../components/ContextMenu.vue'
 import type { DesktopElement, ElementCategory, DraggableElement, ContextMenuState, DesktopConfig } from '../components/types'
 
-// 定义组件属性
+// 定义组件属�?
 interface Props {
   background?: string
   initialElements?: DesktopElement[]
@@ -98,21 +98,21 @@ interface Emits {
 
 // 组件属性
 const props = withDefaults(defineProps<Props>(), {
-  background: '#f8fafc',
+  background: '/桌面程序贴图/桌面/微信图片_20251117210350_46_979.jpg',
   initialElements: () => []
 })
 
 // 组件事件
 const emit = defineEmits<Emits>()
 
-// 响应式数据
+// 响应式数�?
 const desktopCanvasRef = ref<InstanceType<typeof DesktopCanvas>>()
 const selectedElement = ref<DesktopElement | null>(null)
 const elementHovered = ref<string | null>(null)
 const draggingElement = ref<DesktopElement | null>(null)
 const dragOffset = ref({ x: 0, y: 0 })
 const background = ref(props.background)
-const activeCategory = ref('all')
+const activeCategory = ref('electronics')
 const contextMenu = reactive<ContextMenuState>({
   visible: false,
   x: 0,
@@ -125,7 +125,6 @@ const elements = ref<DesktopElement[]>(props.initialElements)
 
 // 预定义的元素类别
 const elementCategories: ElementCategory[] = [
-  { id: 'all', name: '全部' },
   { id: 'electronics', name: '电子设备' },
   { id: 'study', name: '学习资料' },
   { id: 'tools', name: '小工具' },
@@ -135,50 +134,134 @@ const elementCategories: ElementCategory[] = [
 // 预定义的可拖拽元素
 const availableElements = [
   // 电子设备 - 电脑套装
-  { name: '电脑', icon: '💻', category: 'electronics' },
-  { name: '键盘', icon: '⌨️', category: 'electronics' },
-  { name: '鼠标', icon: '🖱️', category: 'electronics' },
+  { name: '电脑1', icon: '/桌面程序贴图/电子设备/电脑 (1).png', category: 'electronics' },
+  { name: '电脑2', icon: '/桌面程序贴图/电子设备/电脑 (2).png', category: 'electronics' },
+  { name: '电脑3', icon: '/桌面程序贴图/电子设备/电脑 (3).png', category: 'electronics' },
+  { name: '键盘1', icon: '/桌面程序贴图/电子设备/键盘 (1).png', category: 'electronics' },
+  { name: '键盘2', icon: '/桌面程序贴图/电子设备/键盘 (2).png', category: 'electronics' },
+  { name: '键盘3', icon: '/桌面程序贴图/电子设备/键盘 (3).png', category: 'electronics' },
+  { name: '键盘4', icon: '/桌面程序贴图/电子设备/键盘 (4).png', category: 'electronics' },
+  { name: '键盘5', icon: '/桌面程序贴图/电子设备/键盘 (5).png', category: 'electronics' },
+  { name: '键盘6', icon: '/桌面程序贴图/电子设备/键盘 (6).png', category: 'electronics' },
+  { name: '鼠标1', icon: '/桌面程序贴图/电子设备/鼠标  (1).png', category: 'electronics' },
+  { name: '鼠标2', icon: '/桌面程序贴图/电子设备/鼠标  (2).png', category: 'electronics' },
+  { name: '鼠标3', icon: '/桌面程序贴图/电子设备/鼠标  (3).png', category: 'electronics' },
+  { name: '鼠标4', icon: '/桌面程序贴图/电子设备/鼠标  (4).png', category: 'electronics' },
+  { name: '鼠标5', icon: '/桌面程序贴图/电子设备/鼠标  (5).png', category: 'electronics' },
+  { name: '鼠标6', icon: '/桌面程序贴图/电子设备/鼠标  (6).png', category: 'electronics' },
   
   // 电子设备 - 移动设备
-  { name: '手机', icon: '📱', category: 'electronics' },
-  { name: '平板', icon: '📟', category: 'electronics' },
+  { name: '手机1', icon: '/桌面程序贴图/电子设备/手机 (1).png', category: 'electronics' },
+  { name: '手机2', icon: '/桌面程序贴图/电子设备/手机 (2).png', category: 'electronics' },
+  { name: '手机3', icon: '/桌面程序贴图/电子设备/手机 (3).png', category: 'electronics' },
+  { name: '平板1', icon: '/桌面程序贴图/电子设备/平板 (1).png', category: 'electronics' },
+  { name: '平板2', icon: '/桌面程序贴图/电子设备/平板 (2).png', category: 'electronics' },
+  { name: '平板3', icon: '/桌面程序贴图/电子设备/平板 (3).png', category: 'electronics' },
+  { name: '平板4', icon: '/桌面程序贴图/电子设备/平板 (4).png', category: 'electronics' },
   
   // 电子设备 - 音频设备
-  { name: '耳机', icon: '🎧', category: 'electronics' },
+  { name: '耳机1', icon: '/桌面程序贴图/电子设备/耳机 (1).png', category: 'electronics' },
+  { name: '耳机2', icon: '/桌面程序贴图/电子设备/耳机 (2).png', category: 'electronics' },
+  { name: '耳机3', icon: '/桌面程序贴图/电子设备/耳机 (3).png', category: 'electronics' },
+  { name: '耳机4', icon: '/桌面程序贴图/电子设备/耳机 (4).png', category: 'electronics' },
+  { name: '耳机5', icon: '/桌面程序贴图/电子设备/耳机 (5).png', category: 'electronics' },
+  { name: '耳机6', icon: '/桌面程序贴图/电子设备/耳机 (6).png', category: 'electronics' },
   
   // 学习资料 - 书籍资料
-  { name: '书籍', icon: '📚', category: 'study' },
+  { name: '书本1', icon: '/桌面程序贴图/学习用品/书本 (1).png', category: 'study' },
+  { name: '书本2', icon: '/桌面程序贴图/学习用品/书本 (2).png', category: 'study' },
+  { name: '书本3', icon: '/桌面程序贴图/学习用品/书本 (3).png', category: 'study' },
   
   // 学习资料 - 书写工具
-  { name: '草稿纸', icon: '📝', category: 'study' },
-  { name: '笔', icon: '✏️', category: 'study' },
+  { name: '铅笔1', icon: '/桌面程序贴图/学习用品/铅笔 (1).png', category: 'study' },
+  { name: '铅笔2', icon: '/桌面程序贴图/学习用品/铅笔 (2).png', category: 'study' },
+  { name: '铅笔3', icon: '/桌面程序贴图/学习用品/铅笔 (3).png', category: 'study' },
+  { name: '铅笔4', icon: '/桌面程序贴图/学习用品/铅笔 (4).png', category: 'study' },
+  { name: '铅笔5', icon: '/桌面程序贴图/学习用品/铅笔 (5).png', category: 'study' },
+  { name: '钢笔1', icon: '/桌面程序贴图/学习用品/钢笔 (1).png', category: 'study' },
+  { name: '钢笔2', icon: '/桌面程序贴图/学习用品/钢笔 (2).png', category: 'study' },
+  { name: '钢笔3', icon: '/桌面程序贴图/学习用品/钢笔 (3).png', category: 'study' },
+  { name: '钢笔4', icon: '/桌面程序贴图/学习用品/钢笔 (4).png', category: 'study' },
+  { name: '钢笔5', icon: '/桌面程序贴图/学习用品/钢笔 (5).png', category: 'study' },
   
   // 学习资料 - 笔记用品
-  { name: '便利贴', icon: '📋', category: 'study' },
+  { name: '便利贴1', icon: '/桌面程序贴图/学习用品/便利贴(1).png', category: 'study' },
+  { name: '便利贴2', icon: '/桌面程序贴图/学习用品/便利贴(2).png', category: 'study' },
+  { name: '便利贴3', icon: '/桌面程序贴图/学习用品/便利贴(3).png', category: 'study' },
+  { name: '便利贴4', icon: '/桌面程序贴图/学习用品/便利贴(4).png', category: 'study' },
   
   // 小工具 - 办公工具
-  { name: '美工刀', icon: '🔪', category: 'tools' },
-  { name: '订书机', icon: '🖇️', category: 'tools' },
-  { name: '纸巾', icon: '🧻', category: 'tools' },
+  { name: '美工刀1', icon: '/桌面程序贴图/实用小物件/美工刀 (1).png', category: 'tools' },
+  { name: '美工刀2', icon: '/桌面程序贴图/实用小物件/美工刀 (2).png', category: 'tools' },
+  { name: '美工刀3', icon: '/桌面程序贴图/实用小物件/美工刀 (3).png', category: 'tools' },
+  { name: '美工刀4', icon: '/桌面程序贴图/实用小物件/美工刀 (4).png', category: 'tools' },
+  { name: '订书机1', icon: '/桌面程序贴图/实用小物件/订书机 (1).png', category: 'tools' },
+  { name: '订书机2', icon: '/桌面程序贴图/实用小物件/订书机 (2).png', category: 'tools' },
+  { name: '订书机3', icon: '/桌面程序贴图/实用小物件/订书机 (3).png', category: 'tools' },
+  { name: '订书机4', icon: '/桌面程序贴图/实用小物件/订书机 (4).png', category: 'tools' },
+  { name: '纸巾1', icon: '/桌面程序贴图/生活用品/纸巾 (1).png', category: 'tools' },
+  { name: '纸巾2', icon: '/桌面程序贴图/生活用品/纸巾 (2).png', category: 'tools' },
+  { name: '纸巾3', icon: '/桌面程序贴图/生活用品/纸巾 (3).png', category: 'tools' },
+  { name: '纸巾4', icon: '/桌面程序贴图/生活用品/纸巾 (4).png', category: 'tools' },
   
   // 小工具 - 存储设备
-  { name: 'U盘', icon: '💾', category: 'tools' },
-  
+  { name: 'U盘1', icon: '/桌面程序贴图/实用小物件/U盘 (1).png', category: 'tools' },
+  { name: 'U盘2', icon: '/桌面程序贴图/实用小物件/U盘 (2).png', category: 'tools' },
+  { name: 'U盘3', icon: '/桌面程序贴图/实用小物件/U盘 (3).png', category: 'tools' },
+  { name: 'U盘4', icon: '/桌面程序贴图/实用小物件/U盘 (4).png', category: 'tools' },
+  { name: 'U盘5', icon: '/桌面程序贴图/实用小物件/U盘 (5).png', category: 'tools' },
+
   // 小工具 - 时间工具
-  { name: '计算器', icon: '🧮', category: 'tools' },
-  { name: '时钟', icon: '⏰', category: 'tools' },
+  { name: '计算器1', icon: '/桌面程序贴图/实用小物件/计算器 (1).png', category: 'tools' },
+  { name: '计算器2', icon: '/桌面程序贴图/实用小物件/计算器 (2).png', category: 'tools' },
+  { name: '计算器3', icon: '/桌面程序贴图/实用小物件/计算器 (3).png', category: 'tools' },
+  { name: '计算器4', icon: '/桌面程序贴图/实用小物件/计算器 (4).png', category: 'tools' },
+  { name: '计算器5', icon: '/桌面程序贴图/实用小物件/计算器 (5).png', category: 'tools' },
+  { name: '闹钟1', icon: '/桌面程序贴图/实用小物件/闹钟 (1).png', category: 'tools' },
+  { name: '闹钟2', icon: '/桌面程序贴图/实用小物件/闹钟 (2).png', category: 'tools' },
+  { name: '闹钟3', icon: '/桌面程序贴图/实用小物件/闹钟 (3).png', category: 'tools' },
+  { name: '闹钟4', icon: '/桌面程序贴图/实用小物件/闹钟 (4).png', category: 'tools' },
+  { name: '闹钟5', icon: '/桌面程序贴图/实用小物件/闹钟 (5).png', category: 'tools' },
+  { name: '闹钟6', icon: '/桌面程序贴图/实用小物件/闹钟 (6).png', category: 'tools' },
+  { name: '闹钟7', icon: '/桌面程序贴图/实用小物件/闹钟 (7).png', category: 'tools' },
   
   // 生活用品 - 照明用品
-  { name: '台灯', icon: '💡', category: 'daily' },
+  { name: '台灯1', icon: '/桌面程序贴图/生活用品/台灯 (1).png', category: 'daily' },
+  { name: '台灯2', icon: '/桌面程序贴图/生活用品/台灯 (2).png', category: 'daily' },
+  { name: '台灯3', icon: '/桌面程序贴图/生活用品/台灯 (3).png', category: 'daily' },
+  { name: '台灯4', icon: '/桌面程序贴图/生活用品/台灯 (4).png', category: 'daily' },
+  { name: '台灯5', icon: '/桌面程序贴图/生活用品/台灯（5）.png', category: 'daily' },
   
   // 生活用品 - 饮水用品
-  { name: '水杯', icon: '🥤', category: 'daily' },
+  { name: '水杯1', icon: '/桌面程序贴图/生活用品/水杯 (1).png', category: 'daily' },
+  { name: '水杯2', icon: '/桌面程序贴图/生活用品/水杯 (2).png', category: 'daily' },
+  { name: '水杯3', icon: '/桌面程序贴图/生活用品/水杯 (3).png', category: 'daily' },
+  { name: '水杯4', icon: '/桌面程序贴图/生活用品/水杯 (4).png', category: 'daily' },
   
   // 生活用品 - 个人物品
-  { name: '小零食', icon: '🍪', category: 'daily' },
-  { name: '手办', icon: '🎎', category: 'daily' },
-  { name: '镜子', icon: '🪞', category: 'daily' },
-  { name: '化妆品', icon: '💄', category: 'daily' }
+  { name: '薯片1', icon: '/桌面程序贴图/生活用品/薯片 (1).png', category: 'daily' },
+  { name: '薯片2', icon: '/桌面程序贴图/生活用品/薯片 (2).png', category: 'daily' },
+  { name: '薯片3', icon: '/桌面程序贴图/生活用品/薯片 (3).png', category: 'daily' },
+  { name: '蛋糕1', icon: '/桌面程序贴图/生活用品/蛋糕 (1).png', category: 'daily' },
+  { name: '蛋糕2', icon: '/桌面程序贴图/生活用品/蛋糕 (2).png', category: 'daily' },
+  { name: '蛋糕3', icon: '/桌面程序贴图/生活用品/蛋糕 (3).png', category: 'daily' },
+  { name: '镜子1', icon: '/桌面程序贴图/生活用品/镜子 (1).png', category: 'daily' },
+  { name: '镜子2', icon: '/桌面程序贴图/生活用品/镜子 (2).png', category: 'daily' },
+  { name: '镜子3', icon: '/桌面程序贴图/生活用品/镜子 (3).png', category: 'daily' },
+  { name: '镜子4', icon: '/桌面程序贴图/生活用品/镜子 (4).png', category: 'daily' },
+  { name: '镜子5', icon: '/桌面程序贴图/生活用品/镜子 (5).png', category: 'daily' },
+  { name: '镜子6', icon: '/桌面程序贴图/生活用品/镜子 (6).png', category: 'daily' },
+  { name: '镜子7', icon: '/桌面程序贴图/生活用品/镜子 (7).png', category: 'daily' },
+  { name: '口红1', icon: '/桌面程序贴图/生活用品/口红 (1).png', category: 'daily' },
+  { name: '口红2', icon: '/桌面程序贴图/生活用品/口红 (2).png', category: 'daily' },
+  { name: '口红3', icon: '/桌面程序贴图/生活用品/口红 (3).png', category: 'daily' },
+  { name: '口红4', icon: '/桌面程序贴图/生活用品/口红 (4).png', category: 'daily' },
+  { name: '口红5', icon: '/桌面程序贴图/生活用品/口红 (5).png', category: 'daily' },
+  { name: '口红6', icon: '/桌面程序贴图/生活用品/口红 (6).png', category: 'daily' },
+  { name: '口红7', icon: '/桌面程序贴图/生活用品/口红 (7).png', category: 'daily' },
+  { name: '粉饼1', icon: '/桌面程序贴图/生活用品/粉饼 (1).png', category: 'daily' },
+  { name: '粉饼2', icon: '/桌面程序贴图/生活用品/粉饼 (2).png', category: 'daily' },
+  { name: '粉饼3', icon: '/桌面程序贴图/生活用品/粉饼 (3).png', category: 'daily' }
 ]
 
 // 获取过滤后的元素列表
@@ -187,74 +270,6 @@ const getFilteredElements = () => {
     return availableElements
   }
   return availableElements.filter(el => el.category === activeCategory.value)
-}
-
-// 获取桌面的3D样式
-const getDesktopStyle = () => {
-  return {
-    background: background.value,
-    // 桌面3D变换
-    transform: 'perspective(1000px) rotateX(3deg) translateY(-20px)',
-    // 添加深度和纹理
-    boxShadow: '0 30px 40px rgba(0,0,0,0.2), 0 0 0 1px rgba(0,0,0,0.1)',
-    // 木质纹理覆盖
-    backgroundImage: `linear-gradient(45deg, rgba(222, 184, 135, 0.1) 25%, transparent 25%), 
-                      linear-gradient(-45deg, rgba(222, 184, 135, 0.1) 25%, transparent 25%), 
-                      linear-gradient(45deg, transparent 75%, rgba(222, 184, 135, 0.1) 75%), 
-                      linear-gradient(-45deg, transparent 75%, rgba(222, 184, 135, 0.1) 75%)`,
-    backgroundSize: '20px 20px',
-    backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px'
-  }
-}
-
-// 获取元素的3D变换
-const getElementTransform = (element: DesktopElement) => {
-  const rotation = element.rotation || 0
-  const scale = element.scale || 1
-  const rotationX = element.rotationX || 0
-  const rotationY = element.rotationY || 0
-  
-  return `rotate(${rotation}deg) scale(${scale}) perspective(1000px) rotateX(${rotationX}deg) rotateY(${rotationY}deg)`
-}
-
-// 获取元素的3D样式
-const getElement3DStyle = (element: DesktopElement) => {
-  // 基础样式
-  const baseStyle: any = {
-    backgroundColor: 'white',
-    // 添加深度和阴影
-    boxShadow: '0 5px 15px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.05)',
-    // 3D变换
-    transformStyle: 'preserve-3d',
-    transition: 'all 0.3s ease'
-  }
-  
-  // 根据元素类型设置不同的3D效果
-  if (element.isCabinet) {
-    // 柜子特殊样式
-    baseStyle.backgroundColor = '#deb887'
-    baseStyle.borderRadius = '8px'
-    baseStyle.boxShadow = '0 10px 20px rgba(0,0,0,0.2), 0 0 0 1px rgba(0,0,0,0.1)'
-    baseStyle.padding = '10px'
-    baseStyle.border = '2px solid #bc8f8f'
-    // 柜子纹理
-    baseStyle.backgroundImage = `linear-gradient(90deg, rgba(0,0,0,0.05) 1px, transparent 1px), linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px)`
-    baseStyle.backgroundSize = '10px 10px'
-  } else if (element.category === 'electronics') {
-    // 电子设备样式
-    baseStyle.backgroundColor = '#2d3748'
-    baseStyle.color = 'white'
-    baseStyle.borderRadius = '6px'
-    baseStyle.boxShadow = '0 8px 16px rgba(0,0,0,0.25)'
-  } else if (element.category === 'stationery') {
-    // 书本样式
-    baseStyle.backgroundColor = '#f8f9fa'
-    baseStyle.borderRadius = '2px'
-    baseStyle.boxShadow = '0 3px 10px rgba(0,0,0,0.2)'
-    baseStyle.borderLeft = '8px solid #3182ce'
-  }
-  
-  return baseStyle
 }
 
 // 元素面板相关函数
@@ -266,19 +281,19 @@ const onElementDragStart = (element: any, event: DragEvent) => {
 }
 
 const onElementClick = (element: any) => {
-  // 点击元素面板中的元素时，自动添加到桌面中央
+  // 点击元素面板中的元素时，自动添加到桌面中间
   if (desktopCanvasRef.value) {
     const canvas = desktopCanvasRef.value.getCanvas()
     if (canvas) {
       const rect = canvas.getBoundingClientRect()
-      const x = rect.width / 2 - 25
-      const y = rect.height / 2 - 25
+      const x = rect.width / 2 - 50
+      const y = rect.height / 2 - 50
       
       const newElement: DesktopElement = {
         ...element,
         id: Date.now(),
-        x: Math.max(0, Math.min(x, rect.width - 50)),
-        y: Math.max(0, Math.min(y, rect.height - 50)),
+        x: Math.max(0, Math.min(x, rect.width - 100)),
+        y: Math.max(0, Math.min(y, rect.height - 100)),
         rotation: 0,
         scale: 1,
         zIndex: elements.value.length + 1,
@@ -313,20 +328,20 @@ const onDrop = (event: DragEvent) => {
       const canvas = desktopCanvasRef.value.getCanvas()
       if (canvas) {
         const rect = canvas.getBoundingClientRect()
-        const x = event.clientX - rect.left - 25
-        const y = event.clientY - rect.top - 25
+        const x = event.clientX - rect.left - 50
+        const y = event.clientY - rect.top - 50
         
         // 创建新元素实例
         const newElement: DesktopElement = {
           ...elementData,
           id: Date.now(),
-          x: Math.max(0, Math.min(x, rect.width - 50)),
-          y: Math.max(0, Math.min(y, rect.height - 50)),
+          x: Math.max(0, Math.min(x, rect.width - 100)),
+          y: Math.max(0, Math.min(y, rect.height - 100)),
           rotation: 0,
           scale: 1,
           zIndex: elements.value.length + 1,
           size: elementData.size || 2,
-          // 初始化3D属性
+          // 初始深度根据是否是柜子设定
           depth: elementData.isCabinet ? 50 : 20,
           rotationX: 0,
           rotationY: 0,
@@ -360,6 +375,7 @@ const onDrag = (event: MouseEvent) => {
 }
 
 const startDrag = (element: DesktopElement, event: MouseEvent) => {
+  event.preventDefault()
   isDragging = true
   draggingElement.value = element
   
@@ -368,6 +384,7 @@ const startDrag = (element: DesktopElement, event: MouseEvent) => {
   
   document.addEventListener('mousemove', onDrag)
   document.addEventListener('mouseup', stopDrag)
+  window.addEventListener('mouseleave', stopDrag)
 }
 
 const stopDrag = () => {
@@ -375,6 +392,7 @@ const stopDrag = () => {
   draggingElement.value = null
   document.removeEventListener('mousemove', onDrag)
   document.removeEventListener('mouseup', stopDrag)
+  window.removeEventListener('mouseleave', stopDrag)
 }
 
 // 取消选择元素
@@ -426,7 +444,7 @@ const duplicateElement = () => {
       x: original.x + 20,
       y: original.y + 20,
       zIndex: elements.value.length + 1,
-      // 复制3D属性
+      // 复制3D属�?
       depth: original.depth || 20,
       rotationX: original.rotationX || 0,
       rotationY: original.rotationY || 0,
@@ -468,7 +486,7 @@ const sendToBack = () => {
 
 // 清空桌面
 const clearDesktop = () => {
-  if (confirm('确定要清空桌面吗？此操作不可撤销。')) {
+  if (confirm('确定要清空桌面吗？此操作不可撤销！')) {
     elements.value = []
     selectedElement.value = null
     contextMenu.visible = false
@@ -503,7 +521,7 @@ const downloadImage = async () => {
         const canvas = desktopCanvasRef.value.getCanvas()
         if (canvas) {
           const htmlCanvas = await html2canvas(canvas, {
-            scale: 2, // 提高清晰度
+            scale: 2, // 提高清晰�?
             useCORS: true,
             allowTaint: true,
             logging: false
@@ -518,7 +536,7 @@ const downloadImage = async () => {
       }
     } catch (error) {
       console.error('下载图片失败:', error);
-      alert('导出图片失败，请确保已安装html2canvas库。');
+      alert('导出图片失败，请确保已安装html2canvas库！');
     }
   }
 }
@@ -534,13 +552,13 @@ const closeContextMenu = (event: MouseEvent) => {
 onMounted(() => {
   document.addEventListener('click', closeContextMenu)
   
-  // 加载保存的配置
+  // 加载保存的配�?
   const savedConfig = localStorage.getItem('desktop-config')
   if (savedConfig) {
     try {
       const config = JSON.parse(savedConfig)
       elements.value = config.elements || []
-      // 为已保存的元素添加3D属性
+      // 为已保存的元素添�?D属�?
       elements.value.forEach(el => {
         if (!el.depth) el.depth = 20
         if (el.isCabinet && !el.depth) el.depth = 50
@@ -580,10 +598,10 @@ const updateElementSize = (size: number) => {
   }
 }
 
-// 监听属性变化
+// 监听属性变�?
 watch(() => props.initialElements, (newElements) => {
   elements.value = newElements
-  // 为初始元素添加3D属性
+  // 为初始元素添�?D属�?
   elements.value.forEach(el => {
     if (!el.depth) el.depth = 20
     if (el.isCabinet && !el.depth) el.depth = 50
@@ -612,7 +630,7 @@ defineExpose({
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* 响应式设计 */
+/* 响应式设�?*/
 @media (max-width: 1024px) {
   .desktop-builder {
     padding: 1rem;

@@ -10,10 +10,6 @@
         @drop="$emit('drop', $event)"
         @click.self="$emit('deselect-element')"
       >
-        <!-- 桌面边缘装饰，增强立体感 -->
-        <div class="desktop-edge"></div>
-        <div class="desktop-legs"></div>
-        
         <!-- 放置的元素 -->
         <div 
           v-for="element in elements" 
@@ -33,23 +29,22 @@
         >
           <div 
             :class="[
-              'p-2 rounded-lg transition-all duration-300',
+              'rounded-lg transition-all duration-300',
               selectedElementId === element.id 
-                ? 'border-blue-500 ring-2 ring-blue-200 shadow-xl' 
-                : 'border-transparent shadow-lg',
+                ? 'border-blue-500 ring-2 ring-blue-200' 
+                : 'border-transparent',
               hoveredElementId === element.id ? 'transform hover-scale' : ''
             ]"
             :style="getElement3DStyle(element)"
           >
             <div class="text-center">
               <div 
-                class="transform transition-transform duration-300 hover:scale-110"
-                :style="{ fontSize: `${element.size || 2}rem` }"
+                class="transform transition-transform duration-300 flex items-center justify-center"
+                :style="getElementContentStyle(element)"
               >
-                {{ element.icon }}
+                <img v-if="isImageIcon(element.icon)" :src="element.icon" :alt="element.name" class="max-h-full max-w-full object-contain" />
+                <div v-else :style="{ fontSize: `${element.size || 2}rem` }">{{ element.icon }}</div>
               </div>
-              <!-- 元素底部阴影，增强立体感 -->
-              <div class="element-base"></div>
             </div>
           </div>
         </div>
@@ -106,17 +101,29 @@ const emit = defineEmits<Emits>()
 const desktopCanvas = ref<HTMLElement>()
 
 // 获取桌面的3D样式
-const desktopStyle = computed(() => ({
-  background: props.background,
-  transform: 'perspective(1000px) rotateX(3deg) translateY(-20px)',
-  boxShadow: '0 30px 40px rgba(0,0,0,0.2), 0 0 0 1px rgba(0,0,0,0.1)',
-  backgroundImage: `linear-gradient(45deg, rgba(222, 184, 135, 0.1) 25%, transparent 25%), 
-                    linear-gradient(-45deg, rgba(222, 184, 135, 0.1) 25%, transparent 25%), 
-                    linear-gradient(45deg, transparent 75%, rgba(222, 184, 135, 0.1) 75%), 
-                    linear-gradient(-45deg, transparent 75%, rgba(222, 184, 135, 0.1) 75%)`,
-  backgroundSize: '20px 20px',
-  backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px'
-}))
+const desktopStyle = computed(() => {
+  const isImageBackground = props.background.startsWith('/') || props.background.startsWith('http')
+  
+  if (isImageBackground) {
+    return {
+      backgroundImage: `url(${props.background})`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      boxShadow: '0 0 0 1px rgba(0,0,0,0.1)'
+    }
+  }
+  
+  return {
+    background: props.background,
+    boxShadow: '0 0 0 1px rgba(0,0,0,0.1)',
+    backgroundImage: `linear-gradient(45deg, rgba(222, 184, 135, 0.1) 25%, transparent 25%), 
+                      linear-gradient(-45deg, rgba(222, 184, 135, 0.1) 25%, transparent 25%), 
+                      linear-gradient(45deg, transparent 75%, rgba(222, 184, 135, 0.1) 75%), 
+                      linear-gradient(-45deg, transparent 75%, rgba(222, 184, 135, 0.1) 75%)`,
+    backgroundSize: '20px 20px',
+    backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px'
+  }
+})
 
 // 获取元素的3D变换
 const getElementTransform = (element: DesktopElement) => {
@@ -128,32 +135,42 @@ const getElementTransform = (element: DesktopElement) => {
   return `rotate(${rotation}deg) scale(${scale}) perspective(1000px) rotateX(${rotationX}deg) rotateY(${rotationY}deg)`
 }
 
+// 判断是否为图片图标
+const isImageIcon = (icon: string) => {
+  return icon.startsWith('/') || icon.startsWith('http')
+}
+
+// 获取元素内容样式
+const getElementContentStyle = (element: DesktopElement) => {
+  const size = element.size || 2
+  const pixelSize = size * 50 // 将 rem 转换为像素大小
+  return {
+    width: `${pixelSize}px`,
+    height: `${pixelSize}px`
+  }
+}
+
 // 获取元素的3D样式
 const getElement3DStyle = (element: DesktopElement) => {
+  const isImage = isImageIcon(element.icon)
   const baseStyle: any = {
-    backgroundColor: 'white',
-    boxShadow: '0 5px 15px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.05)',
+    backgroundColor: 'transparent',
     transformStyle: 'preserve-3d',
-    transition: 'all 0.3s ease'
+    transition: 'all 0.3s ease',
+    padding: isImage ? '0' : '0.5rem'
   }
   
   if (element.isCabinet) {
-    baseStyle.backgroundColor = '#deb887'
     baseStyle.borderRadius = '8px'
-    baseStyle.boxShadow = '0 10px 20px rgba(0,0,0,0.2), 0 0 0 1px rgba(0,0,0,0.1)'
     baseStyle.padding = '10px'
     baseStyle.border = '2px solid #bc8f8f'
     baseStyle.backgroundImage = `linear-gradient(90deg, rgba(0,0,0,0.05) 1px, transparent 1px), linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px)`
     baseStyle.backgroundSize = '10px 10px'
   } else if (element.category === 'electronics') {
-    baseStyle.backgroundColor = '#2d3748'
     baseStyle.color = 'white'
     baseStyle.borderRadius = '6px'
-    baseStyle.boxShadow = '0 8px 16px rgba(0,0,0,0.25)'
   } else if (element.category === 'stationery') {
-    baseStyle.backgroundColor = '#f8f9fa'
     baseStyle.borderRadius = '2px'
-    baseStyle.boxShadow = '0 3px 10px rgba(0,0,0,0.2)'
     baseStyle.borderLeft = '8px solid #3182ce'
   }
   
@@ -175,47 +192,9 @@ defineExpose({
   height: auto;
 }
 
-/* 桌面样式增强 */
-.desktop-edge {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 20px;
-  background: #deb887;
-  transform: translateY(100%) rotateX(90deg);
-  transform-origin: top;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
-}
-
-.desktop-legs {
-  position: absolute;
-  bottom: -20px;
-  left: 50px;
-  right: 50px;
-  height: 50px;
-  background: #8b4513;
-  transform: translateY(100%);
-  z-index: -1;
-}
-
-/* 元素底部底座，增强立体感 */
-.element-base {
-  position: absolute;
-  bottom: -10px;
-  left: 50%;
-  transform: translateX(-50%) rotateX(90deg);
-  width: 80%;
-  height: 10px;
-  background: rgba(0,0,0,0.1);
-  border-radius: 50%;
-  z-index: -1;
-}
-
 /* 悬停缩放效果 */
 .hover-scale {
   transform: translateY(-5px) !important;
-  box-shadow: 0 15px 30px rgba(0,0,0,0.2) !important;
 }
 
 /* 鼠标样式 */
