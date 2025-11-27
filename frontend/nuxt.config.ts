@@ -19,6 +19,13 @@ export default defineNuxtConfig({
       fs: {
         allow: ['..'] // 或明确包含你的项目路径
       },
+    },
+    optimizeDeps: {
+      include: ['html2canvas']
     }
   },
+
+  build: {
+    transpile: ['html2canvas']
+  }
 })
