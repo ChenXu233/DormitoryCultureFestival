@@ -20,8 +20,8 @@
         <input 
           type="range" 
           min="1" 
-          max="4" 
-          step="0.5" 
+          max="6" 
+          step="0.2" 
           :value="element.size || 2" 
           @input="$emit('update:size', $event.target ? Number(($event.target as HTMLInputElement).value) : 2)"
           class="w-full"
