@@ -13,6 +13,8 @@ export function useDesktopBuilder(initialElements: DesktopElement[] = [], initia
   const dragOffset = ref({ x: 0, y: 0 })
   const background = ref(initialBackground)
   const activeCategory = ref('electronics')
+  // 宿舍号（用于文件命名与图片水印）
+  const dormNumber = ref<string>('')
   const contextMenu = reactive<ContextMenuState>({
     visible: false,
     x: 0,
@@ -233,6 +235,7 @@ export function useDesktopBuilder(initialElements: DesktopElement[] = [], initia
     const config = {
       background: background.value,
       elements: elements.value,
+      dormNumber: dormNumber.value,
       timestamp: new Date().toISOString()
     }
     
@@ -253,6 +256,25 @@ export function useDesktopBuilder(initialElements: DesktopElement[] = [], initia
           const canvas = desktopCanvasRef.value.getCanvas()
           console.log('获取到canvas元素:', canvas);
           if (canvas) {
+            // 临时添加宿舍号水印
+            let watermarkEl: HTMLDivElement | null = null
+            if (dormNumber.value) {
+              watermarkEl = document.createElement('div')
+              watermarkEl.textContent = `宿舍号：${dormNumber.value}`
+              watermarkEl.style.position = 'absolute'
+              watermarkEl.style.left = '12px'
+              watermarkEl.style.top = '12px'
+              watermarkEl.style.padding = '6px 12px'
+              watermarkEl.style.background = 'rgba(255,255,255,0.6)'
+              watermarkEl.style.borderRadius = '6px'
+              watermarkEl.style.fontSize = '18px'
+              watermarkEl.style.fontWeight = '600'
+              watermarkEl.style.color = '#222'
+              watermarkEl.style.zIndex = '9999'
+              watermarkEl.style.pointerEvents = 'none'
+              canvas.appendChild(watermarkEl)
+            }
+
             const htmlCanvas = await html2canvas(canvas, {
               scale: 2, // 提高清晰度
               useCORS: true,
@@ -285,11 +307,18 @@ export function useDesktopBuilder(initialElements: DesktopElement[] = [], initia
               }
             });
 
+            // 生成后移除水印 DOM
+            if (watermarkEl) {
+              watermarkEl.remove()
+            }
+
             console.log('图片生成成功');
 
             // 创建下载链接
             const link = document.createElement('a');
-            link.download = `桌面设计_${new Date().toLocaleDateString()}.png`;
+            const dateStr = new Date().toLocaleDateString()
+            const baseName = dormNumber.value ? `宿舍_${dormNumber.value}_桌面设计_${dateStr}` : `桌面设计_${dateStr}`
+            link.download = `${baseName}.png`;
             link.href = htmlCanvas.toDataURL('image/png');
             link.click();
             console.log('图片下载链接创建完成');
@@ -351,6 +380,7 @@ export function useDesktopBuilder(initialElements: DesktopElement[] = [], initia
     draggingElement,
     background,
     activeCategory,
+    dormNumber,
     contextMenu,
     onElementDragStart,
     onElementClick,

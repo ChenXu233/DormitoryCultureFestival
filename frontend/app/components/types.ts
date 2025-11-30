@@ -45,5 +45,6 @@ export interface ContextMenuState {
 export interface DesktopConfig {
   background: string
   elements: DesktopElement[]
+  dormNumber?: string
   timestamp: string
 }

@@ -179,9 +179,9 @@ useSeoMeta({
   description: '输入两个4位唯一代码，查看双人特质匹配度'
 })
 
-// 页面配置
+// 页面配置：使用默认布局（包含学院头部与页脚）
 definePageMeta({
-  layout: false
+  layout: 'default'
 })
 
 // 匹配状态

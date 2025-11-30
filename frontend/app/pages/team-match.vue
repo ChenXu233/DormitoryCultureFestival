@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-orange-50 to-red-100 py-8">
+  <div class="min-h-full bg-gradient-to-br from-orange-50 to-red-100 py-8">
     <div class="max-w-6xl mx-auto px-4">
       <!-- 页面标题 -->
       <div class="text-center mb-8">
@@ -71,7 +71,7 @@ useSeoMeta({
 
 // 页面配置
 definePageMeta({
-  layout: false
+  layout: 'default'
 })
 
 // 匹配状态

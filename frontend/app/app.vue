@@ -1,5 +1,8 @@
 <template>
+  <!-- Root wraps Nuxt UI provider; ensure NuxtLayout is used to activate layouts -->
   <UApp>
-    <NuxtPage />
+    <NuxtLayout>
+      <NuxtPage />
+    </NuxtLayout>
   </UApp>
 </template>
