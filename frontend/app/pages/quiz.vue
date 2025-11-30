@@ -179,12 +179,6 @@ class="w-6 h-6 rounded-full border-2 flex items-center justify-center mr-3"
             >
               双人匹配
             </NuxtLink>
-            <NuxtLink 
-              to="/team-match"
-              class="px-6 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg transition-colors duration-200 text-center"
-            >
-              团队匹配
-            </NuxtLink>
           </div>
         </div>
       </div>
