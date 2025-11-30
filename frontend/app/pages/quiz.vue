@@ -185,12 +185,6 @@ class="w-6 h-6 rounded-full border-2 flex items-center justify-center mr-3"
             >
               团队匹配
             </NuxtLink>
-            <NuxtLink 
-              to="/"
-              class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200 text-center"
-            >
-              返回首页
-            </NuxtLink>
           </div>
         </div>
       </div>

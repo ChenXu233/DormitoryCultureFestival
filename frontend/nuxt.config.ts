@@ -9,6 +9,14 @@ export default defineNuxtConfig({
   ],
   css: ['~/assets/css/main.css'],
 
+  // 运行时配置
+  runtimeConfig: {
+    public: {
+      arkApiKey: process.env.VITE_ARK_API_KEY || '',
+      imgbbApiKey: process.env.VITE_IMGBB_API_KEY || ''
+    }
+  },
+
   // 完全禁用字体处理
   icon: {
     provider: 'local'
