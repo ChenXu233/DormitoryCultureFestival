@@ -62,10 +62,10 @@ export const availableElements = [
   { name: '钢笔5', icon: '/桌面程序贴图/学习用品/钢笔 (5).png', category: 'study' },
   
   // 学习资料 - 笔记用品
-  { name: '便利贴1', icon: '/桌面程序贴图/学习用品/便利贴(1).png', category: 'study' },
-  { name: '便利贴2', icon: '/桌面程序贴图/学习用品/便利贴(2).png', category: 'study' },
-  { name: '便利贴3', icon: '/桌面程序贴图/学习用品/便利贴(3).png', category: 'study' },
-  { name: '便利贴4', icon: '/桌面程序贴图/学习用品/便利贴(4).png', category: 'study' },
+  { name: '便利贴1', icon: '/桌面程序贴图/学习用品/便利贴 (1).png', category: 'study' },
+  { name: '便利贴2', icon: '/桌面程序贴图/学习用品/便利贴 (2).png', category: 'study' },
+  { name: '便利贴3', icon: '/桌面程序贴图/学习用品/便利贴 (3).png', category: 'study' },
+  { name: '便利贴4', icon: '/桌面程序贴图/学习用品/便利贴 (4).png', category: 'study' },
   
   // 小工具 - 办公工具
   { name: '美工刀1', icon: '/桌面程序贴图/实用小物件/美工刀 (1).png', category: 'tools' },
@@ -127,8 +127,6 @@ export const availableElements = [
   { name: '镜子3', icon: '/桌面程序贴图/生活用品/镜子 (3).png', category: 'daily' },
   { name: '镜子4', icon: '/桌面程序贴图/生活用品/镜子 (4).png', category: 'daily' },
   { name: '镜子5', icon: '/桌面程序贴图/生活用品/镜子 (5).png', category: 'daily' },
-  { name: '镜子6', icon: '/桌面程序贴图/生活用品/镜子 (6).png', category: 'daily' },
-  { name: '镜子7', icon: '/桌面程序贴图/生活用品/镜子 (7).png', category: 'daily' },
   { name: '口红1', icon: '/桌面程序贴图/生活用品/口红 (1).png', category: 'daily' },
   { name: '口红2', icon: '/桌面程序贴图/生活用品/口红 (2).png', category: 'daily' },
   { name: '口红3', icon: '/桌面程序贴图/生活用品/口红 (3).png', category: 'daily' },
