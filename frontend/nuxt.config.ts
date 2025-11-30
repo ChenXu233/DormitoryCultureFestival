@@ -17,9 +17,18 @@ export default defineNuxtConfig({
     }
   },
 
-  // 完全禁用字体处理
+  // 完全禁用字体和图标的网络请求
   icon: {
-    provider: 'local'
+    provider: 'local',
+    // 禁用从 Google Fonts 获取图标元数据
+    fetchTimeout: 0,
+    // 完全禁用图标集合获取
+    collections: []
+  },
+
+  // 禁用所有外部字体请求
+  fonts: {
+    provider: 'none'
   },
 
   vite: {
