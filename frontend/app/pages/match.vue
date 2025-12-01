@@ -113,7 +113,10 @@
                     :key="dimension"
                     class="flex justify-between items-center"
                   >
-                    <span class="text-sm text-gray-600">{{ dimension }}</span>
+                    <span class="text-sm text-gray-600">
+                      <span class="mr-1" v-if="matchResult.dimension_emojis?.[dimension]">{{ matchResult.dimension_emojis[dimension] }}</span>
+                      {{ dimension }}
+                    </span>
                     <span class="font-medium text-green-600">{{ trait }}</span>
                   </div>
                 </div>
@@ -128,7 +131,10 @@
                     :key="dimension"
                     class="flex justify-between items-center"
                   >
-                    <span class="text-sm text-gray-600">{{ dimension }}</span>
+                    <span class="text-sm text-gray-600">
+                      <span class="mr-1" v-if="matchResult.dimension_emojis?.[dimension]">{{ matchResult.dimension_emojis[dimension] }}</span>
+                      {{ dimension }}
+                    </span>
                     <span class="font-medium text-green-600">{{ trait }}</span>
                   </div>
                 </div>

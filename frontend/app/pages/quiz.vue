@@ -135,7 +135,11 @@ class="w-6 h-6 rounded-full border-2 flex items-center justify-center mr-3"
             <!-- 雷达图与特质展示 -->
               <div class="mt-6">
                 <client-only>
-                  <RadarChart v-if="result.radar_data" :radar-data="result.radar_data"/>
+                  <RadarChart 
+                    v-if="result.radar_data" 
+                    :radar-data="result.radar_data"
+                    :dimension-emojis="result.dimension_emojis"
+                  />
                 </client-only>
 
                 <!-- 特质展示 -->
@@ -147,7 +151,10 @@ class="w-6 h-6 rounded-full border-2 flex items-center justify-center mr-3"
                   :key="dimension"
                   class="bg-gray-50 border border-gray-200 rounded-lg p-3 text-center"
                 >
-                  <div class="text-sm text-gray-600">{{ dimension }}</div>
+                  <div class="text-sm text-gray-600">
+                    <span class="mr-1" v-if="result.dimension_emojis?.[dimension]">{{ result.dimension_emojis[dimension] }}</span>
+                    {{ dimension }}
+                  </div>
                   <div class="font-medium text-green-600">{{ trait }}</div>
                 </div>
               </div>
@@ -227,6 +234,7 @@ const result = ref({
   radar_data: { dimensions: [] as string[], scores: [] as number[], max_score: 100 },
   message: '',
   time_spent: 0,
+  dimension_emojis: {} as Record<string, string>,
 })
 
 // 计算当前问题

@@ -29,6 +29,18 @@ TRAIT_DIMENSIONS = {
     "沟通方式": ["信号中继器", "直接沟通者", "委婉沟通者", "行动沟通者"],
 }
 
+# 特质维度 Emoji 映射
+TRAIT_EMOJIS = {
+    "生活习惯": "🛏️",
+    "社交倾向": "👥",
+    "作息规律": "⏰",
+    "学习风格": "📚",
+    "娱乐偏好": "🎮",
+    "饮食习惯": "🍽️",
+    "卫生习惯": "🚿",
+    "沟通方式": "💬",
+}
+
 # 题库数据 - 每个选项包含对预设特质的加分项（趣味化问卷风格）
 QUIZ_QUESTIONS = [
     {
@@ -383,6 +395,7 @@ async def submit_quiz(submission: QuizSubmission, db: AsyncSession = Depends(get
         "primary_traits": top_primary_traits,
         "traits": top_primary_traits,
         "radar_data": radar_data,
+        "dimension_emojis": TRAIT_EMOJIS,
         "message": f"答题完成！你的唯一代码是：{unique_code}，请记住这个代码用于特质匹配。",
     }
 
@@ -437,6 +450,7 @@ async def match_traits(request: Dict[str, Any], db: AsyncSession = Depends(get_d
         "traits2": submission2.primary_traits,
         "participant1_name": submission1.participant_name or "匿名用户",
         "participant2_name": submission2.participant_name or "匿名用户",
+        "dimension_emojis": TRAIT_EMOJIS,
         # 保留其他数据供可能的使用
         "code1": code1,
         "code2": code2,
@@ -483,6 +497,7 @@ async def match_team_traits(
         "team_compatibility_score": team_compatibility_score,
         "team_trait_analysis": team_trait_analysis,
         "team_commentary": team_commentary,
+        "dimension_emojis": TRAIT_EMOJIS,
         "participants": [
             {
                 "code": submission.code,

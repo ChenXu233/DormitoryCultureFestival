@@ -22,6 +22,12 @@
         
         <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
           <div class="text-blue-800 font-medium text-center">
+              <img 
+                :src="`特质匹配图片/${matchResult.team_commentary?.title}.jpg`" 
+                :alt="matchResult.team_commentary?.title || '团队特质分析'"
+                class="max-w-full h-auto rounded-lg shadow-md max-h-64 object-contain flex justify-center mx-auto mb-4"
+              />
+
             <div class="text-lg font-bold mb-2">{{ matchResult.team_commentary?.title || '团队特质分析' }}</div>
             <div class="text-sm">{{ matchResult.team_commentary?.commentary || matchResult.team_commentary }}</div>
           </div>
@@ -31,6 +37,18 @@
       <!-- 特质分析 -->
       <div class="mt-8">
         <h3 class="text-lg font-semibold text-gray-800 mb-4">团队特质分析</h3>
+        
+        <div class="mb-8 flex justify-center">
+           <client-only>
+             <RadarChart 
+               v-if="teamRadarData" 
+               :multi-radar-data="teamRadarData"
+               :dimension-emojis="matchResult.dimension_emojis"
+               max-width="100%"
+             />
+           </client-only>
+        </div>
+
         <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
           <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div
@@ -38,7 +56,10 @@
               :key="dimension"
               class="text-center"
             >
-              <div class="text-sm text-gray-600 mb-1">{{ dimension }}</div>
+              <div class="text-sm text-gray-600 mb-1">
+                <span class="mr-1" v-if="matchResult.dimension_emojis?.[dimension]">{{ matchResult.dimension_emojis[dimension] }}</span>
+                {{ dimension }}
+              </div>
               <div class="font-medium text-green-600">{{ traitInfo.trait }}</div>
               <div class="text-xs text-gray-500">{{ traitInfo.count }}/4人</div>
             </div>
@@ -62,7 +83,10 @@
                 :key="dimension"
                 class="flex justify-between items-center"
               >
-                <span class="text-sm text-gray-600">{{ dimension }}</span>
+                <span class="text-sm text-gray-600">
+                  <span class="mr-1" v-if="matchResult.dimension_emojis?.[dimension]">{{ matchResult.dimension_emojis[dimension] }}</span>
+                  {{ dimension }}
+                </span>
                 <span class="font-medium text-green-600">{{ trait }}</span>
               </div>
             </div>
@@ -85,6 +109,9 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+import RadarChart from './RadarChart.vue'
+
 interface Props {
   matchResult: any
 }
@@ -93,6 +120,32 @@ interface Emits {
   (e: 'reset'): void
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
 defineEmits<Emits>()
+
+const teamRadarData = computed(() => {
+  if (!props.matchResult?.participants || props.matchResult.participants.length === 0) return null
+  
+  // Assuming all participants have the same dimensions in their radar_data
+  // We take dimensions from the first participant who has radar_data
+  const firstParticipantWithData = props.matchResult.participants.find((p: any) => p.radar_data)
+  if (!firstParticipantWithData) return null
+
+  const dimensions = firstParticipantWithData.radar_data.dimensions
+  const max_score = firstParticipantWithData.radar_data.max_score
+
+  const colors = ['#22c55e', '#3b82f6', '#a855f7', '#f97316'] // Green, Blue, Purple, Orange
+
+  const datasets = props.matchResult.participants.map((p: any, index: number) => ({
+    label: p.name || `成员${p.code}`,
+    scores: p.radar_data?.scores || [],
+    color: colors[index % colors.length]
+  }))
+
+  return {
+    dimensions,
+    datasets,
+    max_score
+  }
+})
 </script>
