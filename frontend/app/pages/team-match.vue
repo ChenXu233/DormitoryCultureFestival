@@ -21,6 +21,7 @@
       <TeamMatchResult
         v-if="matchResult"
         :match-result="matchResult"
+        :has-image="!!uploadedImage"
         @reset="resetMatch"
       >
         <template #image-upload>

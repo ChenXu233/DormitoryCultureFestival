@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Z世代寝室图鉴证书 - 邻近色版</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        /* ================= 全局设定 ================= */
+        :root {
+            /* 邻近色配色定义 */
+            --bg-start: #FFFDF0;    /* 奶油白 */
+            --bg-end: #FFE0B2;      /* 杏仁黄 */
+            --border-color: #4E342E;/*以此深咖色为主色调，替代黑色 */
+            --accent-1: #D84315;    /* 砖红/深橙 - 强调色 */
+            --accent-2: #F9A825;    /* 姜黄 - 辅助色 */
+            --text-main: #3E2723;   /* 深褐文字 */
+            --text-sub: #6D4C41;    /* 浅褐文字 */
+            --white-glass: rgba(255, 255, 255, 0.65); /* 磨砂玻璃白 */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #2b2b2b; /* 外部背景深色，突出纸张 */
+            font-family: "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* 按钮样式 */
+        .action-bar { margin-bottom: 20px; z-index: 100; }
+        .btn-download {
+            background-color: var(--accent-1);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(216, 67, 21, 0.4);
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-download:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(216, 67, 21, 0.6); }
+
+        /* ================= A4 纸张布局 ================= */
+        .a4-page {
+            width: 210mm;
+            height: 297mm;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 25px rgba(0,0,0,0.3);
+            /* 背景双色渐变 */
+            background: linear-gradient(160deg, var(--bg-start) 0%, var(--bg-end) 100%);
+            color: var(--text-main);
+        }
+
+        /* 装饰性外框 */
+        .border-frame {
+            position: absolute;
+            top: 12mm;
+            left: 12mm;
+            right: 12mm;
+            bottom: 12mm;
+            border: 3px solid var(--border-color);
+            border-radius: 20px;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .content {
+            position: relative;
+            z-index: 2;
+            padding: 24mm;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ================= 头部区域 ================= */
+        .header { text-align: center; margin-bottom: 20px; }
+        
+        .main-title {
+            font-size: 38px;
+            font-weight: 900;
+            color: var(--border-color);
+            letter-spacing: 3px;
+            margin-bottom: 8px;
+        }
+
+        .sub-title {
+            font-size: 15px;
+            background: var(--border-color);
+            color: #fff;
+            display: inline-block;
+            padding: 4px 16px;
+            border-radius: 20px;
+            letter-spacing: 2px;
+            margin-bottom: 25px;
+        }
+
+        /* 宿舍信息栏 */
+        .dorm-info-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--white-glass);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px 25px;
+            margin-bottom: 25px;
+            box-shadow: 4px 4px 0px rgba(78, 52, 46, 0.1); /* 软阴影 */
+        }
+
+        .dorm-number {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--accent-1);
+            border-right: 2px dashed #bbb;
+            padding-right: 20px;
+            margin-right: 20px;
+            white-space: nowrap;
+        }
+
+        .member-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .member-name {
+            font-size: 14px;
+            color: var(--text-sub);
+            background: #fff;
+            padding: 3px 10px;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+            font-weight: 600;
+        }
+
+        /* ================= 照片区域 ================= */
+        .photo-container {
+            width: 100%;
+            height: 200px;
+            background-color: #eee;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            overflow: hidden;
+            border: 3px solid var(--border-color);
+            /* 邻近色硬阴影 */
+            box-shadow: 6px 6px 0px rgba(78, 52, 46, 0.3);
+            position: relative;
+        }
+
+        .photo-container img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* ================= 分数与类型 ================= */
+        .score-card {
+            display: flex;
+            align-items: center;
+            background: #fff;
+            border: 3px solid var(--border-color);
+            border-radius: 16px;
+            margin-bottom: 25px;
+            box-shadow: 6px 6px 0px var(--border-color); /* 统一硬阴影色 */
+            overflow: hidden;
+        }
+
+        .score-left {
+            width: 32%;
+            background: var(--border-color);
+            color: #fff;
+            text-align: center;
+            padding: 15px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .score-number {
+            font-size: 58px;
+            font-weight: 900;
+            line-height: 1;
+            color: var(--accent-2); /* 黄色分数在深咖背景上 */
+        }
+
+        .score-label {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-top: 5px;
+            letter-spacing: 1px;
+            font-weight: 300;
+        }
+
+        .score-right {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            padding: 10px 25px;
+            background: #fff;
+        }
+
+        .type-emoji-large {
+            font-size: 48px;
+            margin-right: 20px;
+            filter: drop-shadow(2px 2px 0px rgba(0,0,0,0.1));
+        }
+
+        .type-content { display: flex; flex-direction: column; align-items: flex-start; }
+
+        .type-title {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 4px;
+        }
+
+        .type-badge {
+            background: var(--accent-1);
+            color: white;
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        /* ================= 特质 Tags ================= */
+        .tags-container {
+            display: flex;
+            gap: 15px;
+            width: 100%;
+            margin-bottom: 25px;
+        }
+
+        .tag-item {
+            flex: 1;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            /* 浅色背景增强对比 */
+            background: rgba(255, 255, 255, 0.8);
+            position: relative;
+        }
+
+        .tag-icon {
+            font-size: 32px;
+            margin-right: 12px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--bg-start);
+            border: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-main);
+        }
+
+        .tag-content h4 {
+            font-size: 12px;
+            color: var(--text-sub);
+            margin-bottom: 3px;
+            text-transform: uppercase;
+        }
+
+        .tag-content span {
+            font-size: 17px;
+            font-weight: 800;
+            color: var(--accent-1); /* 重点文字用强调色 */
+        }
+
+        /* ================= 评语区域 (回归 V1 引用样式) ================= */
+        .comment-box {
+            width: 100%;
+            /* 磨砂通透感 */
+            background: rgba(255, 255, 255, 0.5); 
+            border-left: 5px solid var(--accent-1); /* 砖红色左边框 */
+            padding: 15px 25px;
+            font-size: 15px;
+            line-height: 1.8;
+            color: var(--text-main);
+            font-style: italic; /* 斜体 */
+            margin-bottom: auto; /* 自动顶起底部 */
+            position: relative;
+        }
+
+        .quote-mark {
+            font-size: 40px;
+            color: var(--accent-1);
+            opacity: 0.4;
+            position: absolute;
+            top: 5px;
+            left: 10px;
+            font-family: serif;
+            line-height: 1;
+        }
+        
+        /* 增加正文缩进以避开引号 */
+        .comment-content {
+            position: relative;
+            z-index: 1;
+            text-indent: 1.5em; 
+        }
+
+        /* ================= 底部区域 ================= */
+        .footer {
+            width: 100%;
+            border-top: 1px solid rgba(78, 52, 46, 0.2);
+            padding-top: 15px;
+            margin-top: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .organizers { display: flex; flex-direction: column; gap: 6px; }
+
+        .org-name {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-sub);
+            display: flex;
+            align-items: center;
+        }
+        
+        .org-name::before {
+            content: "";
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background: var(--accent-2); /* 黄色圆点 */
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .footer-right {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 8px;
+        }
+
+        .logos { display: flex; gap: 10px; }
+
+        .logo-box {
+            width: 42px;
+            height: 42px;
+            background: #fff;
+            border: 1px solid rgba(78, 52, 46, 0.2);
+            border-radius: 50%; /* 圆形Logo位 */
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2px;
+        }
+        
+        .logo-box img { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; }
+
+        .date-str { font-size: 11px; color: var(--text-sub); opacity: 0.7; font-family: monospace; }
+
+        /* 打印适配 */
+        @media print {
+            body { background: none; margin: 0; padding: 0; }
+            .action-bar { display: none; }
+            .a4-page { box-shadow: none; margin: 0; page-break-after: always; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 操作栏 -->
+    <div class="action-bar" data-html2canvas-ignore="true">
+        <button class="btn-download" onclick="downloadPDF()">
+            <span>✨ 保存证书 PDF</span>
+        </button>
+    </div>
+
+    <!-- 证书主体 -->
+    <div class="a4-page" id="certificate-element">
+        <div class="border-frame"></div>
+
+        <div class="content">
+            <!-- 标题 -->
+            <div class="header">
+                <div class="main-title">Z世代寝室图鉴</div>
+                <div class="sub-title">寝室文化节 · 默契度检测报告</div>
+            </div>
+
+            <!-- 宿舍及成员 -->
+            <div class="dorm-info-bar">
+                <div class="dorm-number" id="dorm-id">--</div>
+                <div class="member-list" id="member-container"></div>
+            </div>
+
+            <!-- 合照 -->
+            <div class="photo-container">
+                <img id="team-photo" src="" alt="合照" crossorigin="anonymous">
+            </div>
+
+            <!-- 评分卡片 -->
+            <div class="score-card">
+                <div class="score-left">
+                    <div class="score-number" id="score-value">00</div>
+                    <div class="score-label">默契度评分</div>
+                </div>
+                <div class="score-right">
+                    <div class="type-emoji-large" id="type-emoji">🏆</div>
+                    <div class="type-content">
+                        <div class="type-title" id="type-text">类型名称</div>
+                        <div class="type-badge">DORMITORY BOND TYPE</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 特质 Tags -->
+            <div class="tags-container">
+                <div class="tag-item">
+                    <div class="tag-icon" id="tag1-icon">🧩</div>
+                    <div class="tag-content">
+                        <h4 id="tag1-label">标签1</h4>
+                        <span id="tag1-value">...</span>
+                    </div>
+                </div>
+                <div class="tag-item">
+                    <div class="tag-icon" id="tag2-icon">⚡</div>
+                    <div class="tag-content">
+                        <h4 id="tag2-label">标签2</h4>
+                        <span id="tag2-value">...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 评语 (回归引用样式) -->
+            <div class="comment-box">
+                <div class="quote-mark">“</div>
+                <div class="comment-content" id="comment-text">
+                    评语内容加载中...
+                </div>
+            </div>
+
+            <!-- 底部 -->
+            <div class="footer">
+                <div class="organizers">
+                    <div class="org-name">主办：信息科学与工程学院学生会</div>
+                    <div class="org-name">承办：CIC计算机信息交流协会</div>
+                </div>
+                <div class="footer-right">
+                    <div class="logos">
+                        <div class="logo-box"><img id="logo-1" src="" alt="Logo1" crossorigin="anonymous"></div>
+                        <div class="logo-box"><img id="logo-2" src="" alt="Logo2" crossorigin="anonymous"></div>
+                    </div>
+                    <div class="date-str" id="date-str"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ================= 数据配置区 =================
+        const data = {
+            dormNumber: "7# 503",
+            members: ["张伟", "李子轩", "王浩然", "陈思源"],
+            score: 95,
+            type: {
+                text: "自律者联盟",
+                emoji: "🛡️"
+            },
+            tags: [
+                { label: "社交倾向", value: "外向活跃者", emoji: "🌟" },
+                { label: "生活习惯", value: "灵活适应者", emoji: "🧘" }
+            ],
+            // 评语
+            comment: "既能打理好井井有条的个人生活，又能在社交场合中游刃有余。你们在自律与开放间找到了完美的平衡点，彼此尊重、共同进步，是信息学院寝室社区中的模范搭档！",
+
+            // 图片资源 (请替换为实际链接)
+            photoUrl: "https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+            
+            // 两个Logo的链接
+            logo1Url: "https://ui-avatars.com/api/?name=ISE&background=D84315&color=fff&size=128&font-size=0.4", 
+            logo2Url: "https://ui-avatars.com/api/?name=CIC&background=F9A825&color=fff&size=128&font-size=0.4",
+
+            date: new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '.')
+        };
+
+        // ================= 渲染逻辑 =================
+        function render() {
+            document.getElementById('dorm-id').innerText = data.dormNumber;
+            document.getElementById('member-container').innerHTML = data.members.map(name => `<span class="member-name">${name}</span>`).join('');
+            
+            document.getElementById('score-value').innerText = data.score;
+            document.getElementById('type-text').innerText = data.type.text;
+            document.getElementById('type-emoji').innerText = data.type.emoji;
+
+            document.getElementById('tag1-label').innerText = data.tags[0].label;
+            document.getElementById('tag1-value').innerText = data.tags[0].value;
+            document.getElementById('tag1-icon').innerText = data.tags[0].emoji;
+
+            document.getElementById('tag2-label').innerText = data.tags[1].label;
+            document.getElementById('tag2-value').innerText = data.tags[1].value;
+            document.getElementById('tag2-icon').innerText = data.tags[1].emoji;
+
+            document.getElementById('comment-text').innerText = data.comment;
+            document.getElementById('team-photo').src = data.photoUrl;
+            document.getElementById('date-str').innerText = "生成日期：" + data.date;
+
+            document.getElementById('logo-1').src = data.logo1Url;
+            document.getElementById('logo-2').src = data.logo2Url;
+        }
+
+        // ================= 下载逻辑 =================
+        function downloadPDF() {
+            const element = document.getElementById('certificate-element');
+            const btn = document.querySelector('.btn-download');
+            const originalText = btn.innerHTML;
+            
+            btn.innerHTML = "⏳ 生成中...";
+            btn.style.opacity = 0.7;
+
+            const opt = {
+                margin: 0,
+                filename: `寝室报告_${data.dormNumber}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true, logging: false },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                btn.innerHTML = originalText;
+                btn.style.opacity = 1;
+            }).catch(err => {
+                console.error(err);
+                alert("生成出错，请检查图片是否跨域");
+                btn.innerHTML = originalText;
+                btn.style.opacity = 1;
+            });
+        }
+
+        render();
+    </script>
+</body>
+</html>
