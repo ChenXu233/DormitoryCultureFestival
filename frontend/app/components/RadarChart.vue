@@ -148,7 +148,7 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .radar-chart {
-  width: 60%;
+  width: 50%;
   max-width: 800px;
   margin: 0 auto;
 }

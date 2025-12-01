@@ -38,11 +38,11 @@ export default defineNuxtConfig({
       },
     },
     optimizeDeps: {
-      include: ['html2canvas']
+      include: []
     }
   },
 
   build: {
-    transpile: ['html2canvas']
+    transpile: []
   }
 })

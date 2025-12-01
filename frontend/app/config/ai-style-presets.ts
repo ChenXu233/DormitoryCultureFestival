@@ -66,6 +66,16 @@ export const AI_STYLE_PRESETS: AIStylePreset[] = [
     prompt: 'hand-drawn illustration of the EXACT SAME 4 individuals from uploaded photo, identical facial features and physiques, stylized superhero character designs, vibrant uniform BEIGE (#FFF8DC) background with hand-drawn comic explosion lines and action effect doodles, bold line art, flat color design, superhero team character sheet, strict beige background color, dynamic decorative marks, absolutely no additional characters, pure beige backdrop',
     aspectRatio: '16:9',
     strength: 50
+  },
+  {
+    id: "magic-academy",
+    name: "魔法学院风",
+    description: "魔法学院角色设计，魔法书与符文背景，米色背景",
+    icon: "🔮",
+    negativePrompt: "extra people, crowd, background characters, photorealistic, 3d render, realistic lighting, shadows, multiple faces, distorted anatomy, ugly, deformed, bad hands, text, watermark, signature, frame, border, other colors, gradient background",
+    prompt:"hand-drawn illustration of the EXACT SAME 4 individuals from uploaded photo, identical looks and builds, stylized wizard academy character designs, vibrant uniform BEIGE (#FFF8DC) background with hand-drawn floating candle and spellbook outline sketches, decorative line art only, solid beige color fills, magical character reference sheet, warm beige background required, mystical decorative elements, no other humans present, beige-only setting",
+    aspectRatio: "4:3",
+    strength: 50
   }
 ]
 
