@@ -18,10 +18,10 @@ export const AI_STYLE_PRESETS: AIStylePreset[] = [
   {
     id: 'cosmic',
     name: '宇宙星空风',
-    description: '手绘插画风格，星空与星座图案，米色背景',
+    description: '保持原背景、光线、构图完全不变，仅对人物进行服装改造',
     icon: '🌌',
-    negativePrompt: 'extra people, crowd, background characters, photorealistic, 3d render, realistic lighting, shadows, multiple faces, distorted anatomy, ugly, deformed, bad hands, text, watermark, signature, frame, border, other colors, gradient background',
-    prompt: 'hand-drawn illustration of the EXACT SAME 4 individuals from uploaded photo, identical facial features and body proportions, stylized cartoon line art, vibrant uniform BEIGE (#FFF8DC) background with hand-drawn constellation patterns and simple planet outlines, no shading, flat color design, character sheet style, minimal decorative elements, no other humans or characters, pure beige backdrop, anime-inspired but not Japanese style, distinctive cosmic theme markers',
+    negativePrompt: '改变背景, 修改场景, 添加新人物, 删除人物, 改变姿势, 改变光照, 改变发型, 改变脸型, 写实风格, 3D效果',
+    prompt: '保持原始照片背景、四人位置和姿势完全不变，仅将他们的日常服装替换为手绘风格的宇航服，保留每个人的原始面部特征、发型和体型。服装细节：胸口有星座徽章，手臂有LED光条，材质为哑光布料，颜色为深蓝配银色装饰。整体风格为卡通插画，不写实。无新人物，无背景变化。',
     aspectRatio: '16:9',
     style: 'raw',
     strength: 50
@@ -29,30 +29,30 @@ export const AI_STYLE_PRESETS: AIStylePreset[] = [
   {
     id: 'fantasy',
     name: '异世界奇幻风',
-    description: '奇幻 RPG 角色设计，浮空岛与魔法阵，米色背景',
+    description: '保持原背景、光线、构图完全不变，仅对人物进行服装改造',
     icon: '🏰',
-    negativePrompt: 'extra people, crowd, background characters, photorealistic, 3d render, realistic lighting, shadows, multiple faces, distorted anatomy, ugly, deformed, bad hands, text, watermark, signature, frame, border, other colors, gradient background',
-    prompt: 'hand-drawn illustration of the EXACT SAME 4 individuals from uploaded photo, identical appearance and builds, stylized fantasy RPG character designs, vibrant uniform BEIGE (#FFF8DC) background with hand-drawn floating island wireframes and magic circle patterns, line art only, no gradients, flat coloring, character turn-around sheet style, uniform beige tone throughout, distinct magical elements, absolutely no other people, beige canvas only',
+    negativePrompt: '改变背景, 修改场景, 添加新人物, 删除人物, 改变姿势, 改变光照, 改变发型, 改变脸型, 写实风格, 3D效果',
+    prompt: '保持原始照片背景、四人位置和姿势完全不变，仅将服装改为异世界冒险者套装，保留每个人的原始面部特征、发型和体型。服装细节：皮质护甲、魔法斗篷，风格为日式RPG游戏手绘感，线条清晰，色彩鲜明。不修改任何背景元素，不添加其他人物。',
     aspectRatio: '16:9',
     strength: 50
   },
   {
     id: 'cyberpunk',
     name: '赛博朋克风',
-    description: '赛博朋克角色设计，霓虹电路与全息界面，米色背景',
+    description: '保持原背景、光线、构图完全不变，仅对人物进行服装改造',
     icon: '🤖',
-    negativePrompt: 'extra people, crowd, background characters, photorealistic, 3d render, realistic lighting, shadows, multiple faces, distorted anatomy, ugly, deformed, bad hands, text, watermark, signature, frame, border, other colors, gradient background',
-    prompt: 'hand-drawn illustration of the EXACT SAME 4 individuals from uploaded photo, identical features and body types, stylized cyberpunk character designs, vibrant uniform BEIGE (#FFF8DC) background with hand-drawn neon circuit line patterns and holographic UI wireframes, technical line art, flat color blocks, character design sheet style, strict beige coloration, cybernetic decorative motifs, no other humans present, beige-only backdrop',
+    negativePrompt: '改变背景, 修改场景, 添加新人物, 删除人物, 改变姿势, 改变光照, 改变发型, 改变脸型, 写实风格, 3D效果',
+    prompt: '保持原始背景、光线和四人位置完全不变，仅将日常服装改造为赛博朋克风格。保留每个人的面部特征、发型、体型。服装细节：战术背心、霓虹色彩装饰、科技感肩甲和腰带，手绘插画风格，哑光材质。禁止修改背景、添加或删除人物。',
     aspectRatio: '16:9',
     strength: 50
   },
   {
     id: 'chinese-ink',
     name: '国风水墨风',
-    description: '中国风卡通风格，竹子与山水轮廓，米色宣纸质感',
+    description: '保持原背景、光线、构图完全不变，仅对人物进行服装改造',
     icon: '🎋',
-    negativePrompt: 'extra people, crowd, background characters, photorealistic, 3d render, realistic lighting, shadows, multiple faces, distorted anatomy, ugly, deformed, bad hands, text, watermark, signature, frame, border, other colors, gradient background',
-    prompt: 'hand-drawn illustration of the EXACT SAME 4 individuals from uploaded photo, identical facial structure and stature, stylized Chinese cartoon style, vibrant uniform BEIGE (#FFF8DC) rice-paper textured background with hand-drawn bamboo and mountain contour lines, minimalist line art, flat wash colors, character model sheet format, warm beige tone mandatory, traditional decorative patterns, absolutely no extra people, solid beige background',
+    negativePrompt: '改变背景, 修改场景, 添加新人物, 删除人物, 改变姿势, 改变光照, 改变发型, 改变脸型, 写实风格, 3D效果',
+    prompt: '保持原照片背景和构图不动，四人位置和姿势不变，仅将服装改为现代国潮汉服。保留每个人的原始相貌、发型、身材。服装元素：交领上衣、阔袖、现代改良设计，手绘彩色插画风格，线条流畅。严格保持背景原样，不得添加其他人物。',
     aspectRatio: '4:3',
     style: 'raw',
     strength: 50
@@ -60,20 +60,20 @@ export const AI_STYLE_PRESETS: AIStylePreset[] = [
   {
     id: 'superhero',
     name: '超级英雄风',
-    description: '超级英雄团队设计，漫画爆炸线与动作特效，米色背景',
+    description: '保持原背景、光线、构图完全不变，仅对人物进行服装改造',
     icon: '⚡',
-    negativePrompt: 'extra people, crowd, background characters, photorealistic, 3d render, realistic lighting, shadows, multiple faces, distorted anatomy, ugly, deformed, bad hands, text, watermark, signature, frame, border, other colors, gradient background',
-    prompt: 'hand-drawn illustration of the EXACT SAME 4 individuals from uploaded photo, identical facial features and physiques, stylized superhero character designs, vibrant uniform BEIGE (#FFF8DC) background with hand-drawn comic explosion lines and action effect doodles, bold line art, flat color design, superhero team character sheet, strict beige background color, dynamic decorative marks, absolutely no additional characters, pure beige backdrop',
+    negativePrompt: '改变背景, 修改场景, 添加新人物, 删除人物, 改变姿势, 改变光照, 改变发型, 改变脸型, 写实风格, 3D效果',
+    prompt: '保持原始照片背景、四人位置和姿势完全不变，仅将服装替换为四个不同的超级英雄战衣，保留每个人的原始面部特征、发型和体型。请特别注意超级英雄服装不要遮住人脸！！！ 整体为美式漫画手绘插画风格，线条清晰，色彩饱和，不写实。严禁改变背景、光照、人物位置，禁止添加或删除人物。',
     aspectRatio: '16:9',
     strength: 50
   },
   {
     id: "magic-academy",
     name: "魔法学院风",
-    description: "魔法学院角色设计，魔法书与符文背景，米色背景",
+    description: "保持原背景、光线、构图完全不变，仅对人物进行服装改造",
     icon: "🔮",
-    negativePrompt: "extra people, crowd, background characters, photorealistic, 3d render, realistic lighting, shadows, multiple faces, distorted anatomy, ugly, deformed, bad hands, text, watermark, signature, frame, border, other colors, gradient background",
-    prompt:"hand-drawn illustration of the EXACT SAME 4 individuals from uploaded photo, identical looks and builds, stylized wizard academy character designs, vibrant uniform BEIGE (#FFF8DC) background with hand-drawn floating candle and spellbook outline sketches, decorative line art only, solid beige color fills, magical character reference sheet, warm beige background required, mystical decorative elements, no other humans present, beige-only setting",
+    negativePrompt: "改变背景, 修改场景, 添加新人物, 删除人物, 改变姿势, 改变光照, 改变发型, 改变脸型, 写实风格, 3D效果",
+    prompt:"保持原始照片背景和人物位置完全不变，仅将日常服装替换为魔法学院制服。保留每个人的长相、发型、身材。服装元素：长袍、巫师帽、魔法徽章，手绘卡通风格，布料质感。严禁修改背景元素、光照条件或添加新人物。",
     aspectRatio: "4:3",
     strength: 50
   }

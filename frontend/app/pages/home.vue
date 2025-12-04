@@ -213,7 +213,7 @@
     <footer class="bg-gray-50 border-t border-gray-200 mt-16">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div class="text-center text-gray-600">
-          <p class="text-lg">© 2024 宿舍文化节特质匹配系统</p>
+          <p class="text-lg">© 2025 宿舍文化节特质匹配系统</p>
           <p class="text-sm mt-2">打造理想的宿舍生活体验</p>
         </div>
       </div>

@@ -13,7 +13,7 @@
         <div v-if="aiGeneratedImage" class="relative">
           <img 
             :src="aiGeneratedImage"
-            class="w-full h-64 object-cover"
+            class="w-full h-auto min-h-[200px] object-contain"
             alt="AI 生成的团队合影"
           />
           <div class="absolute top-2 left-2 flex gap-2">
@@ -39,7 +39,7 @@
         <div v-else-if="modelValue" class="relative">
           <img 
             :src="modelValue"
-            class="w-full h-64 object-cover"
+            class="w-full h-auto min-h-[200px] object-contain"
             :alt="title"
           />
           

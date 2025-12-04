@@ -117,19 +117,16 @@
         <div class="footer w-full border-t border-[#4E342E]/20 pt-4 mt-4 flex justify-between items-end">
           <div class="organizers flex flex-col gap-1">
             <div class="org-name text-xs font-bold text-[#6D4C41] flex items-center before:content-[''] before:inline-block before:w-1.5 before:h-1.5 before:bg-[#F9A825] before:rounded-full before:mr-2">
-              主办：信息科学与工程学院学生会
-            </div>
-            <div class="org-name text-xs font-bold text-[#6D4C41] flex items-center before:content-[''] before:inline-block before:w-1.5 before:h-1.5 before:bg-[#F9A825] before:rounded-full before:mr-2">
-              承办：CIC计算机信息交流协会
+              主办：信息科学与工程学院学生会 x CIC计算机信息交流协会
             </div>
           </div>
           <div class="footer-right flex flex-col items-end gap-2">
             <div class="logos flex gap-2">
                <div class="logo-box w-10 h-10 bg-white border border-[#4E342E]/20 rounded-full overflow-hidden p-0.5 flex items-center justify-center">
-                 <img src="https://ui-avatars.com/api/?name=ISE&background=D84315&color=fff&size=128&font-size=0.4" alt="ISE Logo" class="w-full h-full object-contain rounded-full">
+                 <img src="/logo.jpg" alt="ISE Logo" class="w-full h-full object-contain rounded-full">
                </div>
                <div class="logo-box w-10 h-10 bg-white border border-[#4E342E]/20 rounded-full overflow-hidden p-0.5 flex items-center justify-center">
-                 <img src="https://ui-avatars.com/api/?name=CIC&background=F9A825&color=fff&size=128&font-size=0.4" alt="CIC Logo" class="w-full h-full object-contain rounded-full">
+                 <img src="/cic-logo.png" alt="CIC Logo" class="w-full h-full object-contain rounded-full">
                </div>
             </div>
             <div class="date-str text-[10px] text-[#6D4C41] opacity-70 font-mono">
@@ -249,11 +246,12 @@ const teamRadarData = computed(() => {
 <style scoped>
 /* 引入证书生成的 CSS 变量和特定样式 */
 .a4-page {
-    width: 100%;
-    max-width: 1000px;
-    /* 移除 min-height 固定限制，改为自动高度，但保持最小高度为 A4 */
+    width: 210mm;
     min-height: 297mm;
-    height: auto;
+    margin: 0 auto;
+    background: linear-gradient(160deg, var(--bg-start) 0%, var(--bg-end) 100%);
+    color: var(--text-main);
+    font-family: "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
     
     /* 邻近色配色定义 */
     --bg-start: #FFFDF0;    /* 奶油白 */
