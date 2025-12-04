@@ -262,18 +262,19 @@ export function useDesktopBuilder(initialElements: DesktopElement[] = [], initia
               watermarkEl = document.createElement('div')
               watermarkEl.textContent = `宿舍号：${dormNumber.value}`
               watermarkEl.style.position = 'absolute'
-              watermarkEl.style.left = '12px'
-              watermarkEl.style.top = '12px'
-              watermarkEl.style.padding = '6px 12px'
-              watermarkEl.style.background = 'rgba(255,255,255,0.6)'
-              watermarkEl.style.borderRadius = '6px'
-              watermarkEl.style.fontSize = '18px'
+              watermarkEl.style.left = '47.8%'
+              watermarkEl.style.top = '34px'
+              watermarkEl.style.transform = 'translateX(-50%)'
+              watermarkEl.style.fontSize = '24px'
               watermarkEl.style.fontWeight = '600'
+              watermarkEl.style.fontFamily = 'cursive'
               watermarkEl.style.color = '#222'
               watermarkEl.style.zIndex = '9999'
               watermarkEl.style.pointerEvents = 'none'
+              watermarkEl.style.textShadow = '0 2px 4px rgba(0,0,0,0.3)'
               canvas.appendChild(watermarkEl)
             }
+            
 
             const htmlCanvas = await html2canvas(canvas, {
               scale: 2, // 提高清晰度

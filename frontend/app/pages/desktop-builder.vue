@@ -40,7 +40,7 @@
         <DesktopCanvas
           :elements="elements"
           :background="background"
-          :height="800"
+          :height="775  "
           :selected-element-id="selectedElement?.id"
           :hovered-element-id="elementHovered"
           @drag-over="onDragOver"

@@ -1,8 +1,8 @@
 <template>
-  <div class="flex flex-col items-center">
+  <div class="flex flex-col items-center ">
+    <div id="certificate-node">
     <!-- 证书主体 (A4 比例) -->
     <div 
-      id="certificate-node"
       class="a4-page relative bg-white shadow-2xl overflow-hidden transition-transform duration-300"
     >
       <!-- 装饰性外框 -->
@@ -16,7 +16,7 @@
         </div>
 
         <!-- 宿舍信息栏 -->
-        <div class="dorm-info-bar flex justify-between items-center mb-6">
+        <div class="dorm-info-bar flex items-center justify-between mb-6">
           <div class="dorm-input-wrapper flex items-center">
             <span class="text-2xl font-bold text-[#D84315] mr-2">#</span>
             <input 
@@ -26,11 +26,11 @@
               class="dorm-input text-2xl font-bold text-[#D84315] bg-transparent border-b-2 border-dashed border-[#bbb] focus:outline-none focus:border-[#D84315] w-32 placeholder-gray-300"
             />
           </div>
-          <div class="member-list flex flex-wrap gap-2 justify-end">
+          <div class="members-wrapper flex items-center gap-2">
             <span 
               v-for="(member, index) in matchResult.participants" 
               :key="member.code"
-              class="member-name"
+              class="member-name inline-block"
             >
               {{ member.name || `成员${member.code}` }}
             </span>
@@ -38,7 +38,7 @@
         </div>
 
         <!-- 照片区域 (Slot) -->
-        <div class="photo-container mb-6 relative bg-[#eee] rounded-xl overflow-hidden border-[3px] border-[#4E342E] shadow-[6px_6px_0px_rgba(78,52,46,0.3)]">
+        <div class="photo-container">
           <slot name="image-upload"></slot>
         </div>
 
@@ -135,6 +135,7 @@
           </div>
         </div>
       </div>
+    </div>
     </div>
 
     <!-- 操作按钮 -->
@@ -246,7 +247,7 @@ const teamRadarData = computed(() => {
 <style scoped>
 /* 引入证书生成的 CSS 变量和特定样式 */
 .a4-page {
-    width: 210mm;
+    min-width: 320mm;
     min-height: 297mm;
     margin: 0 auto;
     background: linear-gradient(160deg, var(--bg-start) 0%, var(--bg-end) 100%);
@@ -281,7 +282,7 @@ const teamRadarData = computed(() => {
 }
 
 .main-title {
-    font-size: 38px;
+    font-size: 50px;
     font-weight: 900;
     color: var(--border-color);
     letter-spacing: 3px;
@@ -289,7 +290,7 @@ const teamRadarData = computed(() => {
 }
 
 .sub-title {
-    font-size: 15px;
+    font-size: 20px;
     background: var(--border-color);
     color: #fff;
     display: inline-block;
@@ -306,14 +307,22 @@ const teamRadarData = computed(() => {
     box-shadow: 4px 4px 0px rgba(78, 52, 46, 0.1);
 }
 
+.members-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
 .member-name {
-    font-size: 14px;
+    font-size: 16px;
     color: var(--text-sub);
     background: #fff;
-    padding: 3px 10px;
+    padding: 4px 12px;
     border-radius: 6px;
     border: 1px solid #e0e0e0;
     font-weight: 600;
+    white-space: nowrap;
 }
 
 /* 响应式调整 */
@@ -332,6 +341,20 @@ const teamRadarData = computed(() => {
     }
     .main-title {
         font-size: 24px;
+    }
+    .dorm-info-bar {
+        flex-direction: column;
+        gap: 12px;
+        align-items: stretch;
+    }
+    
+    .members-wrapper {
+        justify-content: center;
+    }
+    
+    .member-name {
+        font-size: 14px;
+        padding: 3px 10px;
     }
 }
 </style>
