@@ -135,11 +135,19 @@ class="w-6 h-6 rounded-full border-2 flex items-center justify-center mr-3"
             <!-- 雷达图与特质展示 -->
               <div class="mt-6">
                 <client-only>
-                  <RadarChart 
-                    v-if="result.radar_data" 
-                    :radar-data="result.radar_data"
-                    :dimension-emojis="result.dimension_emojis"
-                  />
+                  <!-- Increase container size locally so other usages are unaffected -->
+                  <div class="w-full h-96">
+                    <RadarChart 
+                      v-if="result.radar_data" 
+                      :radar-data="result.radar_data"
+                      :dimension-emojis="result.dimension_emojis"
+                      width="100%"
+                      :height="360"
+                      :lenendbignum1="14"  
+                      :lenendbignum2="14"
+                      :full-width="true"
+                    />
+                  </div>
                 </client-only>
 
                 <!-- 特质展示 -->

@@ -1,20 +1,51 @@
 <template>
-  <div class="radar-chart" :style="maxWidth ? { maxWidth: maxWidth } : {}">
-    <canvas ref="canvas"/>
+  <div class="radar-chart" :style="wrapperStyle">
+    <canvas ref="canvas" :style="canvasStyle" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
+import { ref, watch, onMounted, onBeforeUnmount, computed } from 'vue'
 
 const props = defineProps<{ 
   radarData?: { dimensions: string[]; scores: number[]; max_score: number },
   multiRadarData?: { dimensions: string[]; datasets: { label: string; scores: number[]; color?: string }[]; max_score: number },
   dimensionEmojis?: Record<string, string>,
-  maxWidth?: string
+  // optional layout props
+  width?: string | number,
+  height?: string | number,
+  lenendbignum1?: number ,
+  lenendbignum2?: number ,
+  maintainAspectRatio?: boolean,
+  // allow caller to force the wrapper to use full width (keeps default behavior unchanged)
+  fullWidth?: boolean,
 }>()
 const canvas = ref<HTMLCanvasElement | null>(null)
 let chart: any = null
+
+// compute CSS size for canvas; Chart.js will use these when maintainAspectRatio is false
+const canvasStyle = computed(() => {
+  const width = props.width ?? '100%'
+  const height = props.height ?? '400px'
+  const fmt = (v: string | number) => (typeof v === 'number' ? `${v}px` : v)
+  return {
+    width: fmt(width),
+    height: fmt(height),
+    display: 'block',
+  }
+})
+
+// compute wrapper style so callers can override the default 50% width
+const wrapperStyle = computed(() => {
+  const fmt = (v: string | number) => (typeof v === 'number' ? `${v}px` : v)
+  // priority: explicit width prop -> fullWidth flag -> default 50%
+  const w = props.width ?? (props.fullWidth ? '100%' : '50%')
+  return {
+    width: fmt(w),
+    maxWidth: '100000px',
+    margin: '0 auto',
+  }
+})
 
 onMounted(async () => {
   if (!import.meta.client) return
@@ -60,7 +91,8 @@ onMounted(async () => {
     },
     options: {
       responsive: true,
-      maintainAspectRatio: true,
+      // allow non-square charts by default; can be overridden with prop
+      maintainAspectRatio: props.maintainAspectRatio ?? false,
       scales: {
         r: {
           suggestedMin: 0,
@@ -70,17 +102,17 @@ onMounted(async () => {
           },
           pointLabels: {
             font: {
-              size: 16, // Increased font size
+              size: props.lenendbignum1 ?? 12, // Increased font size
             },
           },
         },
       },
       plugins: {
         legend: {
-          display: !!props.multiRadarData,
+          display: props.multiRadarData ? true : false,
           labels: {
             font: {
-              size: 14 // Increased legend font size
+              size: props.lenendbignum2 ?? 12, // Increased legend font size
             }
           }
         },
@@ -148,8 +180,7 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .radar-chart {
-  width: 50%;
-  max-width: 800px;
+  max-width:100000px;
   margin: 0 auto;
 }
 </style>

@@ -37,29 +37,29 @@
           </div>
         </div>
 
-        <!-- 照片区域 (Slot) -->
-        <div class="photo-container">
+        <!-- 照片区域 (Slot) - 放大并自适应 -->
+        <div class="photo-container flex-1 min-h-0 mb-4 relative w-full flex flex-col">
           <slot name="image-upload"></slot>
         </div>
 
         <!-- 分数与类型 -->
-        <div class="score-card flex items-center bg-white border-[3px] border-[#4E342E] rounded-2xl mb-6 shadow-[6px_6px_0px_#4E342E] overflow-hidden">
-          <div class="score-left w-1/3 bg-[#4E342E] text-white text-center py-4 flex flex-col justify-center">
-            <div class="score-number text-6xl font-black leading-none text-[#F9A825]">
+        <div class="score-card flex items-center bg-white border-[3px] border-[#4E342E] rounded-2xl mb-4 shadow-[4px_4px_0px_#4E342E] overflow-hidden shrink-0" style="z-index: 0;">
+          <div class="score-left w-1/3 bg-[#4E342E] text-white text-center py-3 flex flex-col justify-center">
+            <div class="score-number text-5xl font-black leading-none text-[#F9A825]">
               {{ matchResult.team_compatibility_score }}
             </div>
-            <div class="score-label text-xs opacity-80 mt-1 tracking-widest font-light">默契度评分</div>
+            <div class="score-label text-[10px] opacity-80 mt-1 tracking-widest font-light">默契度评分</div>
           </div>
-          <div class="score-right flex-1 flex items-center px-6 py-2 bg-white justify-between">
+          <div class="score-right flex-1 flex items-center px-4 py-2 bg-white justify-between">
             <div class="flex items-center">
-              <div class="type-emoji-large text-5xl mr-5 drop-shadow-sm">
+              <div class="type-emoji-large text-4xl mr-3 drop-shadow-sm">
                 {{ getScoreEmoji(matchResult.team_compatibility_score) }}
               </div>
               <div class="type-content flex flex-col items-start">
-                <div class="type-title text-2xl font-extrabold text-[#3E2723] mb-1">
+                <div class="type-title text-xl font-extrabold text-[#3E2723] mb-0.5">
                   {{ matchResult.team_commentary?.title || '默契团队' }}
                 </div>
-                <div class="type-badge bg-[#D84315] text-white text-[10px] px-2 py-1 rounded uppercase font-bold tracking-wider">
+                <div class="type-badge bg-[#D84315] text-white text-[10px] px-2 py-0.5 rounded uppercase font-bold tracking-wider">
                   DORMITORY BOND TYPE
                 </div>
               </div>
@@ -69,38 +69,44 @@
               v-if="matchResult.team_commentary?.title"
               :src="`特质匹配图片/${matchResult.team_commentary?.title}.jpg`" 
               :alt="matchResult.team_commentary?.title"
-              class="h-16 w-16 object-contain rounded-md border border-gray-200 shadow-sm ml-4"
+              class="h-12 w-12 object-contain rounded-md border border-gray-200 shadow-sm ml-2"
             />
           </div>
         </div>
 
-        <!-- 雷达图 (单独一行，加大) -->
-        <div class="w-full bg-white/80 border-2 border-[#4E342E] rounded-xl p-4 mb-6 flex flex-col items-center justify-center relative">
-             <div class="absolute top-0 left-4 -translate-y-1/2 bg-[#4E342E] text-white text-sm px-3 py-1 rounded">维度分析</div>
-             <client-only>
-               <RadarChart 
-                 v-if="teamRadarData" 
-                 :multi-radar-data="teamRadarData"
-                 :dimension-emojis="matchResult.dimension_emojis"
-                 max-width="100%"
-                 :height="300"
-               />
-             </client-only>
-        </div>
+        <!-- 雷达图与特质 Tags (合并为一行) -->
+        <div class="flex flex-row gap-3 mb-4 h-64 shrink-0">
+             <!-- 雷达图 -->
+             <div class="w-1/2 bg-white/80 border-2 border-[#4E342E] rounded-xl p-1 flex flex-col items-center justify-center relative">
+                 <div class="absolute top-0 left-2 -translate-y-1/2 bg-[#4E342E] text-white text-[10px] px-2 py-0.5 rounded">维度分析</div>
+                 <client-only>
+                   <RadarChart 
+                     v-if="teamRadarData" 
+                    :multi-radar-data="teamRadarData"
+                    :dimension-emojis="matchResult.dimension_emojis"
+                    width="93%"
+                    :height="270"
+                    :lenendbignum1="1"  
+                    :lenendbignum2="9"
+                    :full-width="true"
+                   />
+                 </client-only>
+             </div>
 
-        <!-- 特质 Tags (单独一行) -->
-        <div class="w-full flex flex-row gap-4 mb-6">
-            <div 
-              v-for="(traitInfo, dimension) in displayedTraits" 
-              :key="dimension"
-              class="tag-item flex-1 border-2 border-[#4E342E] rounded-xl p-4 flex items-center bg-white/80"
-            >
-                <div class="tag-icon text-3xl mr-4 w-12 h-12 rounded-full bg-[#FFFDF0] border-2 border-[#4E342E] flex items-center justify-center text-[#3E2723]">
-                    {{ matchResult.dimension_emojis?.[dimension] || '🌟' }}
-                </div>
-                <div class="tag-content">
-                    <h4 class="text-sm text-[#6D4C41] mb-1 uppercase">{{ dimension }}</h4>
-                    <span class="text-lg font-extrabold text-[#D84315]">{{ traitInfo.trait }}</span>
+             <!-- 特质 Tags -->
+             <div class="w-1/2 flex flex-col gap-2 justify-between">
+                <div 
+                  v-for="(traitInfo, dimension) in displayedTraits" 
+                  :key="dimension"
+                  class="tag-item flex-1 border-2 border-[#4E342E] rounded-xl p-2 flex items-center bg-white/80"
+                >
+                    <div class="tag-icon text-xl mr-2 w-8 h-8 rounded-full bg-[#FFFDF0] border-2 border-[#4E342E] flex items-center justify-center text-[#3E2723]">
+                        {{ matchResult.dimension_emojis?.[dimension] || '🌟' }}
+                    </div>
+                    <div class="tag-content">
+                        <h4 class="text-[10px] text-[#6D4C41] mb-0 uppercase">{{ dimension }}</h4>
+                        <span class="text-sm font-extrabold text-[#D84315]">{{ traitInfo.trait }}</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -247,8 +253,8 @@ const teamRadarData = computed(() => {
 <style scoped>
 /* 引入证书生成的 CSS 变量和特定样式 */
 .a4-page {
-    min-width: 320mm;
-    min-height: 297mm;
+    width: 210mm;
+    height: 297mm;
     margin: 0 auto;
     background: linear-gradient(160deg, var(--bg-start) 0%, var(--bg-end) 100%);
     color: var(--text-main);

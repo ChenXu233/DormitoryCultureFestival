@@ -1,7 +1,18 @@
 <template>
-  <div class="mb-6">
-    <!-- 触发按钮 -->
+  <div :class="compact ? 'inline-block' : 'mb-6'">
+    <!-- 触发按钮 (Compact Mode) -->
     <button 
+      v-if="compact"
+      @click="showSelectorModal = true"
+      class="p-2 bg-white/90 hover:bg-white text-purple-600 rounded-full transition-all duration-200 shadow-lg flex items-center justify-center border border-purple-100 hover:border-purple-300"
+      :title="selectedStylePreset?.name || '选择风格'"
+    >
+      <span class="text-xl leading-none">{{ selectedStylePreset?.icon || '🎨' }}</span>
+    </button>
+
+    <!-- 触发按钮 (Normal Mode) -->
+    <button 
+      v-else
       @click="showSelectorModal = true"
       class="w-full py-3 px-4 bg-white border-2 border-purple-200 hover:border-purple-400 hover:bg-purple-50 rounded-xl transition-all duration-200 flex items-center justify-between group shadow-sm"
     >
@@ -187,6 +198,7 @@ import { AI_STYLE_PRESETS, getStylePresetById, type AIStylePreset } from '../con
 interface Props {
   modelValue: string
   title?: string
+  compact?: boolean
 }
 
 interface Emits {
@@ -194,7 +206,8 @@ interface Emits {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  title: '选择生成风格'
+  title: '选择生成风格',
+  compact: false
 })
 
 const emit = defineEmits<Emits>()

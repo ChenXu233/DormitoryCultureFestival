@@ -1,12 +1,5 @@
 <template>
-  <div class="mb-8">
-    <h3 class="text-lg font-semibold text-gray-800 mb-4">{{ title }}</h3>
-    
-    <!-- AI 风格选择器 -->
-    <div v-if="enableAI && (modelValue || aiGeneratedImage)" class="max-w-4xl mx-auto mb-4">
-      <AIStyleSelector v-model="selectedStyle" />
-    </div>
-
+  <div>
     <div class="max-w-md mx-auto">
       <div class="relative bg-gray-100 rounded-lg overflow-hidden border-2 border-dashed border-gray-300">
         <!-- AI 生成的图片预览 -->
@@ -36,11 +29,11 @@
         </div>
 
         <!-- 原始图片预览 -->
-        <div v-else-if="modelValue" class="relative">
+        <div v-else-if="modelValue" class="relative w-full h-full flex items-center justify-center">
           <img 
             :src="modelValue"
-            class="w-full h-auto min-h-[200px] object-contain"
-            :alt="title"
+            class="w-full h-full object-contain max-h-full"
+            :alt="'已上传的图片'"
           />
           
           <!-- 加载遮罩 -->
@@ -54,6 +47,11 @@
           </div>
 
           <div class="absolute top-4 right-4 flex gap-2">
+            <AIStyleSelector 
+              v-if="enableAI && !isGenerating"
+              v-model="selectedStyle" 
+              compact 
+            />
             <button
               v-if="enableAI && !isGenerating"
               @click="handleAIGenerate"
@@ -112,7 +110,6 @@ import { getStylePresetById, getDefaultStylePreset } from '../config/ai-style-pr
 
 interface Props {
   modelValue: string | null
-  title?: string
   uploadButtonText?: string
   helpText?: string
   enableAI?: boolean
