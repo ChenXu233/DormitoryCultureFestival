@@ -4,10 +4,10 @@
       <!-- 页面标题 -->
       <div class="text-center mb-8">
         <h1 class="text-4xl font-bold text-gray-800 mb-2">
-          室友默契度答题
+          寝室默契测试机
         </h1>
         <p class="text-lg text-gray-600">
-          测试你和室友的默契程度，看看你们有多了解彼此
+          寝室默契度趣味测试
         </p>
       </div>
 

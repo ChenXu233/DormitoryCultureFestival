@@ -2,8 +2,8 @@
   <div class="desktop-builder min-h-full bg-gray-50 p-6">
     <!-- 页面标题 -->
     <div class="text-center mb-8">
-      <h1 class="text-3xl font-bold text-gray-900 mb-2">寝室桌面搭建</h1>
-      <p class="text-gray-600">拖拽元素到桌面，打造你的专属学习环境</p>
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">AI书桌设计站</h1>
+      <p class="text-gray-600">AI驱动的理想书桌设计</p>
     </div>
 
     <!-- 主要内容区域 -->

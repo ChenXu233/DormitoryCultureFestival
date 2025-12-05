@@ -3,8 +3,8 @@
     <div class="container mx-auto px-4 max-w-7xl">
       <!-- 页面标题 -->
       <div class="text-center mb-10">
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">最佳室友词云</h1>
-        <p class="text-gray-600">选择描述你室友特质的词汇，生成专属词云</p>
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">理想室友云图集</h1>
+        <p class="text-gray-600">描绘你的理想室友标签墙</p>
       </div>
 
       <!-- 主要内容区域 -->

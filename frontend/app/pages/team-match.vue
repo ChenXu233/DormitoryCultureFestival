@@ -4,10 +4,10 @@
       <!-- 页面标题 -->
       <div class="text-center mb-8">
         <h1 class="text-4xl font-bold text-gray-800 mb-2">
-          四人团队特质匹配
+          AI合照摄影棚
         </h1>
         <p class="text-lg text-gray-600">
-          输入四个4位唯一代码，查看团队特质匹配度和评语
+          专属创意合照生成
         </p>
       </div>
 
