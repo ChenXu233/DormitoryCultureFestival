@@ -25,7 +25,7 @@ export const availableElements = [
   { name: '鼠标3', icon: '/桌面程序贴图/电子设备/鼠标  (3).png', category: 'electronics', size: 1.2 },
   { name: '鼠标4', icon: '/桌面程序贴图/电子设备/鼠标  (4).png', category: 'electronics', size: 1.2 },
   { name: '鼠标5', icon: '/桌面程序贴图/电子设备/鼠标  (5).png', category: 'electronics', size: 1.2 },
-  { name: '鼠标6', icon: '/桌面程序贴图/电子设备/鼠标  (6).png', category: 'electronics', size: 1.2 },
+  { name: '鼠标6', icon: '/桌面程序贴图/电子设备/鼠标  (6).png', category: 'electronics', size: 1 },
   
   // 电子设备 - 移动设备
   { name: '手机1', icon: '/桌面程序贴图/电子设备/手机 (1).png', category: 'electronics' },
@@ -34,7 +34,7 @@ export const availableElements = [
   { name: '平板1', icon: '/桌面程序贴图/电子设备/平板 (1).png', category: 'electronics', size: 3.6 },
   { name: '平板2', icon: '/桌面程序贴图/电子设备/平板 (2).png', category: 'electronics', size: 3.6 },
   { name: '平板3', icon: '/桌面程序贴图/电子设备/平板 (3).png', category: 'electronics', size: 3.6 },
-  { name: '平板4', icon: '/桌面程序贴图/电子设备/平板 (4).png', category: 'electronics', size: 3.6 },
+  { name: '平板4', icon: '/桌面程序贴图/电子设备/平板 (4).png', category: 'electronics', size: 4.6 },
   
   // 电子设备 - 音频设备
   { name: '耳机1', icon: '/桌面程序贴图/电子设备/耳机 (1).png', category: 'electronics', size: 4 },
@@ -98,8 +98,8 @@ export const availableElements = [
   { name: '闹钟2', icon: '/桌面程序贴图/实用小物件/闹钟 (2).png', category: 'tools', size: 2.8 },
   { name: '闹钟3', icon: '/桌面程序贴图/实用小物件/闹钟 (3).png', category: 'tools', size: 2.8 },
   { name: '闹钟4', icon: '/桌面程序贴图/实用小物件/闹钟 (4).png', category: 'tools', size: 2.8 },
-  { name: '闹钟5', icon: '/桌面程序贴图/实用小物件/闹钟 (5).png', category: 'tools', size: 2.8 },
-  { name: '闹钟6', icon: '/桌面程序贴图/实用小物件/闹钟 (6).png', category: 'tools', size: 2.8 },
+  { name: '闹钟5', icon: '/桌面程序贴图/实用小物件/闹钟 (5).png', category: 'tools', size: 4.6 },
+  { name: '闹钟6', icon: '/桌面程序贴图/实用小物件/闹钟 (6).png', category: 'tools', size: 4.6 },
   { name: '闹钟7', icon: '/桌面程序贴图/实用小物件/闹钟 (7).png', category: 'tools', size: 2.8 },
   
   // 生活用品 - 照明用品
