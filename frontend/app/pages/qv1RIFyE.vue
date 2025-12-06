@@ -44,9 +44,9 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
           </div>
-          <h3 class="text-xl font-semibold text-gray-900 mb-3">特质测试</h3>
+          <h3 class="text-xl font-semibold text-gray-900 mb-3">寝室默契测试机</h3>
           <p class="text-gray-600 text-sm mb-6">
-            通过答题推断个人特质，获得4位唯一代码
+            寝室默契度趣味测试，获得4位唯一代码
           </p>
           <NuxtLink 
             to="/quiz" 
@@ -82,9 +82,9 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
             </svg>
           </div>
-          <h3 class="text-xl font-semibold text-gray-900 mb-3">团队匹配</h3>
+          <h3 class="text-xl font-semibold text-gray-900 mb-3">AI合照摄影棚</h3>
           <p class="text-gray-600 text-sm mb-6">
-            输入四个4位代码，查看团队特质匹配度
+            专属创意合照生成
           </p>
           <NuxtLink 
             to="/team-match" 
@@ -101,9 +101,9 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/>
             </svg>
           </div>
-          <h3 class="text-xl font-semibold text-gray-900 mb-3">词云生成</h3>
+          <h3 class="text-xl font-semibold text-gray-900 mb-3">理想室友云图集</h3>
           <p class="text-gray-600 text-sm mb-6">
-            选择理想室友特质，生成非常好看的词云
+            描绘你的理想室友标签墙
           </p>
           <NuxtLink 
             to="/word-cloud" 
@@ -120,9 +120,9 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>
             </svg>
           </div>
-          <h3 class="text-xl font-semibold text-gray-900 mb-3">桌面搭建</h3>
+          <h3 class="text-xl font-semibold text-gray-900 mb-3">AI书桌设计站</h3>
           <p class="text-gray-600 text-sm mb-6">
-            拖拽元素打造理想寝室桌面，支持旋转缩放
+            AI驱动的理想书桌设计
           </p>
           <NuxtLink 
             to="/desktop-builder" 

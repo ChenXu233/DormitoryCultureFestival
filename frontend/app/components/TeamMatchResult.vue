@@ -84,11 +84,12 @@
                      v-if="teamRadarData" 
                     :multi-radar-data="teamRadarData"
                     :dimension-emojis="matchResult.dimension_emojis"
-                    width="93%"
-                    :height="270"
-                    :lenendbignum1="1"  
-                    :lenendbignum2="9"
+                    width="100%"
+                    :height="260"
+                    :lenendbignum1="14"  
+                    :lenendbignum2="10"
                     :full-width="true"
+                    :show-legend="true"
                    />
                  </client-only>
              </div>

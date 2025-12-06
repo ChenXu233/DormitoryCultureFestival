@@ -47,6 +47,19 @@ const wrapperStyle = computed(() => {
   }
 })
 
+const wrapLabel = (label: string, maxLen = 8) => {
+  if (!label) return label
+  // preserve emoji + space if present
+  // split into chunks for better display around the radar
+  const parts: string[] = []
+  // keep existing newlines
+  if (label.includes('\n')) return label
+  for (let i = 0; i < label.length; i += maxLen) {
+    parts.push(label.slice(i, i + maxLen))
+  }
+  return parts.join('\n')
+}
+
 onMounted(async () => {
   if (!import.meta.client) return
   // dynamically import Chart.js only on client
@@ -60,7 +73,8 @@ onMounted(async () => {
 
   const labels = dimensions.map(dim => {
     const emoji = props.dimensionEmojis?.[dim]
-    return emoji ? `${emoji} ${dim}` : dim
+    const raw = emoji ? `${emoji} ${dim}` : dim
+    return wrapLabel(raw, 8)
   })
 
   let datasets: any[] = []
@@ -93,6 +107,14 @@ onMounted(async () => {
       responsive: true,
       // allow non-square charts by default; can be overridden with prop
       maintainAspectRatio: props.maintainAspectRatio ?? false,
+        layout: {
+          padding: {
+            top: 10,
+            bottom: 10,
+            left: 10,
+            right: 10,
+          }
+        },
       scales: {
         r: {
           suggestedMin: 0,
@@ -100,11 +122,12 @@ onMounted(async () => {
           ticks: {
             stepSize: 20,
           },
-          pointLabels: {
-            font: {
-              size: props.lenendbignum1 ?? 12, // Increased font size
+            pointLabels: {
+              font: {
+                size: props.lenendbignum1 ?? 12, // Increased font size
+              },
+              padding: 8,
             },
-          },
         },
       },
       plugins: {
@@ -136,9 +159,10 @@ watch(
 
     const labels = dimensions.map(dim => {
       const emoji = emojis?.[dim]
-      return emoji ? `${emoji} ${dim}` : dim
+      const raw = emoji ? `${emoji} ${dim}` : dim
+      return wrapLabel(raw, 8)
     })
-    
+
     chart.data.labels = labels
 
     if (multiRadarData) {
@@ -163,6 +187,11 @@ watch(
 
     if (chart.options && chart.options.scales && chart.options.scales.r) {
       chart.options.scales.r.suggestedMax = maxScore
+      // ensure point label font size and padding are kept in sync on updates
+      if (!chart.options.scales.r.pointLabels) chart.options.scales.r.pointLabels = {}
+      chart.options.scales.r.pointLabels.font = chart.options.scales.r.pointLabels.font || {}
+      chart.options.scales.r.pointLabels.font.size = props.lenendbignum1 ?? chart.options.scales.r.pointLabels.font.size
+      chart.options.scales.r.pointLabels.padding = chart.options.scales.r.pointLabels.padding ?? 8
     }
     chart.update()
   },

@@ -135,11 +135,11 @@ const updateChart = async () => {
     // - Do NOT cap total items here; let the layout try to place many small words to fill gaps.
     const topN = 5
     // 极致优化：降低总数上限，移除复杂数学运算
-    const maxTotalItems = 40 // 降低上限是提升 ECharts 布局速度的最直接手段
+    const maxTotalItems = 50 // 降低上限是提升 ECharts 布局速度的最直接手段
 
     // 缓存变量避免重复访问
     const hasRepeat = repeatFactor > 1
-    const limitRepeat = Math.min(repeatFactor, 3) // 限制最大重复次数
+    const limitRepeat =10 // 限制最大重复次数
 
     for (let idx = 0; idx < sliced.length; idx++) {
       if (data.length >= maxTotalItems) break
@@ -168,7 +168,7 @@ const updateChart = async () => {
         for (let r = 1; r <= count; r++) {
            // 快速衰减
            const val = (baseValueSmall * (1 - r * 0.25)) | 0 // 使用位运算取整
-           if (val < 5) break // 过滤过小的词，减少布局负担
+           if (val < 1) break // 过滤过小的词，减少布局负担
            
            data.push({ name: item.text, value: val })
            if (data.length >= maxTotalItems) break
