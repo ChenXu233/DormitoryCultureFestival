@@ -134,45 +134,45 @@ const updateChart = async () => {
     // - For other words, repeat smaller words much more aggressively (repeatCount proportional to (1 - normalized)^power)
     // - Do NOT cap total items here; let the layout try to place many small words to fill gaps.
     const topN = 5
-    // 优化：限制总词数以提升渲染性能，同时简化计算逻辑
-    const maxTotalItems = 400
+    // 极致优化：降低总数上限，移除复杂数学运算
+    const maxTotalItems = 40 // 降低上限是提升 ECharts 布局速度的最直接手段
+
+    // 缓存变量避免重复访问
+    const hasRepeat = repeatFactor > 1
+    const limitRepeat = Math.min(repeatFactor, 3) // 限制最大重复次数
 
     for (let idx = 0; idx < sliced.length; idx++) {
       if (data.length >= maxTotalItems) break
 
       const item = sliced[idx]
       const normalized = (item.value - rawMin) / rawRange
-      // 使用 sqrt 代替 pow(x, 0.6) 提升计算速度
-      const compressed = Math.sqrt(normalized)
 
-      if (idx < topN) {
-        // Top words: 保持较大权重且不重复
-        const baseUnscaled = 40 + compressed * 160
-        const baseValue = Math.max(1, Math.round(baseUnscaled * overallScale * 0.85))
+      // Top 5: 保持高质量渲染
+      if (idx < 5) {
+        const compressed = Math.sqrt(normalized)
+        const baseValue = Math.max(1, Math.round((40 + compressed * 160) * overallScale * 0.85))
         data.push({ name: item.text, value: baseValue })
         continue
       }
 
-      // 普通词汇
-      const baseUnscaledSmall = 12 + compressed * 80
-      const baseValueSmall = Math.max(1, Math.round(baseUnscaledSmall * overallScale))
-      
-      // 优化重复逻辑：避免对低频词过度重复导致生成大量微小词汇
-      let repeatCount = 1
-      if (repeatFactor > 1) {
-        // 简单的线性反比，限制最大重复次数
-        repeatCount = Math.min(repeatFactor + Math.floor((1 - normalized) * 3), 5)
-      }
+      // 普通词汇：使用线性计算代替开方，极大提升 JS 执行效率
+      // 基础大小范围 12-92
+      const baseValueSmall = Math.max(1, Math.round((12 + normalized * 80) * overallScale))
+      data.push({ name: item.text, value: baseValueSmall })
 
-      for (let r = 0; r < repeatCount; r++) {
-        const factor = 1 - r * 0.15
-        // 忽略过小的重复项，减少无效渲染
-        if (factor < 0.3) break
+      // 简化重复逻辑：仅对中高频词进行少量重复，且直接计算
+      if (hasRepeat && normalized > 0.15 && data.length < maxTotalItems) {
+        // 仅当前 40% 的词允许重复，且最多重复 limitRepeat 次
+        const count = normalized > 0.4 ? limitRepeat : 1
         
-        const value = Math.max(1, Math.round(baseValueSmall * factor))
-        data.push({ name: item.text, value })
-        
-        if (data.length >= maxTotalItems) break
+        for (let r = 1; r <= count; r++) {
+           // 快速衰减
+           const val = (baseValueSmall * (1 - r * 0.25)) | 0 // 使用位运算取整
+           if (val < 5) break // 过滤过小的词，减少布局负担
+           
+           data.push({ name: item.text, value: val })
+           if (data.length >= maxTotalItems) break
+        }
       }
     }
 
