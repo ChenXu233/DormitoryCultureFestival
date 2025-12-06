@@ -1,6 +1,6 @@
 <template>
   <div class="perspective-container">
-    <div class="desktop-canvas-container" :style="{ height: height + 'px' }">
+    <div ref="containerRef" class="desktop-canvas-container" :style="containerStyle">
       <!-- 桌面画布 - 3D立体桌面 -->
       <div 
         ref="desktopCanvas"
@@ -65,7 +65,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import type { DesktopElement } from './types'
 
 // 定义组件属性
@@ -99,6 +99,86 @@ const emit = defineEmits<Emits>()
 
 // 模板引用
 const desktopCanvas = ref<HTMLElement>()
+const containerRef = ref<HTMLElement | null>(null)
+
+// 图片宽高比和容器高度管理
+const aspectRatio = ref<number | null>(null)
+const containerHeight = ref<number>(props.height || 500)
+
+let resizeObserver: ResizeObserver | null = null
+
+// 更新容器高度（基于图片宽高比或 props.height 作为回退）
+const updateContainerSize = () => {
+  const isImageBackground = props.background && (props.background.startsWith('/') || props.background.startsWith('http'))
+  const containerEl = containerRef.value
+  if (isImageBackground && aspectRatio.value && containerEl) {
+    const width = containerEl.clientWidth || containerEl.getBoundingClientRect().width
+    containerHeight.value = Math.max(1, Math.round(width / aspectRatio.value))
+  } else {
+    containerHeight.value = props.height || 500
+  }
+}
+
+// 监听背景图片并加载以获取宽高比
+const loadBackgroundImage = (src: string) => {
+  aspectRatio.value = null
+  if (!src) {
+    updateContainerSize()
+    return
+  }
+
+  const isImage = src.startsWith('/') || src.startsWith('http')
+  if (!isImage) {
+    updateContainerSize()
+    return
+  }
+
+  const img = new Image()
+  img.onload = () => {
+    if (img.naturalHeight > 0) {
+      aspectRatio.value = img.naturalWidth / img.naturalHeight
+    }
+    // update height after we have aspect
+    nextTick(() => updateContainerSize())
+  }
+  img.onerror = () => {
+    aspectRatio.value = null
+    updateContainerSize()
+  }
+  img.src = src
+}
+
+// 组件挂载时设置 ResizeObserver
+onMounted(() => {
+  // start observing container width changes
+  if (window && 'ResizeObserver' in window) {
+    resizeObserver = new ResizeObserver(() => updateContainerSize())
+    if (containerRef.value) resizeObserver.observe(containerRef.value)
+  } else {
+    // fallback: window resize
+    window.addEventListener('resize', updateContainerSize)
+  }
+  // initial load
+  loadBackgroundImage(props.background)
+})
+
+onUnmounted(() => {
+  if (resizeObserver && containerRef.value) resizeObserver.unobserve(containerRef.value)
+  resizeObserver = null
+  if (window && !('ResizeObserver' in window)) {
+    window.removeEventListener('resize', updateContainerSize)
+  }
+})
+
+// 响应 background prop 变化
+watch(() => props.background, (newBg) => {
+  loadBackgroundImage(newBg)
+})
+
+// 计算传给模板的容器样式
+const containerStyle = computed(() => ({ height: containerHeight.value + 'px' }))
+
+// end container / image sizing
 
 // 获取桌面的3D样式
 const desktopStyle = computed(() => {
