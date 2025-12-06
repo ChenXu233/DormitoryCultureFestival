@@ -37,9 +37,18 @@
           </div>
         </div>
 
-        <!-- 照片区域 (Slot) - 放大并自适应 -->
-        <div class="photo-container flex-1 min-h-0 mb-4 relative w-full flex flex-col">
-          <slot name="image-upload"></slot>
+        <!-- 照片区域 (Slot) - 放大并自适应。匹配类型图片放在此处，与团队合影同一行显示 -->
+        <div class="photo-container flex-1 min-h-0 mb-4 relative w-full flex flex-row items-start gap-4">
+          <div class="photo-slot flex-1">
+            <slot name="image-upload"></slot>
+          </div>
+          <div v-if="matchResult.team_commentary?.title" class="match-badge flex-shrink-0">
+            <img
+              :src="`特质匹配图片/${matchResult.team_commentary?.title}.jpg`"
+              :alt="matchResult.team_commentary?.title"
+              class="h-65 w-65 object-contain rounded-md border border-gray-200 shadow-sm"
+            />
+          </div>
         </div>
 
         <!-- 分数与类型 -->
@@ -64,13 +73,7 @@
                 </div>
               </div>
             </div>
-            <!-- 匹配类型图片 -->
-            <img 
-              v-if="matchResult.team_commentary?.title"
-              :src="`特质匹配图片/${matchResult.team_commentary?.title}.jpg`" 
-              :alt="matchResult.team_commentary?.title"
-              class="h-12 w-12 object-contain rounded-md border border-gray-200 shadow-sm ml-2"
-            />
+            <!-- 匹配类型图片 已移动到照片区域 -->
           </div>
         </div>
 
