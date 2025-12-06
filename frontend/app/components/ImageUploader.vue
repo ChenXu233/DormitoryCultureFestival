@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-xs mx-auto">
+  <div class="w-87 mx-auto">
     <div class="relative rounded-lg overflow-hidden border-2 border-dashed border-gray-300 bg-gray-100">
       <!-- 上传区域 -->
       <div v-if="!modelValue && !aiGeneratedImage" class="aspect-[4/3] flex flex-col items-center justify-center px-4">
