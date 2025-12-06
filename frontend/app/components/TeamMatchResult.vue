@@ -38,7 +38,7 @@
         </div>
 
         <!-- 照片区域 (Slot) - 放大并自适应。匹配类型图片放在此处，与团队合影同一行显示 -->
-        <div class="photo-container flex-1 min-h-0 mb-4 relative w-full flex flex-row items-start gap-4">
+        <div class="photo-container flex-1 min-h-0 mb-2 relative flex flex-row items-start gap-2">
           <div class="photo-slot flex-1">
             <slot name="image-upload"></slot>
           </div>

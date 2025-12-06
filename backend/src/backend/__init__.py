@@ -1,10 +1,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .router.wordcloud import router as wordcloud_router
-from .router.quiz import router as quiz_router
-from .router.certificate import router as certificate_router
-from .database import init_db
+from backend.router.wordcloud import router as wordcloud_router
+from backend.router.quiz import router as quiz_router
+from backend.router.certificate import router as certificate_router
+from backend.router.upload import router as upload_router
+from backend.database import init_db
 from contextlib import asynccontextmanager
+from fastapi.staticfiles import StaticFiles
 
 
 @asynccontextmanager
@@ -49,7 +51,17 @@ def create_app() -> FastAPI:
 
     # 包含证书模块路由
     app.include_router(certificate_router, prefix="/api")
+    
+    app.include_router(upload_router, prefix="/api")
     return app
 
 
 app = create_app()
+
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run(app, host="0.0.0.0", port=8000)

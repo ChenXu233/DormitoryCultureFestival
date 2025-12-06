@@ -91,10 +91,26 @@
       </div>
     </div>
   </div>
+  <!-- 二维码弹窗 -->
+  <div v-if="showQRModal" class="fixed inset-0 z-50 flex items-center justify-center">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="closeQRModal"></div>
+    <div class="relative w-full max-w-sm bg-white rounded-xl shadow-lg p-6 space-y-4">
+      <h3 class="text-lg font-semibold text-gray-800">下载链接（扫码或打开）</h3>
+      <div class="flex flex-col items-center gap-3">
+        <img v-if="qrDataUrl" :src="qrDataUrl" alt="QR code" class="w-48 h-48" />
+        <p class="text-sm text-gray-600 break-all">{{ uploadedUrl }}</p>
+      </div>
+      <div class="flex justify-end gap-3 pt-2">
+        <button @click="copyUrl" class="px-4 py-2 text-sm rounded-md border border-gray-300 hover:bg-gray-100">复制链接</button>
+        <a :href="uploadedUrl" target="_blank" class="px-4 py-2 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700">在新窗口打开</a>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { watch, ref } from 'vue'
+import * as QRCode from 'qrcode'
 import ElementPanel from '../components/ElementPanel.vue'
 import DesktopCanvas from '../components/DesktopCanvas.vue'
 import Toolbar from '../components/Toolbar.vue'
@@ -151,7 +167,8 @@ const {
   clearDesktop,
   saveDesktop: saveDesktopAction,
   dormNumber,
-  downloadImage
+  downloadImage,
+  uploadImageToServer
 } = useDesktopBuilder(props.initialElements, props.background)
 
 // 监听状态变化并触发事件
@@ -180,15 +197,40 @@ const openDormModal = (action: 'save' | 'download') => {
   showDormModal.value = true
 }
 
-const confirmDormModal = () => {
+const showQRModal = ref(false)
+const uploadedUrl = ref('')
+const qrDataUrl = ref('')
+
+const confirmDormModal = async () => {
   dormNumber.value = dormInput.value.trim()
   showDormModal.value = false
   if (dormModalAction.value === 'save') {
     saveDesktop()
   } else if (dormModalAction.value === 'download') {
-    downloadImage()
+    try {
+      const url = await uploadImageToServer()
+      uploadedUrl.value = url
+      qrDataUrl.value = await QRCode.toDataURL(url)
+      showQRModal.value = true
+    } catch (err) {
+      console.error('上传或生成二维码失败，回退到本地下载：', err)
+      downloadImage()
+    }
   }
   dormModalAction.value = null
+}
+
+const closeQRModal = () => {
+  showQRModal.value = false
+}
+
+const copyUrl = async () => {
+  try {
+    await navigator.clipboard.writeText(uploadedUrl.value)
+    alert('链接已复制到剪贴板')
+  } catch (e) {
+    alert('复制失败，请手动复制链接')
+  }
 }
 
 const cancelDormModal = () => {

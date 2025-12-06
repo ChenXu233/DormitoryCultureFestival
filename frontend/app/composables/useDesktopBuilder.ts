@@ -1,5 +1,6 @@
 import { ref, reactive, onMounted, onUnmounted } from 'vue'
 import type { DesktopElement, ContextMenuState } from '../components/types'
+import CONFIG from '../config/config'
 // @ts-ignore
 import html2canvas from 'html2canvas'
 
@@ -338,6 +339,132 @@ export function useDesktopBuilder(initialElements: DesktopElement[] = [], initia
     }
   }
 
+  // 上传图片到后端并返回可访问链接
+  const uploadImageToServer = async (): Promise<string> => {
+    if (typeof window === 'undefined') throw new Error('仅在浏览器环境可用')
+
+    if (!desktopCanvasRef.value) throw new Error('桌面画布未准备好')
+    const canvas = desktopCanvasRef.value.getCanvas()
+    if (!canvas) throw new Error('无法获取canvas元素')
+
+    // 生成图片（与 downloadImage 相似的流程）
+    // 为了解决 CSS 中使用 oklch 颜色导致 html2canvas 解析失败的问题，
+    // 在克隆文档时替换所有包含 "oklch" 的颜色属性。
+    let watermarkEl: HTMLDivElement | null = null
+    if (dormNumber.value) {
+      watermarkEl = document.createElement('div')
+      watermarkEl.textContent = `宿舍号：${dormNumber.value}`
+      watermarkEl.style.position = 'absolute'
+      watermarkEl.style.left = '47.8%'
+      watermarkEl.style.top = '34px'
+      watermarkEl.style.transform = 'translateX(-50%)'
+      watermarkEl.style.fontSize = '24px'
+      watermarkEl.style.fontWeight = '600'
+      watermarkEl.style.fontFamily = 'cursive'
+      watermarkEl.style.color = '#222'
+      watermarkEl.style.zIndex = '9999'
+      watermarkEl.style.pointerEvents = 'none'
+      watermarkEl.style.textShadow = '0 2px 4px rgba(0,0,0,0.3)'
+      canvas.appendChild(watermarkEl)
+    }
+
+    const htmlCanvas = await html2canvas(canvas, {
+      scale: 2,
+      useCORS: true,
+      allowTaint: true,
+      logging: false,
+      backgroundColor: null,
+      removeContainer: true,
+      onclone: (clonedDoc: Document) => {
+        const allElements = clonedDoc.querySelectorAll('*')
+        allElements.forEach(el => {
+          const htmlEl = el as HTMLElement
+          // 优先使用内联样式替换，避免对计算样式进行赋值失败
+          try {
+            const computedStyle = window.getComputedStyle(htmlEl)
+
+            if (computedStyle.backgroundColor && computedStyle.backgroundColor.includes('oklch')) {
+              htmlEl.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'
+            }
+
+            if (computedStyle.color && computedStyle.color.includes('oklch')) {
+              htmlEl.style.color = '#333333'
+            }
+
+            if (computedStyle.borderColor && computedStyle.borderColor.includes('oklch')) {
+              htmlEl.style.borderColor = '#cccccc'
+            }
+          } catch (e) {
+            // 某些元素读取 computedStyle 可能抛错，安全忽略
+          }
+        })
+      }
+    })
+
+    if (watermarkEl) {
+      watermarkEl.remove()
+    }
+
+    return new Promise((resolve, reject) => {
+      htmlCanvas.toBlob(async (blob) => {
+        if (!blob) return reject(new Error('图片生成失败'))
+        try {
+          const form = new FormData()
+          const dateStr = new Date().toLocaleDateString()
+          const baseName = dormNumber.value ? `宿舍_${dormNumber.value}_桌面设计_${dateStr}.png` : `桌面设计_${dateStr}.png`
+          form.append('file', blob, baseName)
+          form.append('dormNumber', dormNumber.value)
+
+          // 尝试多个可能的上传端点（兼容不同后端版本/前缀变化）
+          const endpoints = [
+            `${CONFIG.apiBaseUrl}/api/upload/image`,
+            `${CONFIG.apiBaseUrl}/api/upload`,
+            `${CONFIG.apiBaseUrl}/upload/image`,
+            `${CONFIG.apiBaseUrl}/upload`
+          ]
+
+          let lastErr: any = null
+          for (const url of endpoints) {
+            try {
+              console.debug('[uploadImageToServer] 尝试上传到', url)
+              const resp = await fetch(url, { method: 'POST', body: form })
+              const text = await resp.text()
+
+              if (!resp.ok) {
+                console.warn('[uploadImageToServer] 上传返回非 2xx:', resp.status, url, text)
+                // 如果是 404，尝试下一个端点；否则直接失败并返回信息
+                if (resp.status === 404) {
+                  lastErr = new Error(`上传返回 404: ${url} ${text}`)
+                  continue
+                } else {
+                  return reject(new Error(`上传失败: ${resp.status} ${text}`))
+                }
+              }
+
+              // 成功响应，尝试解析 JSON
+              let data: any = null
+              try { data = JSON.parse(text) } catch (e) { data = null }
+              if (!data || !data.url) {
+                return reject(new Error(`后端响应没有 url 字段: ${url} ${text}`))
+              }
+              return resolve(data.url)
+            } catch (err) {
+              console.error('[uploadImageToServer] 上传尝试失败：', err)
+              lastErr = err
+              // 尝试下一个端点
+            }
+          }
+
+          // 所有端点尝试完毕仍未成功
+          if (lastErr) return reject(lastErr)
+          return reject(new Error('上传失败：无法连接到任何上传端点'))
+        } catch (err) {
+          reject(err)
+        }
+      }, 'image/png')
+    })
+  }
+
   // 点击其他地方关闭右键菜单
   const closeContextMenu = (event: MouseEvent) => {
     if (contextMenu.visible) {
@@ -398,6 +525,7 @@ export function useDesktopBuilder(initialElements: DesktopElement[] = [], initia
     sendToBack,
     clearDesktop,
     saveDesktop,
-    downloadImage
+    downloadImage,
+    uploadImageToServer
   }
 }

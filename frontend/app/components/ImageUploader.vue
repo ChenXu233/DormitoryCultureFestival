@@ -1,105 +1,103 @@
 <template>
-  <div>
-    <div class="max-w-md mx-auto">
-      <div class="relative bg-gray-100 rounded-lg overflow-hidden border-2 border-dashed border-gray-300">
-        <!-- AI 生成的图片预览 -->
-        <div v-if="aiGeneratedImage" class="relative">
-          <img 
-            :src="aiGeneratedImage"
-            class="w-full h-auto min-h-[200px] object-contain"
-            alt="AI 生成的团队合影"
-          />
-          <div class="absolute top-2 left-2 flex gap-2">
-            <div class="px-2 py-1 bg-purple-600 text-white text-xs rounded flex items-center gap-1">
-              <span>{{ currentStyleName }}</span>
-            </div>
-            <div class="px-2 py-1 bg-green-600 text-white text-xs rounded">
-              AI 优化版
-            </div>
+  <div class="max-w-xs mx-auto">
+    <div class="relative rounded-lg overflow-hidden border-2 border-dashed border-gray-300 bg-gray-100">
+      <!-- 上传区域 -->
+      <div v-if="!modelValue && !aiGeneratedImage" class="aspect-[4/3] flex flex-col items-center justify-center px-4">
+        <input
+          ref="fileInputRef"
+          type="file"
+          accept="image/*"
+          @change="handleFileUpload"
+          class="hidden"
+        />
+        <button
+          @click="triggerFileUpload"
+          :disabled="isUploading"
+          class="flex flex-col items-center justify-center px-6 py-4 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-200 disabled:opacity-50"
+        >
+          <svg v-if="!isUploading" class="w-8 h-8 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          </svg>
+          <svg v-else class="w-8 h-8 mb-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+          </svg>
+          <span class="text-lg font-medium">{{ isUploading ? '上传中...' : uploadButtonText }}</span>
+        </button>
+        <p class="text-sm text-gray-500 mt-2">{{ helpText }}</p>
+        <p class="text-xs text-gray-400 mt-1">支持 JPG、PNG 等图片格式</p>
+      </div>
+
+      <!-- 原始图片预览 -->
+      <div v-else-if="modelValue && !aiGeneratedImage" class="aspect-[4/3] relative">
+        <img 
+          :src="modelValue"
+          class="w-full h-full object-cover"
+          :alt="'已上传的图片'"
+        />
+        
+        <!-- 加载遮罩 -->
+        <div v-if="isGenerating" class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div class="text-center text-white">
+            <svg class="w-8 h-8 animate-spin mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+            <p class="text-sm">AI 正在生成优化版本...</p>
           </div>
+        </div>
+
+        <div class="absolute top-2 right-2 flex gap-2">
+          <AIStyleSelector 
+            v-if="enableAI && !isGenerating"
+            v-model="selectedStyle" 
+            compact 
+          />
           <button
-            @click="removeAIImage"
-            class="absolute top-4 right-4 p-2 bg-red-600 hover:bg-red-700 text-white rounded-full transition-colors duration-200 shadow-lg"
-            title="删除 AI 图片，返回原图"
+            v-if="enableAI && !isGenerating"
+            @click="handleAIGenerate"
+            class="p-2 bg-purple-600 hover:bg-purple-700 text-white rounded-full transition-colors duration-200 shadow-lg"
+            title="使用 AI 生成选中风格的图片"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+            </svg>
+          </button>
+          <button
+            @click="removeImage"
+            :disabled="isGenerating"
+            class="p-2 bg-red-600 hover:bg-red-700 text-white rounded-full transition-colors duration-200 disabled:opacity-50 shadow-lg"
+            title="删除图片"
           >
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
             </svg>
           </button>
         </div>
+      </div>
 
-        <!-- 原始图片预览 -->
-        <div v-else-if="modelValue" class="relative w-full h-full flex items-center justify-center">
-          <img 
-            :src="modelValue"
-            class="w-full h-full object-contain max-h-full"
-            :alt="'已上传的图片'"
-          />
-          
-          <!-- 加载遮罩 -->
-          <div v-if="isGenerating" class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-            <div class="text-center text-white">
-              <svg class="w-12 h-12 animate-spin mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-              </svg>
-              <p class="text-sm">AI 正在生成优化版本...</p>
-            </div>
+      <!-- AI 生成的图片预览 -->
+      <div v-if="aiGeneratedImage" class="aspect-[4/3] relative">
+        <img 
+          :src="aiGeneratedImage"
+          class="w-full h-full object-cover"
+          alt="AI 生成的团队合影"
+        />
+        <div class="absolute top-2 left-2 flex gap-2">
+          <div class="px-2 py-1 bg-purple-600 text-white text-xs rounded flex items-center gap-1">
+            <span>{{ currentStyleName }}</span>
           </div>
-
-          <div class="absolute top-4 right-4 flex gap-2">
-            <AIStyleSelector 
-              v-if="enableAI && !isGenerating"
-              v-model="selectedStyle" 
-              compact 
-            />
-            <button
-              v-if="enableAI && !isGenerating"
-              @click="handleAIGenerate"
-              class="p-2 bg-purple-600 hover:bg-purple-700 text-white rounded-full transition-colors duration-200 shadow-lg"
-              title="使用 AI 生成选中风格的图片"
-            >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-              </svg>
-            </button>
-            <button
-              @click="removeImage"
-              :disabled="isGenerating"
-              class="p-2 bg-red-600 hover:bg-red-700 text-white rounded-full transition-colors duration-200 disabled:opacity-50 shadow-lg"
-              title="删除图片"
-            >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-              </svg>
-            </button>
+          <div class="px-2 py-1 bg-green-600 text-white text-xs rounded">
+            AI 优化版
           </div>
         </div>
-        
-        <!-- 上传区域 -->
-        <div v-else class="text-center py-12">
-          <input
-            ref="fileInputRef"
-            type="file"
-            accept="image/*"
-            @change="handleFileUpload"
-            class="hidden"
-          />
-          <button
-            @click="triggerFileUpload"
-            :disabled="isUploading"
-            class="inline-flex flex-col items-center justify-center px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-200 disabled:opacity-50"
-          >
-            <svg v-if="!isUploading" class="w-12 h-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-            </svg>
-            <svg v-else class="w-12 h-12 mb-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-            </svg>
-            <span class="text-lg font-medium">{{ isUploading ? '上传中...' : uploadButtonText }}</span>
-          </button>
-          <p class="text-sm text-gray-500 mt-4">{{ helpText }}</p>
-          <p class="text-xs text-gray-400 mt-1">支持 JPG、PNG 等图片格式</p>
-        </div>
+        <button
+          @click="removeAIImage"
+          class="absolute top-2 right-2 p-2 bg-red-600 hover:bg-red-700 text-white rounded-full transition-colors duration-200 shadow-lg"
+          title="删除 AI 图片，返回原图"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
       </div>
     </div>
   </div>
