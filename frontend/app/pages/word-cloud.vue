@@ -81,6 +81,10 @@
             <WordCloud 
               ref="wordCloudRef"
               :words="wordCloudData"
+              :maskImage="'/images/cloud-mask.svg'"
+              :repeat="true"
+              :repeatFactor="10"
+              :maxWords="200"
               @rendered="handleWordCloudRendered"
             />
             
