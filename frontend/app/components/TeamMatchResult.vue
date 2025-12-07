@@ -80,8 +80,8 @@
         <!-- 雷达图与特质 Tags (合并为一行) -->
         <div class="flex flex-row gap-3 mb-4 h-64 shrink-0">
              <!-- 雷达图 -->
-             <div class="w-1/2 bg-white/80 border-2 border-[#4E342E] rounded-xl p-1 flex flex-col items-center justify-center relative">
-                 <div class="absolute top-0 left-2 -translate-y-1/2 bg-[#4E342E] text-white text-[10px] px-2 py-0.5 rounded">维度分析</div>
+             <div class="w-1/2 bg-white/90 border-2 border-[#4E342E] rounded-xl p-3 flex flex-col items-center justify-center relative shadow-sm">
+                 <div class="absolute top-0 left-2 -translate-y-1/2 bg-[#4E342E] text-white text-[10px] px-3 py-0.5 rounded uppercase font-bold">维度分析</div>
                  <client-only>
                    <RadarChart 
                      v-if="teamRadarData" 
@@ -98,18 +98,46 @@
              </div>
 
              <!-- 特质 Tags -->
-             <div class="w-1/2 flex flex-col gap-2 justify-between">
+             <div class="w-1/2 flex flex-col gap-4 p-3">
+                <!-- 特质标题 -->
+                  <div class="text-center mb-2">
+                      <h3 class="text-xl font-bold text-[#4E342E] border-b-2 border-[#D84315] pb-1 inline-block px-19">特质分析</h3>
+                  </div>
+                
+                <!-- 特质标签容器 - 根据数量动态调整布局 -->
                 <div 
-                  v-for="(traitInfo, dimension) in displayedTraits" 
-                  :key="dimension"
-                  class="tag-item flex-1 border-2 border-[#4E342E] rounded-xl p-2 flex items-center bg-white/80"
+                  class="flex flex-col gap-3 flex-1"
+                  :class="{
+                    'justify-evenly': Object.keys(displayedTraits).length > 0,
+                    'items-center justify-center': Object.keys(displayedTraits).length === 0
+                  }"
                 >
-                    <div class="tag-icon text-xl mr-2 w-8 h-8 rounded-full bg-[#FFFDF0] border-2 border-[#4E342E] flex items-center justify-center text-[#3E2723]">
-                        {{ matchResult.dimension_emojis?.[dimension] || '🌟' }}
+                    <div 
+                      v-for="(traitInfo, dimension) in displayedTraits" 
+                      :key="dimension"
+                      class="tag-item border-2 border-[#4E342E] rounded-xl p-4 flex items-center bg-white/90 hover:shadow-md transition-shadow hover:-translate-y-0.5 w-full"
+                    >
+                        <div class="tag-icon text-2xl mr-4 w-12 h-12 rounded-full bg-[#FFFDF0] border-2 border-[#4E342E] flex items-center justify-center text-[#3E2723]">
+                            {{ matchResult.dimension_emojis?.[dimension] || '🌟' }}
+                        </div>
+                        <div class="tag-content flex-1">
+                            <h4 class="text-lg font-bold text-[#6D4C41] mb-0.5 capitalize">{{ dimension }}</h4>
+                            <span class="text-base font-extrabold text-[#D84315]">{{ traitInfo.trait }}</span>
+                        </div>
                     </div>
-                    <div class="tag-content">
-                        <h4 class="text-[10px] text-[#6D4C41] mb-0 uppercase">{{ dimension }}</h4>
-                        <span class="text-sm font-extrabold text-[#D84315]">{{ traitInfo.trait }}</span>
+                    
+                    <!-- 当特质不足时显示占位符，保持布局平衡 -->
+                    <div 
+                      v-if="Object.keys(displayedTraits).length < 2"
+                      class="tag-item border-2 border-dashed border-[#4E342E] rounded-xl p-4 flex items-center bg-white/60 opacity-75 w-full"
+                    >
+                        <div class="tag-icon text-xl mr-4 w-12 h-12 rounded-full bg-[#FFFDF0] border-2 border-dashed border-[#4E342E] flex items-center justify-center text-[#3E2723]">
+                            ⭐
+                        </div>
+                        <div class="tag-content flex-1">
+                            <h4 class="text-lg font-bold text-[#6D4C41] opacity-50 mb-0.5">特质维度</h4>
+                            <span class="text-base font-extrabold text-[#D84315] opacity-50">待分析</span>
+                        </div>
                     </div>
                 </div>
             </div>
