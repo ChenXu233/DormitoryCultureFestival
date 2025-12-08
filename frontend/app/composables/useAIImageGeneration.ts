@@ -16,9 +16,9 @@ export const useAIImageGeneration = () => {
   const error = ref<string | null>(null)
 
   /**
-   * 调用豆包 AI 图生图 API
+   * 调用后端 AI 图生图 API
    * @param options 生成选项
-   * @returns 生成的图片 URL
+   * @returns 生成的图片 URL (Blob URL)
    */
   const generateImage = async (options: AIImageGenerationOptions): Promise<string> => {
     const {
@@ -29,52 +29,36 @@ export const useAIImageGeneration = () => {
       watermark = false
     } = options
 
-    // 从环境变量或配置中获取 API Key
-    const apiKey = useRuntimeConfig().public.arkApiKey || import.meta.env.VITE_ARK_API_KEY
-
-    if (!apiKey) {
-      throw new Error('未配置 ARK_API_KEY，请在环境变量中设置')
-    }
-
     try {
       generating.value = true
       error.value = null
 
-      const response = await fetch('https://ark.cn-beijing.volces.com/api/v3/images/generations', {
+      // 确保 API_BASE_URL 不以 / 结尾
+      const baseUrl = CONFIG.apiBaseUrl.replace(/\/$/, '')
+      
+      const response = await fetch(`${baseUrl}/api/ai/generate-image`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
         },
         body: JSON.stringify({
           model,
           prompt,
-          image: imageUrl,
-          sequential_image_generation: 'disabled',
-          response_format: 'url',
+          image_url: imageUrl,
           size,
-          stream: false,
           watermark
         })
       })
 
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error?.message || `API 请求失败: ${response.status}`)
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.detail || `API 请求失败: ${response.status}`)
       }
 
-      const data = await response.json()
-      
-      // 返回生成的图片 URL
-      if (data.data && data.data.length > 0 && data.data[0].url) {
-        // 使用后端代理 URL 解决跨域问题
-        const originalUrl = data.data[0].url
-        // 确保 API_BASE_URL 不以 / 结尾
-        const baseUrl = CONFIG.apiBaseUrl.replace(/\/$/, '')
-        return `${baseUrl}/api/utils/proxy-image?url=${encodeURIComponent(originalUrl)}`
-      } else {
-        throw new Error('API 返回数据格式错误')
-      }
+      // 直接获取图片 Blob
+      const blob = await response.blob()
+      return URL.createObjectURL(blob)
+
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : '图片生成失败'
       error.value = errorMessage

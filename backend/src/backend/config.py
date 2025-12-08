@@ -13,6 +13,7 @@ class AppConfig(BaseSettings):
     LOG_PATH: Path = Path("./logs")
     IMAGE_BED_PATH: Path = Path("./data/images")
     PORT: int = 8000
+    ARK_API_KEY: str | None = None
 
     class Config:
         env_file = ".env"  # 指定 .env 文件路径
