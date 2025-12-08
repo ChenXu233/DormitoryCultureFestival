@@ -80,7 +80,20 @@
           :src="aiGeneratedImage"
           class="w-full h-full object-cover"
           alt="AI 生成的团队合影"
+          @load="isImageLoading = false"
+          @error="isImageLoading = false"
         />
+        
+        <!-- 图片加载遮罩 -->
+        <div v-if="isImageLoading" class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-10">
+          <div class="text-center text-white">
+            <svg class="w-8 h-8 animate-spin mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+            <p class="text-sm">正在下载高清图片...</p>
+          </div>
+        </div>
+
         <div class="absolute top-2 left-2 flex gap-2">
           <div class="px-2 py-1 bg-purple-600 text-white text-xs rounded flex items-center gap-1">
             <span>{{ currentStyleName }}</span>
@@ -137,6 +150,7 @@ const selectedStyle = ref(getDefaultStylePreset().id)
 
 const { uploading: isUploading, uploadImage } = useImageUpload()
 const { generating: isGenerating, generateImage } = useAIImageGeneration()
+const isImageLoading = ref(false)
 
 // 当前选中风格的名称
 const currentStyleName = computed(() => {
@@ -219,6 +233,7 @@ const handleAIGenerate = async () => {
     })
     
     aiGeneratedImage.value = generatedUrl
+    isImageLoading.value = true
     emit('ai-generated', generatedUrl)
   } catch (error) {
     console.error('AI 生成失败:', error)

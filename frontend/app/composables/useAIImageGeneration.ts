@@ -1,6 +1,7 @@
 /**
  * AI 图生图功能的组合式函数
  */
+import CONFIG from '../config/config'
 
 export interface AIImageGenerationOptions {
   model?: string
@@ -66,7 +67,11 @@ export const useAIImageGeneration = () => {
       
       // 返回生成的图片 URL
       if (data.data && data.data.length > 0 && data.data[0].url) {
-        return data.data[0].url
+        // 使用后端代理 URL 解决跨域问题
+        const originalUrl = data.data[0].url
+        // 确保 API_BASE_URL 不以 / 结尾
+        const baseUrl = CONFIG.apiBaseUrl.replace(/\/$/, '')
+        return `${baseUrl}/api/utils/proxy-image?url=${encodeURIComponent(originalUrl)}`
       } else {
         throw new Error('API 返回数据格式错误')
       }

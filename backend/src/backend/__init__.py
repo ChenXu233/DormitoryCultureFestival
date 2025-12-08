@@ -4,6 +4,7 @@ from backend.router.wordcloud import router as wordcloud_router
 from backend.router.quiz import router as quiz_router
 from backend.router.certificate import router as certificate_router
 from backend.router.upload import router as upload_router
+from backend.router.utils import router as utils_router
 from backend.database import init_db
 from contextlib import asynccontextmanager
 from fastapi.staticfiles import StaticFiles
@@ -53,6 +54,7 @@ def create_app() -> FastAPI:
     app.include_router(certificate_router, prefix="/api")
     
     app.include_router(upload_router, prefix="/api")
+    app.include_router(utils_router, prefix="/api")
     return app
 
 
